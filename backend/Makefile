@@ -1,5 +1,4 @@
 IMAGE_NAME = backend
-CONTAINER_NAME = pspcomparator
 
 .PHONY: build run stop lint
 
@@ -12,6 +11,3 @@ run:
 stop:
 	docker stop ${CONTAINER_NAME}
 	docker rm ${CONTAINER_NAME}
-
-lint:
-	docker run --rm -v $(PWD):/app -w /app node:18 eslint .

@@ -14,4 +14,6 @@ RUN npm run build
 
 EXPOSE 1337
 
+RUN eslint .
+
 CMD ["npm", "run", "strapi", "start"]
