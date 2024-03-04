@@ -1,3 +1,7 @@
-.cache
-build
-**/node_modules/**
+node_modules
+.cache/
+build/
+config/
+extensions/
+plugins/
+temp/

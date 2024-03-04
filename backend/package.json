@@ -11,8 +11,8 @@
   },
   "dependencies": {
     "@strapi/plugin-cloud": "4.20.2",
-    "@strapi/plugin-i18n": "4.20.2",
-    "@strapi/plugin-users-permissions": "4.20.2",
+    "@strapi/plugin-i18n": "^4.15.0",
+    "@strapi/plugin-users-permissions": "^4.15.0",
     "@strapi/strapi": "4.20.2",
     "better-sqlite3": "8.6.0",
     "react": "^18.0.0",
@@ -31,5 +31,17 @@
     "node": ">=18.0.0 <=20.x.x",
     "npm": ">=6.0.0"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "eslint": "^8.57.0",
+    "eslint-config-standard": "^17.1.0",
+    "eslint-config-standard-with-typescript": "^43.0.1",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-n": "^16.6.2",
+    "eslint-plugin-promise": "^6.1.1",
+    "eslint-plugin-react": "^7.34.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "typescript": "^5.3.3"
+  }
 }
