@@ -1,0 +1,25 @@
+{
+  "kind": "collectionType",
+  "collectionName": "user_roles",
+  "info": {
+    "singularName": "user-role",
+    "pluralName": "user-roles",
+    "displayName": "User_Role"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Type": {
+      "type": "enumeration",
+      "enum": [
+        "Buyer",
+        "Seller"
+      ]
+    },
+    "Authorized": {
+      "type": "boolean"
+    }
+  }
+}

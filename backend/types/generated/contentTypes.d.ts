@@ -737,7 +737,6 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
   };
   options: {
     draftAndPublish: false;
-    timestamps: true;
   };
   attributes: {
     username: Attribute.String &
@@ -766,6 +765,16 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'manyToOne',
       'plugin::users-permissions.role'
     >;
+    user_roles: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToMany',
+      'api::user-role.user-role'
+    >;
+    address: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToOne',
+      'api::address.address'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -776,6 +785,222 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       Attribute.Private;
     updatedBy: Attribute.Relation<
       'plugin::users-permissions.user',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiAddressAddress extends Schema.CollectionType {
+  collectionName: 'addresses';
+  info: {
+    singularName: 'address';
+    pluralName: 'addresses';
+    displayName: 'Address';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    Country: Attribute.Enumeration<['Sweden']>;
+    Postcode: Attribute.String;
+    Name: Attribute.Text;
+    Number: Attribute.String;
+    Country_Code: Attribute.Enumeration<['SE']>;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::address.address',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::address.address',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiItemItem extends Schema.CollectionType {
+  collectionName: 'items';
+  info: {
+    singularName: 'item';
+    pluralName: 'items';
+    displayName: 'Item';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    Name: Attribute.String;
+    Description: Attribute.Text;
+    Price: Attribute.Decimal;
+    Seller: Attribute.Relation<'api::item.item', 'oneToOne', 'admin::user'>;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<'api::item.item', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<'api::item.item', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+  };
+}
+
+export interface ApiOrderOrder extends Schema.CollectionType {
+  collectionName: 'orders';
+  info: {
+    singularName: 'order';
+    pluralName: 'orders';
+    displayName: 'Order';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    Items: Attribute.Relation<
+      'api::order.order',
+      'oneToMany',
+      'api::item.item'
+    >;
+    Buyer: Attribute.Relation<'api::order.order', 'oneToOne', 'admin::user'>;
+    Status: Attribute.Enumeration<
+      ['Started', 'Payment Required', 'In Progress', 'Finished', 'Canceled']
+    >;
+    Ordernumber: Attribute.UID;
+    Date: Attribute.DateTime;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::order.order',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::order.order',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiPaymentPayment extends Schema.CollectionType {
+  collectionName: 'payments';
+  info: {
+    singularName: 'payment';
+    pluralName: 'payments';
+    displayName: 'Payment';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    Order: Attribute.Relation<
+      'api::payment.payment',
+      'oneToOne',
+      'api::order.order'
+    >;
+    Buyer: Attribute.Relation<
+      'api::payment.payment',
+      'oneToOne',
+      'admin::user'
+    >;
+    Date: Attribute.DateTime;
+    Type: Attribute.Enumeration<['Direct', 'Invoice']>;
+    Klarna_ID: Attribute.UID;
+    Status: Attribute.Enumeration<
+      ['Pending', 'Sent', 'Canceled', 'Declined', 'Refunded', 'Expired']
+    >;
+    Currency: Attribute.Enumeration<['SEK']>;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::payment.payment',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::payment.payment',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiStockStock extends Schema.CollectionType {
+  collectionName: 'stocks';
+  info: {
+    singularName: 'stock';
+    pluralName: 'stocks';
+    displayName: 'Stock';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    Amount: Attribute.Integer;
+    item: Attribute.Relation<'api::stock.stock', 'oneToOne', 'api::item.item'>;
+    admin_user: Attribute.Relation<
+      'api::stock.stock',
+      'oneToOne',
+      'admin::user'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::stock.stock',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::stock.stock',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiUserRoleUserRole extends Schema.CollectionType {
+  collectionName: 'user_roles';
+  info: {
+    singularName: 'user-role';
+    pluralName: 'user-roles';
+    displayName: 'User_Role';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    Type: Attribute.Enumeration<['Buyer', 'Seller']>;
+    Authorized: Attribute.Boolean;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::user-role.user-role',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::user-role.user-role',
       'oneToOne',
       'admin::user'
     > &
@@ -801,6 +1026,12 @@ declare module '@strapi/types' {
       'plugin::users-permissions.permission': PluginUsersPermissionsPermission;
       'plugin::users-permissions.role': PluginUsersPermissionsRole;
       'plugin::users-permissions.user': PluginUsersPermissionsUser;
+      'api::address.address': ApiAddressAddress;
+      'api::item.item': ApiItemItem;
+      'api::order.order': ApiOrderOrder;
+      'api::payment.payment': ApiPaymentPayment;
+      'api::stock.stock': ApiStockStock;
+      'api::user-role.user-role': ApiUserRoleUserRole;
     }
   }
 }

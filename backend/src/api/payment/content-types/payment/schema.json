@@ -1,0 +1,56 @@
+{
+  "kind": "collectionType",
+  "collectionName": "payments",
+  "info": {
+    "singularName": "payment",
+    "pluralName": "payments",
+    "displayName": "Payment",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Order": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::order.order"
+    },
+    "Buyer": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "admin::user"
+    },
+    "Date": {
+      "type": "datetime"
+    },
+    "Type": {
+      "type": "enumeration",
+      "enum": [
+        "Direct",
+        "Invoice"
+      ]
+    },
+    "Klarna_ID": {
+      "type": "uid"
+    },
+    "Status": {
+      "type": "enumeration",
+      "enum": [
+        "Pending",
+        "Sent",
+        "Canceled",
+        "Declined",
+        "Refunded",
+        "Expired"
+      ]
+    },
+    "Currency": {
+      "type": "enumeration",
+      "enum": [
+        "SEK"
+      ]
+    }
+  }
+}
