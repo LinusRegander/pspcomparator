@@ -37,6 +37,11 @@
     },
     "Date": {
       "type": "datetime"
+    },
+    "address": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::address.address"
     }
   }
 }

@@ -4,22 +4,19 @@
   "info": {
     "singularName": "user-role",
     "pluralName": "user-roles",
-    "displayName": "User_Role"
+    "displayName": "User_Role",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
   },
   "pluginOptions": {},
   "attributes": {
-    "Type": {
-      "type": "enumeration",
-      "enum": [
-        "Buyer",
-        "Seller"
-      ]
-    },
     "Authorized": {
       "type": "boolean"
+    },
+    "Token": {
+      "type": "string"
     }
   }
 }

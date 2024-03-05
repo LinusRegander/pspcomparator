@@ -65,15 +65,15 @@
       "inversedBy": "users",
       "configurable": false
     },
-    "user_roles": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::user-role.user-role"
-    },
     "address": {
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::address.address"
+    },
+    "user_role": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::user-role.user-role"
     }
   }
 }

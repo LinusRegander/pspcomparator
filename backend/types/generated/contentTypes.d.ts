@@ -765,15 +765,15 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'manyToOne',
       'plugin::users-permissions.role'
     >;
-    user_roles: Attribute.Relation<
-      'plugin::users-permissions.user',
-      'oneToMany',
-      'api::user-role.user-role'
-    >;
     address: Attribute.Relation<
       'plugin::users-permissions.user',
       'oneToOne',
       'api::address.address'
+    >;
+    user_role: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToOne',
+      'api::user-role.user-role'
     >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
@@ -875,6 +875,11 @@ export interface ApiOrderOrder extends Schema.CollectionType {
     >;
     Ordernumber: Attribute.UID;
     Date: Attribute.DateTime;
+    address: Attribute.Relation<
+      'api::order.order',
+      'oneToOne',
+      'api::address.address'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -954,11 +959,7 @@ export interface ApiStockStock extends Schema.CollectionType {
   attributes: {
     Amount: Attribute.Integer;
     item: Attribute.Relation<'api::stock.stock', 'oneToOne', 'api::item.item'>;
-    admin_user: Attribute.Relation<
-      'api::stock.stock',
-      'oneToOne',
-      'admin::user'
-    >;
+    Seller: Attribute.Relation<'api::stock.stock', 'oneToOne', 'admin::user'>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -983,13 +984,14 @@ export interface ApiUserRoleUserRole extends Schema.CollectionType {
     singularName: 'user-role';
     pluralName: 'user-roles';
     displayName: 'User_Role';
+    description: '';
   };
   options: {
     draftAndPublish: true;
   };
   attributes: {
-    Type: Attribute.Enumeration<['Buyer', 'Seller']>;
     Authorized: Attribute.Boolean;
+    Token: Attribute.String;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
