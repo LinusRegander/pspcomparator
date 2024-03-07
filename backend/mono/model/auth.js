@@ -1,9 +1,9 @@
 const axios = require('axios')
-const auth_endpoint = 'http://localhost:1337/api/auth/local'
+const endpoint = 'http://localhost:1337/api/auth/local'
 
 async function getToken(id, pass) {
 
-    let response = await axios.post(auth_endpoint, {
+    let response = await axios.post(endpoint, {
         identifier: id,
         password: pass
     })

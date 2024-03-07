@@ -13,9 +13,10 @@ async function main() {
 
     await login();
     console.log(localToken)
-    await users.findMe(localToken);
-    await users.updateMe(localToken, {
-        username: 'theotherman'
+    let id = await users.findMe(localToken);
+    console.log('id:', id)
+    await users.updateUser(localToken, id, {
+        username: 'theotherman@that.com'
     })
     // await users.createUser({
     //     username: 'thatman',

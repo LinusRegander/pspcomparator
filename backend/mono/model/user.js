@@ -1,8 +1,8 @@
 const axios = require('axios')
-const user_endpoint = 'http://localhost:1337/api/users'
+const endpoint = 'http://localhost:1337/api/users'
 
 async function createUser(ctx) {
-    axios.post(user_endpoint, ctx)
+    axios.post(endpoint, ctx)
       .then(response => {
         console.log('Created User', response);
         console.log('User token', response);
@@ -13,7 +13,7 @@ async function createUser(ctx) {
 }
 
 async function findOneUser(ctx) {
-    axios.get(user_endpoint + `/${ctx.id}`, {
+    axios.get(endpoint + `/${ctx.id}`, {
         headers: {
             Accept: '*/*'
         }
@@ -27,36 +27,31 @@ async function findOneUser(ctx) {
 }
 
 async function findMe(token) {
-    axios.get(user_endpoint + '/me', {
+    let response = await axios.get(endpoint + '/me', {
         headers: {
             Accept: '*/*',
             Authorization: `Bearer ${token}`
         }
-      })
-      .then(response => {
-        //success message or not
-        console.log('User profile', response.data);
-      })
-      .catch(error => {
-        console.log('An error occurred:', error.response);
-      });
+    })
+    return response.data.id
 }
 
-async function updateMe(token, ctx) {
-    axios.put(user_endpoint + '/me', {
+async function updateUser(token, id, ctx) {
+    console.log(ctx)
+    axios.put(endpoint + `/${id}`, {
         headers: {
             Accept: '*/*',
             Authorization: `Bearer ${token}`
         },
-        ctx
+        data: ctx
       })
       .then(response => {
         //success message or not
         console.log('Update success', response.data);
       })
       .catch(error => {
-        console.log('An error occurred:', error.response);
+        console.log('An error occurred:');
       });
 }
 
-module.exports = {createUser, findOneUser, findMe, updateMe}
+module.exports = {createUser, findOneUser, findMe, updateUser}
