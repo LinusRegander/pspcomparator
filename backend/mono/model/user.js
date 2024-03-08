@@ -16,7 +16,7 @@ async function createUser(ctx) {
         console.log('User token', response.data.jwt);
         return response.data;
     } catch (error) {
-        console.log('An error occurred:', error.response);
+        console.error('An error occurred:', error.response);
         throw error;
     }
 }
@@ -44,7 +44,7 @@ async function updateUser(token, id, ctx) {
         }
         return response.data;
     } catch (error) {
-        console.log('Error updating user:', error.message);
+        console.error('Error updating user:', error.message);
         throw error;
     }
 }
@@ -65,7 +65,7 @@ async function findOneUser(token, id) {
         });
         return response.data;
     } catch (error) {
-        console.log('An error occurred:', error.response);
+        console.error('An error occurred:', error.response);
         throw error;
     }
 }
@@ -86,7 +86,7 @@ async function findMe(token) {
         });
         return response.data.id;
     } catch (error) {
-        console.log('An error occurred:', error.response);
+        console.error('An error occurred:', error.response);
         throw error;
     }
 }

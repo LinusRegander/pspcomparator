@@ -19,7 +19,7 @@ async function createItem(token, ctx) {
         });
         return response.data;
     } catch (error) {
-        console.log('An error occurred:', error.response);
+        console.error('An error occurred:', error.response);
         throw error;
     }
 }
@@ -43,7 +43,7 @@ async function updateItem(token, id, ctx) {
         });
         return response.data;
     } catch (error) {
-        console.log('An error occurred:', error.response);
+        console.error('An error occurred:', error.response);
         throw error;
     }
 }
@@ -64,7 +64,7 @@ async function findOneItem(id) {
         });
         return response.data;
     } catch (error) {
-        console.log('An error occurred:', error.response);
+        console.error('An error occurred:', error.response);
         throw error;
     }
 }
@@ -79,7 +79,7 @@ async function findItems() {
         const response = await axios.get(endpoint);
         return response.data;
     } catch (error) {
-        console.log('An error occurred:', error.response);
+        console.error('An error occurred:', error.response);
         throw error;
     }
 }
