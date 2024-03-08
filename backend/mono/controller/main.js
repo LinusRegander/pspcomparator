@@ -1,5 +1,6 @@
 const users = require('../model/user')
 const auth = require('../model/auth')
+const addresses = require('../model/address')
 
 var localToken = '12313123123';
 
@@ -13,18 +14,13 @@ async function main() {
 
     await login();
     console.log(localToken)
-    let id = await users.findMe(localToken);
-    console.log('id:', id)
-    await users.updateUser(localToken, id, {
-        username: 'theotherman@that.com'
-    })
-    // await users.createUser({
-    //     username: 'thatman',
-    //     email: 'that@this.com',
-    //     password: 'thispassword',
-    //     role: 2
-    // });
+    // let id = await users.findMe(localToken);
+    
+    let address = {
+        Name: 'UPDATED'
+    }
 
+    await addresses.updateAddress(localToken, 24, address)
     // await users.findMe({
 
     // })
