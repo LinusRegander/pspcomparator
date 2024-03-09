@@ -1,0 +1,12 @@
+{
+    "routes": [
+      {
+        "method": "POST",
+        "path": "/klarna/create_order",
+        "handler": "klarna.createOrder",
+        "config": {
+          "policies": []
+        }
+      }
+    ]
+  }
