@@ -1,0 +1,17 @@
+{
+    "sampleCustomerData": {
+        "email": "customer@email.se",
+        "phone_number": "+46701740615",
+        "first_name": "Alice",
+        "last_name": "Test",
+        "address": {
+            "street": "Södra Blasieholmshamnen 2",
+            "zipCode": "11 148",
+            "city": "Stockholm",
+            "country": "se"
+        },
+        "birth_date": "21-03-1941",
+        "personnumber": "SE194103219202",
+        "otp": 123456
+    }
+}

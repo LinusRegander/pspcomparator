@@ -1,53 +1,91 @@
 'use strict';
+
 const axios = require('axios');
+require('dotenv').config();
 
-/*
-async function createOrder(token, ctx, username, password) {
-  try {
-    const data = ctx.request.body;
-
-    if (token) {
-      const response = await axios.post('https://api.playground.klarna.com/ordermanagement/v1/orders', data, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Basic ' + Buffer.from(username + ':' + password).toString('base64')
-        }
-      });
-
-      return response.data
-    } else {
-      console.log("User is not authorized.");
-    }
-
-  } catch (error) {
-    console.error('Error creating a Klarna order', error);
-    throw error;
-  }
-}
-*/
+const playgroundURL = process.env.KLARNA_PLAYGROUND_URL
 
 module.exports = {
-  async checkout(ctx) {
+  async createOrder(ctx) {
     try {
-      const { orderId, username, password } = ctx.params;
+      const { order, authorizationToken } = ctx.params;
+      const headers = {
+        'Content-Type': 'application/json',
+      }
+  
+      const res = await axios.post(`${playgroundURL}/payments/v1/authorizations/${authorizationToken}/order`, {order}, {headers});
+      
+      return res.data;
 
-      const response = await axios.post(`https://api.playground.klarna.com/ordermanagement/v1/orders/${orderId}/authorize`, {
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Basic ' + Buffer.from(`${username}:${password}`).toString('base64')
-        }
-      });
+    } catch (error) {
+      console.log('Error creating an order', error);
+      throw error;
+    }
+  },
+  async createSession(ctx) {
+    try {
+      const { order } = ctx.params;
+  
+      const res = await axios.post(`${playgroundURL}/payments/v1/sessions`, {order});
 
-      const checkoutUrl = response.data.redirect_url;
-      const script = `<script>window.open('${checkoutUrl}', '_blank');</script>`;
+      return {
+        paymentCategoryHeaders: res.data.payment_category_headers,
+        sessionId: res.data.sessionId,
+        clientToken: res.data.client_token
+      }
+
+    } catch (error) {
+      console.log('Error creating a Klarna session', error);
+      throw error;
+    }
+  },
+  async viewSession(ctx) {
+    try {
+      const sessionId = ctx.params;
+
+      const res = await axios.get(`${playgroundURL}/payments/v1/sessions/${sessionId}`);
+
+      return res.data;
+
+    } catch (error) {
+      console.log('Error creating an order', error);
+      throw error;
+    }
+  },
+  async createCheckoutOrder(ctx) {
+    try {
+      const { order, partner } = ctx.params;
+
+      const headers = {
+        'Content-Type': 'application/json',
+        'Klarna_Partner': partner,
+      }
+
+      const res = await axios.post(`${playgroundURL}/checkout/v3/orders`, {order}, {headers});
+
+      return res.data;
+      /*
+      const url = res.data.redirect_url;
+      const script = `<script>window.open('${url}', '_blank');</script>`;
       ctx.type = 'text/html';
       ctx.send(script);
-      
+      */
     } catch (error) {
       console.error('Error opening the Klarna checkout:', error);
-      ctx.status = 500;
-      ctx.send('Internal Server Error');
+      throw error;
+    }
+  },
+  async viewCheckoutOrder(ctx) {
+    try {
+      const { orderId } = ctx.params;
+
+      const res = await axios.get(`${playgroundURL}/checkout/v3/orders/${orderId}`);
+
+      return res.data;
+
+    } catch (error) {
+      console.log('Error creating an order', error);
+      throw error;
     }
   }
 };
