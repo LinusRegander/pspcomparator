@@ -1,6 +1,7 @@
-const users = require('../model/user')
-const auth = require('../model/auth')
-const addresses = require('../model/address')
+const users = require('../model/user');
+const auth = require('../model/auth');
+const addresses = require('../model/address');
+const klarna = require('../../src/api/klarna/controllers/klarna');
 const axios = require('axios');
 require('dotenv').config();
 
@@ -14,23 +15,19 @@ async function login() {
     console.log('User logged in with token: ', localToken);
 }
 
+async function createSession(credentials) {
+    try {
+        const response = await axios.post('http://localhost:1337/api/klarna/create_session', { order: "testOrder" }, { headers: { 'Authorization': `Basic ${credentials}` }});
+        console.log(response.data);
+    } catch (error) {
+      console.error('Error creating a Klarna session:', error);
+    }
+}
+  
+
 async function main() {
-    /*
-    const res = await axios.post('http://localhost:1337/klarna/create_order', {
-        token: true,
-        username: "PK249082_de2b6110b30c",
-        password: "SdMuKPanJ7O57GJz"
-    })
-
-    console.log(res);
-    */
-   
-    const orderId = null;
-    const response = await axios.get('http://localhost:1337/api/klarna/checkout', {
-        params: { orderId, username, password}
-      });
-
-    console.log(response);
+    let creds = auth.getEncodedCredentials(username, password);
+    createSession(creds);
 
     //await login();
     //console.log(localToken)
