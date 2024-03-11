@@ -100,3 +100,7 @@ const testOrder = {
     },
     intent: 'buy'
 }
+
+module.exports = {
+    testOrder
+}

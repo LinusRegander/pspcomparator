@@ -31,7 +31,7 @@ async function getToken(id, pass) {
 
 async function getEncodedCredentials(username, password) {
     try {
-        const encodedCredentials = base64.encode(`${username}:${password}`);
+        const encodedCredentials = Buffer.from(username + ":" + password).toString('base64')
         return encodedCredentials
     } catch (error) {
         console.error('Error getting Klarna authorization', error.message);
