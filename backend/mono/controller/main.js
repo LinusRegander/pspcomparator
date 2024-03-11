@@ -4,6 +4,7 @@ const addresses = require('../model/address');
 const klarna = require('../../src/api/klarna/controllers/klarna');
 const testOrder = require('../controller/test_data/testOrder')
 const axios = require('axios');
+const opn = require('opn');
 require('dotenv').config();
 
 const username = 'PK250364_e8c5dc522820';
@@ -57,15 +58,15 @@ async function createOrder(order, token) {
 
 async function openWidget() {
   try {
-      const response = await axios.post('http://localhost:1337/api/klarna/open_widget');
-      return response;
+      opn('http://localhost:1337/api/klarna/open_widget');
   } catch (error) {
     console.error('Error creating a Klarna session:', error);
   }
 }
 
 async function main() {
-    try {/*
+    try {
+      /*
         let token = await auth.getEncodedCredentials(username, password);
 
         const order = {

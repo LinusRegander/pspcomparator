@@ -112,6 +112,7 @@ module.exports = {
   },
   async openWidget(ctx) {
     try {
+      //Add real path
       const filepath = path.resolve(__dirname, null);
       const htmlContent = fs.readFileSync(filepath, 'utf-8');
 

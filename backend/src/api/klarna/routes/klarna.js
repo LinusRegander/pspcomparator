@@ -49,7 +49,7 @@ module.exports = {
       }
     },
     {
-      "method": "POST",
+      "method": "GET",
       "path": "/klarna/open_widget",
       "handler": "klarna.openWidget",
       "config": {

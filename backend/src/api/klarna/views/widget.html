@@ -3,9 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Widget Page</title>
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' https://x.klarnacdn.net 'unsafe-inline'">
+
+    <title></title>
+    <script src="https://x.klarnacdn.net/kp/lib/v1/api.js" async></script>
+    <script>
+        window.klarnaAsyncCallback = function () {
+            //Add client token
+          Klarna.Payments.init({
+            client_token: null
+          })
+          Klarna.Payments.load(
+            {
+                container: '#klarna-payments-container'
+            },
+            {},
+            function (res) {
+                console.debug(res);
+            }
+            )
+        };
+    </script>
 </head>
 <body>
-    <h1>Widget Page</h1>
+    <div id="klarna-payments-container"></div>
 </body>
 </html>
