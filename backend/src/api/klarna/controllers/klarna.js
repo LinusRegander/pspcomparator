@@ -12,6 +12,14 @@ module.exports = {
   async test() {
     return "Hello World";
   },
+  async sendToken(ctx) {
+    try {
+      let token = ctx.request.body.token;
+      console.log(token);
+    } catch (error) {
+      console.error('Error sending token', error);
+    }
+  },
   async createOrder(ctx) {
     try {
 
@@ -67,6 +75,7 @@ module.exports = {
 
       const res = await axios.get(`${playgroundURL}/payments/v1/sessions/${sessionId}`, {headers});
 
+      console.log(res.data);
       return res.data;
 
     } catch (error) {
@@ -113,7 +122,7 @@ module.exports = {
   async openWidget(ctx) {
     try {
       //Add real path
-      const filepath = path.resolve(__dirname, null);
+      const filepath = path.resolve(__dirname, 'C:/Users/li0mc/Documents/GitHub/pspcomparator/backend/src/api/klarna/views/widget.html');
       const htmlContent = fs.readFileSync(filepath, 'utf-8');
 
       ctx.type = 'text/html';

@@ -4,14 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="script-src 'self' https://x.klarnacdn.net 'unsafe-inline'">
-
     <title></title>
-    <script src="https://x.klarnacdn.net/kp/lib/v1/api.js" async></script>
-    <script>
+    <script src="https://x.klarnacdn.net/kp/lib/v1/api.js" async>
+        async function fetchToken(endpoint) {
+            try {
+                const response = await fetch(endpoint);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch client token');
+                }
+                
+                const responseData = await response.json();
+                console.log(responseData);
+                const clientToken = responseData.client_token;
+                return clientToken;
+
+            } catch (error) {
+                console.error('Error fetching client token:', error);
+                return null;
+            }
+            }
+
         window.klarnaAsyncCallback = function () {
-            //Add client token
+          let clienToken = fetchToken('http://localhost:1337/api/mono/send_token');
+          console.log(clientToken);
+
           Klarna.Payments.init({
-            client_token: null
+            client_token: clientToken
           })
           Klarna.Payments.load(
             {

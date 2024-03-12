@@ -1,6 +1,14 @@
 module.exports = {
   "routes": [
     {
+      "method": "POST",
+      "path": "/klarna/send_token",
+      "handler": "klarna.sendToken",
+      "config": {
+        "policies": []
+      }
+    },
+    {
       "method": "GET",
       "path": "/klarna/test",
       "handler": "klarna.test",
