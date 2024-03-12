@@ -1,5 +1,15 @@
 module.exports = [
   'strapi::logger',
+  {
+    name: 'strapi::security',
+    config: {
+      contentSecurityPolicy: {
+        directives: {
+          'script-src': ["'self'", "'unsafe-inline'", 'https://x.klarnacdn.net']
+        }
+      }
+    }
+  },
   'strapi::errors',
   'strapi::cors',
   'strapi::poweredBy',
@@ -8,19 +18,4 @@ module.exports = [
   'strapi::session',
   'strapi::favicon',
   'strapi::public',
-  'strapi::security'
-],
-{
-  settings: {
-    security: {
-      contentSecurityPolicy: {
-        directives: {
-          'default-src': ['self'],
-          'script-src': ['self', 'https://x.klarnacdn.net'],
-          'script-src-elem': ["'self'", 'https://x.klarnacdn.net'],
-          'frame-src': ['none'],
-        },
-      },
-    },
-  }
-};
+]
