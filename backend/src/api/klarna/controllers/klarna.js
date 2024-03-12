@@ -15,7 +15,7 @@ module.exports = {
   async sendToken(ctx) {
     try {
       let token = ctx.request.body.token;
-      console.log(token);
+      ctx.send({ token });
     } catch (error) {
       console.error('Error sending token', error);
     }
@@ -122,7 +122,7 @@ module.exports = {
   async openWidget(ctx) {
     try {
       //Add real path
-      const filepath = path.resolve(__dirname, 'C:/Users/li0mc/Documents/GitHub/pspcomparator/backend/src/api/klarna/views/widget.html');
+      const filepath = path.resolve(__dirname, 'C:/Users/li0mc/Documents/GitHub/pspcomparator/backend/public/views/widget.html');
       const htmlContent = fs.readFileSync(filepath, 'utf-8');
 
       ctx.type = 'text/html';

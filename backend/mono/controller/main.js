@@ -2,8 +2,8 @@ const users = require('../model/user');
 const auth = require('../model/auth');
 const addresses = require('../model/address');
 const klarna = require('../../src/api/klarna/controllers/klarna');
-const testOrder = require('../controller/test_data/testOrder')
-const endpoints = require('../model/endpoints')
+const testOrder = require('../controller/test_data/testOrder');
+const endpoints = require('../model/endpoints');
 const axios = require('axios');
 const opn = require('opn');
 require('dotenv').config();
@@ -85,10 +85,9 @@ async function main() {
           }
 
         let create = await createSession(order, token);
-        
         console.log(create.data.sessionId);
-
 */
+
         await endpoints.sendClient('d1b164cd-5941-5136-8085-3b6f210bb93b', 'http://localhost:1337/api/klarna/send_token');
         await openWidget();
 

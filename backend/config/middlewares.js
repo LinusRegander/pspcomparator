@@ -8,16 +8,19 @@ module.exports = [
   'strapi::session',
   'strapi::favicon',
   'strapi::public',
-  {
-    name: 'strapi::security',
-    config: {
+  'strapi::security'
+],
+{
+  settings: {
+    security: {
       contentSecurityPolicy: {
-        useDefaults: true,
         directives: {
-          'connect-src': ["'self'", 'http:', 'https:'],
-          upgradeInsecureRequests: null,
+          'default-src': ['self'],
+          'script-src': ['self', 'https://x.klarnacdn.net'],
+          'script-src-elem': ["'self'", 'https://x.klarnacdn.net'],
+          'frame-src': ['none'],
         },
       },
     },
-  },
-];
+  }
+};
