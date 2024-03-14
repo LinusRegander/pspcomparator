@@ -8,7 +8,7 @@ const endpoint = 'http://localhost:1337/api/users'
  * @returns The created json user object
  * @throws {Error} If there is an error creating the user or the request fails.
  */
-async function createUser(ctx) {
+async function create(ctx) {
     try {
         //on creation, just send the data non-wrapped
         const response = await axios.post(endpoint, ctx);
@@ -30,7 +30,7 @@ async function createUser(ctx) {
  * @returns The updated json user object.
  * @throws {Error} If there is an error updating the user or the request fails.
  */
-async function updateUser(token, id, ctx) {
+async function update(token, id, ctx) {
     try {
         const response = await axios.put(endpoint + `/${id}`, {
             //possibly don't wrap data?
@@ -56,7 +56,7 @@ async function updateUser(token, id, ctx) {
  * @returns The json user object corresponding to the provided ID.
  * @throws {Error} If there is an error finding the user or the request fails.
 */
-async function findOneUser(token, id) {
+async function findOne(token, id) {
     try {
         const response = await axios.get(endpoint + `/${id}`, {
             headers: {
@@ -92,4 +92,4 @@ async function findMe(token) {
 }
 
 
-module.exports = {createUser, updateUser, findOneUser, findMe}
+module.exports = {create, update, findOne, findMe}

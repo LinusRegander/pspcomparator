@@ -1,7 +1,7 @@
 const axios = require('axios')
 const endpoint = 'http://localhost:1337/api/stocks'
 
-async function findOneStock(ctx) {
+async function findOne(ctx) {
     axios.get(endpoint + `/${ctx.id}`, {
         headers: {
             Accept: '*/*'
@@ -16,4 +16,4 @@ async function findOneStock(ctx) {
 }
 
 
-module.exports = {findOneStock}
+module.exports = {findOne}

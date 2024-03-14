@@ -9,7 +9,7 @@ const endpoint = 'http://localhost:1337/api/items';
  * @returns The created json item object.
  * @throws {Error} If there is an error creating the item or the request fails.
  */
-async function createItem(token, ctx) {
+async function create(token, ctx) {
     try {
         const response = await axios.post(endpoint, {
             data: ctx,
@@ -33,7 +33,7 @@ async function createItem(token, ctx) {
  * @returns The updated json item object.
  * @throws {Error} If there is an error updating the item or the request fails.
  */
-async function updateItem(token, id, ctx) {
+async function update(token, id, ctx) {
     try {
         const response = await axios.put(endpoint + `/${id}`, {
             data: ctx,
@@ -55,7 +55,7 @@ async function updateItem(token, id, ctx) {
  * @returns The json item object corresponding to the provided ID.
  * @throws {Error} If there is an error fetching the item or the request fails.
  */
-async function findOneItem(id) {
+async function findOne(id) {
     try {
         const response = await axios.get(endpoint + `/${id}`, {
             headers: {
@@ -74,7 +74,7 @@ async function findOneItem(id) {
  * 
  * @throws {Error} If there is an error fetching the items or the request fails.
  */
-async function findItems() {
+async function findAll() {
     try {
         const response = await axios.get(endpoint);
         return response.data;
@@ -84,4 +84,4 @@ async function findItems() {
     }
 }
 
-module.exports = { createItem, updateItem, findOneItem, findItems };
+module.exports = { create, update, findOne, findAll };

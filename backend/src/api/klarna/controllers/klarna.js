@@ -121,8 +121,7 @@ module.exports = {
   },
   async openWidget(ctx) {
     try {
-      //Add real path
-      const filepath = path.resolve(__dirname, 'C:/Users/li0mc/Documents/GitHub/pspcomparator/backend/public/views/widget.html');
+      const filepath = path.resolve('../backend/public/views/widget.html');
       const htmlContent = fs.readFileSync(filepath, 'utf-8');
 
       ctx.type = 'text/html';

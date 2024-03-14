@@ -6,6 +6,7 @@ function generateToken(username, password) {
     const encodedCredentials = base64.encode(credentials);
     return `Authorization: Basic ${encodedCredentials}`;
 }
+
 const endpoint = 'http://localhost:1337/api/auth/local';
 
 /**
@@ -18,14 +19,15 @@ const endpoint = 'http://localhost:1337/api/auth/local';
  */
 async function getToken(id, pass) {
     try {
-        const response = await axios.post(endpoint, {
+        const res = await axios.post(endpoint, {
             identifier: id,
             password: pass
         });
-        return response.data.jwt;
+        
+        return res.data.jwt;
     } catch (error) {
         console.error('Error fetching token:', error.message);
-        throw error;
+        return null;
     }
 }
 

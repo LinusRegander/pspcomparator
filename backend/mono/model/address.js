@@ -9,7 +9,7 @@ const endpoint = 'http://localhost:1337/api/addresses'
  * @returns The created json address object.
  * @throws {Error} If there is an error fetching the address or the request fails.
 */
-async function createAddress(token, ctx) {
+async function create(token, ctx) {
     try {
         const response = await axios.post(endpoint, {
             data: ctx,
@@ -32,7 +32,7 @@ async function createAddress(token, ctx) {
  * @returns The updated json address object.
  * @throws {Error} If there is an error updating the address or the request fails.
  */
-async function updateAddress(token, id, ctx) {
+async function update(token, id, ctx) {
     try {
         const response = await axios.put(endpoint + `/${id}`, {
             data: ctx,
@@ -54,7 +54,7 @@ async function updateAddress(token, id, ctx) {
  * @returns The json address object corresponding to the provided ID.
  * @throws {Error} If there is an error fetching the address or the request fails.
  */
-async function findOneAddress(token, id) {
+async function findOne(token, id) {
     try {
         const response = await axios.get(endpoint + `/${id}`, {
             headers: {
@@ -70,4 +70,4 @@ async function findOneAddress(token, id) {
 
 
 
-module.exports = {createAddress, updateAddress, findOneAddress}
+module.exports = {create, update, findOne}

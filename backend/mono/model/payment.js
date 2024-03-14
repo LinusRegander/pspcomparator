@@ -9,7 +9,7 @@ const endpoint = 'http://localhost:1337/api/payments';
  * @returns The created payment object.
  * @throws {Error} If there is an error creating the payment or the request fails.
  */
-async function createPayment(token, ctx) {
+async function create(token, ctx) {
     try {
         const response = await axios.post(endpoint, {
             data: ctx,
@@ -33,7 +33,7 @@ async function createPayment(token, ctx) {
  * @returns  The updated payment object.
  * @throws {Error} If there is an error updating the payment or the request fails.
  */
-async function updatePayment(token, id, ctx) {
+async function update(token, id, ctx) {
     try {
         const response = await axios.put(endpoint + `/${id}`, {
             data: ctx,
@@ -56,7 +56,7 @@ async function updatePayment(token, id, ctx) {
  * @returns The payment object corresponding to the provided ID.
  * @throws {Error} If there is an error fetching the payment or the request fails.
  */
-async function findOnePayment(token, id) {
+async function findOne(token, id) {
     try {
         const response = await axios.get(endpoint + `/${id}`, {
             headers: {
@@ -70,4 +70,4 @@ async function findOnePayment(token, id) {
     }
 }
 
-module.exports = { createPayment, updatePayment, findOnePayment };
+module.exports = { create, update, findOne };

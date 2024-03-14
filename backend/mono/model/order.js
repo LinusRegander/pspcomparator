@@ -9,7 +9,7 @@ const endpoint = 'http://localhost:1337/api/orders';
  * @returns The created json order object.
  * @throws {Error} If there is an error creating the order or the request fails.
  */
-async function createOrder(token, ctx) {
+async function create(token, ctx) {
     try {
         const response = await axios.post(endpoint, {
             data: ctx,
@@ -33,7 +33,7 @@ async function createOrder(token, ctx) {
  * @returns The updated json order object.
  * @throws {Error} If there is an error updating the order or the request fails.
  */
-async function updateOrder(token, id, ctx) {
+async function update(token, id, ctx) {
     try {
         const response = await axios.put(endpoint + `/${id}`, {
             data: ctx,
@@ -56,7 +56,7 @@ async function updateOrder(token, id, ctx) {
  * @returns The json order object corresponding to the provided ID.
  * @throws {Error} If there is an error fetching the order or the request fails.
  */
-async function findOneOrder(token, id) {
+async function findOne(token, id) {
     try {
         const response = await axios.get(endpoint + `/${id}`, {
             headers: {
@@ -70,4 +70,4 @@ async function findOneOrder(token, id) {
     }
 }
 
-module.exports = { createOrder, updateOrder, findOneOrder };
+module.exports = { create, update, findOne };
