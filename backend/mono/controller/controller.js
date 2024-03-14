@@ -73,64 +73,39 @@ async function openWidget() {
   }
 }
 
-async function runProgram() {
-          /*
-async function setupInterface(controller) {
-    console.log('Login user:')
-    localToken = await controller.login();
+async function editType(model) {
+    try {
+        const identifiers = await model.getStructure();
 
-    rl.question('Login user: ', async function question(choice) {
-        switch(choice) {
-            
+        const obj = {};
+        for (const identifier of identifiers) {
+            const value = await interface.getInfo(identifier);
+            obj[identifier] = value;
         }
-    });
-}
-        let token = await auth.getEncodedCredentials(username, password);
 
-        const order = {
-            "order_amount": 100,
-            "order_lines": [
-              {
-                "name": "Ikea stol",
-                "quantity": 1,
-                "total_amount": 100,
-                "unit_price": 100
-              }
-            ],
-            "purchase_country": "SE",
-            "purchase_currency": "SEK"
-          }
-
-        let create = await createSession(order, token);
-        console.log(create.data.sessionId);
-
-    await endpoints.sendClient('d1b164cd-5941-5136-8085-3b6f210bb93b', 'http://localhost:1337/api/klarna/send_token');
-    await openWidget();
-
-    //let view = await viewSession(create.data.sessionId, token);
-
-    //let cOrder = await createOrder(order, token);
-
-    //console.log(cOrder);
-    } catch (error) {
-    console.log(error);
+        return await model.create(loginToken, obj);
+    } catch (err) {
+        console.log(`Error creating ${model}`);
     }
+}
 
-    //await login();
-    //console.log(localToken)
-    // let id = await users.findMe(localToken);
+async function findType(model, command) {
+    try {
+        let id = await interface.getInfo(`Select ${command} ID`);
+        let item = await model.findOne(id);
+        console.log(item.data);
+    } catch (err) {
+        console.log(err);
+    }
+}
 
-    //let address = {
-    //Name: 'UPDATED'
-    //}
-
-    //await addresses.updateAddress(localToken, 24, address)
-    // await users.findMe({
-
-    // })
-    // await users.findOneUser
-    // await users.updateMe
-    */
+async function findAllType(model) {
+    try {
+        let items = await model.findAll();
+        console.log(items.data);
+    } catch (err) {
+        console.log(err);
+    }
 }
 
 async function makeAction(command, action) {
@@ -144,31 +119,28 @@ async function makeAction(command, action) {
         switch (action) {
             case 'Create':
                 if (model.create) {
-                    await model.create();
+                    await editType(model);
                     break;
                 } else {
                     throw new Error(`${action} not supported for ${command}`);
                 }
             case 'Update':
                 if (model.update) {
-                    await model.update();
+                    await editType(model);
                     break;
                 } else {
                     throw new Error(`${action} not supported for ${command}`);
                 }
             case 'Find One':
                 if (model.findOne) {
-                    let id = await interface.getInfo(`Select ${command} ID`);
-                    let item = await model.findOne(id);
-                    console.log(item.data);
+                    await findType(model, command);
                     break;
                 } else {
                     throw new Error(`${action} not supported for ${command}`);
                 }
             case 'Find All':
                 if (model.findAll) {
-                    let items = await model.findAll();
-                    console.log(items.data);
+                    await findAllType(model);
                 } else {
                     throw new Error('Action not supported');
                 }

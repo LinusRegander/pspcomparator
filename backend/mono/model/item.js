@@ -1,5 +1,6 @@
 const axios = require('axios');
 const endpoint = 'http://localhost:1337/api/items';
+const structure = 'http://localhost:1337/api/content-type-builder/content-types/';
 
 /**
  * Create a new item.
@@ -84,4 +85,21 @@ async function findAll() {
     }
 }
 
-module.exports = { create, update, findOne, findAll };
+async function getStructure() {
+    try {
+        const identifiers = [];
+
+        const res = await axios.get(structure + 'api::item.item');
+        const attributes = res.data.data.schema.attributes;
+    
+        for (const identifier in attributes) {
+            identifiers.push(identifier)
+        }
+    
+        return identifiers;
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+module.exports = { create, update, findOne, findAll, getStructure };

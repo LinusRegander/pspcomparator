@@ -1,12 +1,5 @@
 const axios = require('axios');
 const base64 = require('base-64');
-
-function generateToken(username, password) {
-    const credentials = `${username}:${password}`;
-    const encodedCredentials = base64.encode(credentials);
-    return `Authorization: Basic ${encodedCredentials}`;
-}
-
 const endpoint = 'http://localhost:1337/api/auth/local';
 
 /**
