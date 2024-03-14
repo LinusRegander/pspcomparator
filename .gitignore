@@ -1,3 +1,4 @@
 node_modules
 .env
 backend/mono/controller/klarna_payments.html
+backend/public/views/klarna_widget.html

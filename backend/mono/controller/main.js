@@ -151,7 +151,7 @@ function createHTMLPageWithToken(token, payments) {
   `;
 
   // Write the HTML content to a file
-  fs.writeFile('klarna_payments.html', htmlContent, (err) => {
+  fs.writeFile('../../public/views/klarna_widget.html', htmlContent, (err) => {
       if (err) throw err;
       console.log('HTML file created successfully');
       // Open the HTML file using opn
