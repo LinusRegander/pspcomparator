@@ -17,11 +17,6 @@
       "relation": "oneToOne",
       "target": "api::order.order"
     },
-    "Buyer": {
-      "type": "relation",
-      "relation": "oneToOne",
-      "target": "admin::user"
-    },
     "Date": {
       "type": "datetime"
     },

@@ -864,17 +864,16 @@ export interface ApiOrderOrder extends Schema.CollectionType {
     draftAndPublish: true;
   };
   attributes: {
-    Items: Attribute.Relation<
+    order_items: Attribute.Relation<
       'api::order.order',
       'oneToMany',
-      'api::item.item'
+      'api::order-item.order-item'
     >;
-    Buyer: Attribute.Relation<'api::order.order', 'oneToOne', 'admin::user'>;
-    Status: Attribute.Enumeration<
+    buyer: Attribute.Relation<'api::order.order', 'oneToOne', 'admin::user'>;
+    status: Attribute.Enumeration<
       ['Started', 'Payment Required', 'In Progress', 'Finished', 'Canceled']
-    >;
-    Ordernumber: Attribute.UID;
-    Date: Attribute.DateTime;
+    > &
+      Attribute.DefaultTo<'Started'>;
     address: Attribute.Relation<
       'api::order.order',
       'oneToOne',
@@ -898,6 +897,41 @@ export interface ApiOrderOrder extends Schema.CollectionType {
   };
 }
 
+export interface ApiOrderItemOrderItem extends Schema.CollectionType {
+  collectionName: 'order_items';
+  info: {
+    singularName: 'order-item';
+    pluralName: 'order-items';
+    displayName: 'OrderItem';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    item: Attribute.Relation<
+      'api::order-item.order-item',
+      'oneToOne',
+      'api::item.item'
+    >;
+    quantity: Attribute.Integer;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::order-item.order-item',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::order-item.order-item',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiPaymentPayment extends Schema.CollectionType {
   collectionName: 'payments';
   info: {
@@ -914,11 +948,6 @@ export interface ApiPaymentPayment extends Schema.CollectionType {
       'api::payment.payment',
       'oneToOne',
       'api::order.order'
-    >;
-    Buyer: Attribute.Relation<
-      'api::payment.payment',
-      'oneToOne',
-      'admin::user'
     >;
     Date: Attribute.DateTime;
     Type: Attribute.Enumeration<['Direct', 'Invoice']>;
@@ -1031,6 +1060,7 @@ declare module '@strapi/types' {
       'api::address.address': ApiAddressAddress;
       'api::item.item': ApiItemItem;
       'api::order.order': ApiOrderOrder;
+      'api::order-item.order-item': ApiOrderItemOrderItem;
       'api::payment.payment': ApiPaymentPayment;
       'api::stock.stock': ApiStockStock;
       'api::user-role.user-role': ApiUserRoleUserRole;

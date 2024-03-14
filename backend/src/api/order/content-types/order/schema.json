@@ -12,17 +12,17 @@
   },
   "pluginOptions": {},
   "attributes": {
-    "Items": {
+    "order_items": {
       "type": "relation",
       "relation": "oneToMany",
-      "target": "api::item.item"
+      "target": "api::order-item.order-item"
     },
-    "Buyer": {
+    "buyer": {
       "type": "relation",
       "relation": "oneToOne",
       "target": "admin::user"
     },
-    "Status": {
+    "status": {
       "type": "enumeration",
       "enum": [
         "Started",
@@ -30,13 +30,8 @@
         "In Progress",
         "Finished",
         "Canceled"
-      ]
-    },
-    "Ordernumber": {
-      "type": "uid"
-    },
-    "Date": {
-      "type": "datetime"
+      ],
+      "default": "Started"
     },
     "address": {
       "type": "relation",

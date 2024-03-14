@@ -1,13 +1,14 @@
 const users = require('../model/user');
 const auth = require('../model/auth');
 const orders = require('../model/order');
+const payments = require('../model/payment');
 const addresses = require('../model/address');
+const widgetBuilder = require('../view/widgetbuilder');
 const klarna = require('../../src/api/klarna/controllers/klarna');
 const testOrder = require('../controller/test_data/testOrder');
 const endpoints = require('../model/endpoints');
 const axios = require('axios');
-const opn = require('opn');
-const fs = require('fs');
+
 require('dotenv').config({path: '../../.env'});
 
 const username = process.env.KLARNA_USERNAME;
@@ -59,79 +60,10 @@ async function createOrder(order, token) {
   }
 }
 
-async function openWidget() {
-  try {
-      opn('http://localhost:1337/api/klarna/open_widget');
-  } catch (error) {
-    console.error('Error creating a Klarna session:', error);
-  }
-}
 
-function getExampleOrder() {
-  const order = {
-    "order_amount": 1000,
-    "order_lines": [
-      {
-        "name": "Ikea stol",
-        "quantity": 10,
-        "total_amount": 1000,
-        "unit_price": 100
-      }
-    ],
-    "purchase_country": "SE",
-    "purchase_currency": "SEK"
-  }
-  return order
-}
-function createHTMLPageWithToken(token) {
-  const htmlContent = `
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title></title>
-      </head>
-      <body>
-          <div id="klarna-payments-container"></div>
-          <button id="authorize-button">Authorize Payment</button>
-          <script src="https://x.klarnacdn.net/kp/lib/v1/api.js" async></script>
-          <script>
-              window.addEventListener('load', function () {
-                  Klarna.Payments.init({
-                      client_token: '${token}'
-                  });
-                  Klarna.Payments.load(
-                      {
-                          container: '#klarna-payments-container'
-                      },
-                      {},
-                      function (res) {
-                          console.debug(res);
-                      }
-                  )
-                  document.getElementById('authorize-button').addEventListener('click', function() {
-                      Klarna.Payments.authorize(
-                          {},
-                          {}, 
-                          function(res) {   
-                            <!-- res.approved == true -> call endpoint to update order in strapi with res.authorization_token -->                           
-                            console.debug(res);
-                          }
-                      );
-                  });
-              });
-          </script>
-      </body>
-      </html>
-  `;
 
-  // Write to file so that it can be displayed
-  fs.writeFile('../../public/views/klarna_widget.html', htmlContent, (err) => {
-      if (err) throw err;
-      // Display html after creation
-      opn('../../public/views/klarna_widget.html');
-  });
+function createPayment(orderID) {
+  //order, date, type
 }
 
 async function main() {
@@ -140,19 +72,22 @@ async function main() {
   await login();
   console.log(localToken);
   //create order in strapi;
-  let order = getExampleOrder();
-  console.log(order)
+  let strapiOrder = orders.createStrapiOrderObject();
+  let strapiOrderID = await orders.createOrder(localToken, strapiOrder)
+  //create payment in strapi
+  let strapiPayment = payments.createPaymentObject(strapiOrderID)
+  let strapiPaymentID = await payments.createPayment(localToken, strapiPayment)
+  console.log(strapiOrder)
+  //create base64 credentials for klarna
+  let klarnaCreds = auth.getEncodedCredentials(username, password);
+  console.log(klarnaCreds)
+  //create klarna order object
+  let klarnaOrder = orders.createKlarnaOrderObject(strapiOrderID)
   //start klarna session;
-  let token = auth.getEncodedCredentials(username, password);
-  console.log(token)
-  let session = await createSession(order, token);
+  let session = await createSession(klarnaOrder, klarnaCreds);
   console.log(session.data);
   //start klarna widget
-  createHTMLPageWithToken(session.data.clientToken)
-  // await endpoints.sendClient(session.data.clientToken, 'http://localhost:1337/api/klarna/send_token');
-  // await openWidget();
-  //get authToken from widget
-  // await createOrder(authToken, localToken)
+  widgetBuilder.createHTMLPageWithToken(session.data.clientToken, strapiOrderID)
 
 }
 

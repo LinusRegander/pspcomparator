@@ -70,4 +70,8 @@ async function findOnePayment(token, id) {
     }
 }
 
-module.exports = { createPayment, updatePayment, findOnePayment };
+function createPaymentObject(strapiOrderID) {
+
+}
+
+module.exports = { createPayment, updatePayment, findOnePayment, createPaymentObject };
