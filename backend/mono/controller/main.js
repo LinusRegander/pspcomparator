@@ -1,5 +1,6 @@
 const users = require('../model/user');
 const auth = require('../model/auth');
+const orders = require('../model/order');
 const addresses = require('../model/address');
 const klarna = require('../../src/api/klarna/controllers/klarna');
 const testOrder = require('../controller/test_data/testOrder');
@@ -65,55 +66,42 @@ async function openWidget() {
   }
 }
 
+function getExampleOrder() {
+  const order = {
+    "order_amount": 100,
+    "order_lines": [
+      {
+        "name": "Ikea stol",
+        "quantity": 1,
+        "total_amount": 100,
+        "unit_price": 100
+      }
+    ],
+    "purchase_country": "SE",
+    "purchase_currency": "SEK"
+  }
+  return order
+}
+
 async function main() {
-    try {
-      /*
-        let token = await auth.getEncodedCredentials(username, password);
-
-        const order = {
-            "order_amount": 100,
-            "order_lines": [
-              {
-                "name": "Ikea stol",
-                "quantity": 1,
-                "total_amount": 100,
-                "unit_price": 100
-              }
-            ],
-            "purchase_country": "SE",
-            "purchase_currency": "SEK"
-          }
-
-        let create = await createSession(order, token);
-        console.log(create.data.sessionId);
-*/
-
-        await endpoints.sendClient('d1b164cd-5941-5136-8085-3b6f210bb93b', 'http://localhost:1337/api/klarna/send_token');
-        await openWidget();
-
-        //let view = await viewSession(create.data.sessionId, token);
-
-        //let cOrder = await createOrder(order, token);
-
-        //console.log(cOrder);
-    } catch (error) {
-        console.log(error);
-    }
-
-    //await login();
-    //console.log(localToken)
-    // let id = await users.findMe(localToken);
     
-    //let address = {
-       //Name: 'UPDATED'
-    //}
+  //log in to strapi
+  await login();
+  console.log(localToken);
+  //create order in strapi;
+  let order = getExampleOrder();
+  console.log(order)
+  //start klarna session;
+  let token = auth.getEncodedCredentials(username, password);
+  console.log(token)
+  let session = await createSession(order, token);
+  console.log(session);
+  //start klarna widget
+  await endpoints.sendClient('d1b164cd-5941-5136-8085-3b6f210bb93b', 'http://localhost:1337/api/klarna/send_token');
+  await openWidget();
+  //get authToken from widget
+  // await createOrder(authToken, localToken)
 
-    //await addresses.updateAddress(localToken, 24, address)
-    // await users.findMe({
-
-    // })
-    // await users.findOneUser
-    // await users.updateMe
 }
 
 main();

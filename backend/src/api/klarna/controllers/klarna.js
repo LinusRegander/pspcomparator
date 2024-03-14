@@ -24,14 +24,15 @@ module.exports = {
     try {
 
       let token = ctx.request.body.token;
-      let order = ctx.request.body.order;
+      let address = ctx.request.body.address;
+      let authToken = ctx.request.body.authToken;
 
       const headers = {
         Authorization: `Basic ${token}`,
         'Content-Type': 'application/json',
       }
   
-      const res = await axios.post(`${playgroundURL}/payments/v1/authorizations/${token}/order`, order, {headers});
+      const res = await axios.post(`${playgroundURL}/payments/v1/authorizations/${authToken}/order`, address, {headers});
       
       return res.data;
 
@@ -122,7 +123,7 @@ module.exports = {
   async openWidget(ctx) {
     try {
       //Add real path
-      const filepath = path.resolve(__dirname, 'C:/Users/li0mc/Documents/GitHub/pspcomparator/backend/public/views/widget.html');
+      const filepath = path.resolve(__dirname, '../../../../public/views/widget.html');
       const htmlContent = fs.readFileSync(filepath, 'utf-8');
 
       ctx.type = 'text/html';

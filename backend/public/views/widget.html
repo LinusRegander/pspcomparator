@@ -24,11 +24,11 @@
     }
 
     window.klarnaAsyncCallback = function () {
-          let clienToken = fetchToken('http://localhost:1337/api/mono/send_token');
+          let clientToken = fetchToken('http://localhost:1337/api/mono/send_token');
           console.log(clientToken);
 
           Klarna.Payments.init({
-            client_token: clienToken
+            client_token: clientToken
           })
 
           Klarna.Payments.load(

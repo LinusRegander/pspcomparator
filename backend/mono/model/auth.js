@@ -1,11 +1,5 @@
 const axios = require('axios');
-const base64 = require('base-64');
 
-function generateToken(username, password) {
-    const credentials = `${username}:${password}`;
-    const encodedCredentials = base64.encode(credentials);
-    return `Authorization: Basic ${encodedCredentials}`;
-}
 const endpoint = 'http://localhost:1337/api/auth/local';
 
 /**
@@ -29,7 +23,7 @@ async function getToken(id, pass) {
     }
 }
 
-async function getEncodedCredentials(username, password) {
+function getEncodedCredentials(username, password) {
     try {
         const encodedCredentials = Buffer.from(username + ":" + password).toString('base64')
         return encodedCredentials
