@@ -8,10 +8,10 @@ const endpoints = require('../model/endpoints');
 const axios = require('axios');
 const opn = require('opn');
 const fs = require('fs');
-require('dotenv').config();
+require('dotenv').config({path: '../../.env'});
 
-const username = 'PK250364_e8c5dc522820';
-const password = 'IEW5fYfsXOx9Nu32';
+const username = process.env.KLARNA_USERNAME;
+const password = process.env.KLARNA_PASSWORD;
 var localToken = '12313123123';
 
 async function login() {
@@ -83,7 +83,7 @@ function getExampleOrder() {
   }
   return order
 }
-function createHTMLPageWithToken(token, payments) {
+function createHTMLPageWithToken(token) {
   const htmlContent = `
       <!DOCTYPE html>
       <html lang="en">
@@ -113,31 +113,7 @@ function createHTMLPageWithToken(token, payments) {
                   document.getElementById('authorize-button').addEventListener('click', function() {
                       Klarna.Payments.authorize(
                           {},
-                          {
-                              billing_address: {
-                                  given_name: "Alice",
-                                  family_name: "Test",
-                                  email: "customer@email.se",
-                                  street_address: "Södra Blasieholmshamnen 2",
-                                  postal_code: "11148",
-                                  city: "Stockholm",
-                                  phone: "+46701740615",
-                                  country: "SE"
-                              },
-                              shipping_address: {
-                                  given_name: "Alice",
-                                  family_name: "Test",
-                                  email: "customer@email.se",
-                                  street_address: "Södra Blasieholmshamnen 2",
-                                  postal_code: "11148",
-                                  city: "Stockholm",
-                                  phone: "+46701740615",
-                                  country: "SE"
-                              },
-                              customer: {
-                                  date_of_birth: "1941-03-21",
-                              },
-                          }, 
+                          {}, 
                           function(res) {   
                             <!-- res.approved == true -> call endpoint to update order in strapi with res.authorization_token -->                           
                             console.debug(res);
@@ -150,12 +126,11 @@ function createHTMLPageWithToken(token, payments) {
       </html>
   `;
 
-  // Write the HTML content to a file
+  // Write to file so that it can be displayed
   fs.writeFile('../../public/views/klarna_widget.html', htmlContent, (err) => {
       if (err) throw err;
-      console.log('HTML file created successfully');
-      // Open the HTML file using opn
-      opn('klarna_payments.html');
+      // Display html after creation
+      opn('../../public/views/klarna_widget.html');
   });
 }
 
@@ -173,7 +148,7 @@ async function main() {
   let session = await createSession(order, token);
   console.log(session.data);
   //start klarna widget
-  createHTMLPageWithToken(session.data.clientToken, session.data.paymentCategoryHeaders)
+  createHTMLPageWithToken(session.data.clientToken)
   // await endpoints.sendClient(session.data.clientToken, 'http://localhost:1337/api/klarna/send_token');
   // await openWidget();
   //get authToken from widget
