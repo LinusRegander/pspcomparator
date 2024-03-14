@@ -73,8 +73,9 @@ async function openWidget() {
   }
 }
 
-async function editType(model) {
+async function editType(model, action) {
     try {
+        let data = null;
         const identifiers = await model.getStructure();
 
         const obj = {};
@@ -83,7 +84,13 @@ async function editType(model) {
             obj[identifier] = value;
         }
 
-        return await model.create(loginToken, obj);
+        if (action === 'Create') {
+            data = await endpoints.create(loginToken, obj, model);
+        } else if (action === 'Update') {
+            data = await endpoints.create(loginToken, obj, model);
+        }
+
+        return data;
     } catch (err) {
         console.log(`Error creating ${model}`);
     }
@@ -92,7 +99,7 @@ async function editType(model) {
 async function findType(model, command) {
     try {
         let id = await interface.getInfo(`Select ${command} ID`);
-        let item = await model.findOne(id);
+        let item = await endpoints.findOne(id, model);
         console.log(item.data);
     } catch (err) {
         console.log(err);
@@ -101,7 +108,8 @@ async function findType(model, command) {
 
 async function findAllType(model) {
     try {
-        let items = await model.findAll();
+        console.log(model);
+        let items = await endpoints.findAll(model);
         console.log(items.data);
     } catch (err) {
         console.log(err);
@@ -110,47 +118,23 @@ async function findAllType(model) {
 
 async function makeAction(command, action) {
     try {
-        const model = modelType[command];
 
-        if (!model) {
+        if (!action) {
             throw new Error('Invalid command');
         }
         
         switch (action) {
             case 'Create':
-                if (model.create) {
-                    await editType(model);
-                    break;
-                } else {
-                    throw new Error(`${action} not supported for ${command}`);
-                }
-            case 'Update':
-                if (model.update) {
-                    await editType(model);
-                    break;
-                } else {
-                    throw new Error(`${action} not supported for ${command}`);
-                }
-            case 'Find One':
-                if (model.findOne) {
-                    await findType(model, command);
-                    break;
-                } else {
-                    throw new Error(`${action} not supported for ${command}`);
-                }
-            case 'Find All':
-                if (model.findAll) {
-                    await findAllType(model);
-                } else {
-                    throw new Error('Action not supported');
-                }
+                await editType(model, action);
                 break;
-            case 'Delete':
-                if (model.delete) {
-                    await model.delete();
-                } else {
-                    throw new Error('Action not supported');
-                }
+            case 'Update':
+                await editType(model, action);
+                break;
+            case 'Find One':
+                await findType(model, command);
+                break;
+            case 'Find All':
+                await findAllType(model);
                 break;
             default:
                 break;
