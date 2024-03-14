@@ -1,15 +1,26 @@
 const axios = require('axios');
 require('dotenv');
 
+//TODO: Fix so that they are in .env file
 const strapiURL = 'http://localhost:1337/api/';
+const structure = 'http://localhost:1337/api/content-type-builder/content-types/';
 
-const contentTypeEndpoint = {
+const pluralEndpoint = {
     Item: 'items',
     Order: 'orders',
     Payment: 'payments',
     Stock: 'stocks',
     User: 'users',
     Address: 'addresses' 
+}
+
+const singularEndpoint = {
+    Item: 'item',
+    Order: 'order',
+    Payment: 'payment',
+    Stock: 'stock',
+    User: 'user',
+    Address: 'address' 
 }
 
 /**
@@ -22,7 +33,7 @@ const contentTypeEndpoint = {
  */
 async function create(token, ctx, type) {
     try {
-        const response = await axios.post(`${strapiURL}` + contentTypeEndpoint[type], {
+        const response = await axios.post(`${strapiURL}` + pluralEndpoint[type], {
             data: ctx,
             headers: {
                 Authorization: `Bearer ${token}`
@@ -46,7 +57,7 @@ async function create(token, ctx, type) {
  */
 async function update(token, id, ctx, type) {
     try {
-        const response = await axios.put(`${strapiURL}` + contentTypeEndpoint[type] + `/${id}`, {
+        const response = await axios.put(`${strapiURL}` + pluralEndpoint[type] + `/${id}`, {
             data: ctx,
             headers: {
                 Authorization: `Bearer ${token}`
@@ -68,7 +79,7 @@ async function update(token, id, ctx, type) {
  */
 async function findOne(id, type) {
     try {
-        const response = await axios.get(`${strapiURL}` + contentTypeEndpoint[type] + `/${id}`, {
+        const response = await axios.get(`${strapiURL}` + pluralEndpoint[type] + `/${id}`, {
             headers: {
                 Accept: '*/*'
             }
@@ -87,11 +98,7 @@ async function findOne(id, type) {
  */
 async function findAll(type) {
     try {
-        console.log(type);
-        console.log(contentTypeEndpoint);
-        console.log(contentTypeEndpoint[type]);
-        console.log(strapiURL);
-        const response = await axios.get(`${strapiURL}` + contentTypeEndpoint[type]);
+        const response = await axios.get(`${strapiURL}` + pluralEndpoint[type]);
         return response.data;
     } catch (error) {
         console.error('An error occurred:', error.response);
@@ -99,6 +106,7 @@ async function findAll(type) {
     }
 }
 
+//TODO: Add comments
 async function sendClient(token, endpoint) {
     try {
         let response = await axios.post(endpoint, { token: token });
@@ -109,10 +117,37 @@ async function sendClient(token, endpoint) {
     }
 }
 
+
+//TODO: Add comments
+async function getStructure(type) {
+    try {
+        const identifiers = [];
+        let contentType = singularEndpoint[type];
+        let res = null;
+
+        if (type === 'User') {
+            res = await axios.get(structure + `admin::${contentType}`);
+        } else {
+            res = await axios.get(structure + `api::${contentType}.${contentType}`);
+        }
+
+        const attributes = res.data.data.schema.attributes;
+    
+        for (const identifier in attributes) {
+          identifiers.push(identifier)
+        }
+    
+        return identifiers;
+    } catch (err) {
+        console.log(err);
+    }
+}
+
 module.exports = {
     create,
     update,
     findOne,
     findAll,
+    getStructure,
     sendClient
 }

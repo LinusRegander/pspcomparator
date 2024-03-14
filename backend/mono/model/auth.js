@@ -24,6 +24,7 @@ async function getToken(id, pass) {
     }
 }
 
+
 async function getEncodedCredentials(username, password) {
     try {
         const encodedCredentials = Buffer.from(username + ":" + password).toString('base64')

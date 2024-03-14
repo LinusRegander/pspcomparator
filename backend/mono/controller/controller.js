@@ -1,9 +1,3 @@
-const users = require('../model/user');
-const addresses = require('../model/address');
-const items = require('../model/item');
-const orders = require('../model/order');
-const stocks = require('../model/stock');
-const payments = require('../model/payment');
 const auth = require('../model/auth');
 const klarna = require('../../src/api/klarna/controllers/klarna');
 const testOrder = require('../controller/test_data/testOrder');
@@ -16,15 +10,6 @@ require('dotenv').config();
 const username = 'PK250364_e8c5dc522820';
 const password = 'IEW5fYfsXOx9Nu32';
 let loginToken = null;
-
-const modelType = {
-    User: users,
-    Address: addresses,
-    Item: items,
-    Stock: stocks,
-    Payment: payments,
-    Order: orders
-}
 
 async function createSession(order, token) {
     try {
@@ -73,10 +58,10 @@ async function openWidget() {
   }
 }
 
-async function editType(model, action) {
+async function editType(type, action) {
     try {
         let data = null;
-        const identifiers = await model.getStructure();
+        const identifiers = await endpoints.getStructure(type);
 
         const obj = {};
         for (const identifier of identifiers) {
@@ -85,56 +70,54 @@ async function editType(model, action) {
         }
 
         if (action === 'Create') {
-            data = await endpoints.create(loginToken, obj, model);
+            data = await endpoints.create(loginToken, obj, type);
         } else if (action === 'Update') {
-            data = await endpoints.create(loginToken, obj, model);
+            data = await endpoints.create(loginToken, obj, type);
         }
 
         return data;
     } catch (err) {
-        console.log(`Error creating ${model}`);
+        console.log(`Error creating ${type}`);
     }
 }
 
-async function findType(model, command) {
+async function findType(type) {
     try {
-        let id = await interface.getInfo(`Select ${command} ID`);
-        let item = await endpoints.findOne(id, model);
+        let id = await interface.getInfo(`Select ${type} ID`);
+        let item = await endpoints.findOne(id, type);
         console.log(item.data);
     } catch (err) {
         console.log(err);
     }
 }
 
-async function findAllType(model) {
+async function findAllType(type) {
     try {
-        console.log(model);
-        let items = await endpoints.findAll(model);
+        let items = await endpoints.findAll(type);
         console.log(items.data);
     } catch (err) {
         console.log(err);
     }
 }
 
-async function makeAction(command, action) {
+async function makeAction(type, action) {
     try {
-
         if (!action) {
             throw new Error('Invalid command');
         }
         
         switch (action) {
             case 'Create':
-                await editType(model, action);
+                await editType(type, action);
                 break;
             case 'Update':
-                await editType(model, action);
+                await editType(type, action);
                 break;
             case 'Find One':
-                await findType(model, command);
+                await findType(type);
                 break;
             case 'Find All':
-                await findAllType(model);
+                await findAllType(type);
                 break;
             default:
                 break;
