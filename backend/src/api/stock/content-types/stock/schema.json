@@ -15,7 +15,7 @@
     "Amount": {
       "type": "integer"
     },
-    "item": {
+    "Item": {
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::item.item"

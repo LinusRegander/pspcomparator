@@ -1,8 +1,11 @@
 const widgetBuilder = require('../view/widgetbuilder');
 const auth = require('../model/auth');
 const klarna = require('../model/klarna_endpoints');
+const endpoint = require('../model/endpoints');
+const interface = require('../view/interface');
 require('dotenv');
 
+const orderInfoText = 'Select the ID of the order you want to create a transaction for';
 const username = 'PK250364_e8c5dc522820';
 const password = 'IEW5fYfsXOx9Nu32';
 
@@ -25,6 +28,35 @@ const order = {
   "purchase_currency": "SEK"
 }
 
+let orderTest = {
+  order_amount: null,
+  order_lines: [
+    {
+      name: null,
+      quantity: null,
+      total_amount: null,
+      unit_price: null
+    }
+  ],
+  purchase_country: null,
+  purchase_currency: null
+}
+/*
+const orderTemplate = {
+  "order_amount": getInfo(),
+  "order_lines": [
+    {
+      "name": item.name,
+      "quantity": stock.amount,
+      "total_amount": stock.total,
+      "unit_price": item.price
+    }
+  ],
+  "purchase_country": address.countryCode,
+  "purchase_currency": countryCode[country]
+}
+*/
+
 async function authenticate() {
   try {
     return await auth.getEncodedCredentials(username, password);
@@ -33,7 +65,7 @@ async function authenticate() {
   }
 }
 
-async function createType(type, token) {
+async function createType(type, token, order) {
   try {
     if (!type) {
       throw Error('Cannot find matching type');
@@ -47,6 +79,7 @@ async function createType(type, token) {
 
     if (type === 'Session') {
       res = await klarna.create(type, order, token);
+      console.log(res);
       let sessionId = res.sessionId;
       let clientToken = res.clientToken;
       sessionInfo = { sessionId, clientToken };
@@ -86,6 +119,23 @@ async function viewType(type, token) {
   }
 }
 
+async function getOrderList() {
+  try {
+    let order = await endpoint.findAll('Order');
+    return order.data;
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+function viewList(list) {
+  try {
+    console.log(list);
+  } catch (err) {
+    console.log(err);
+  }
+}
+
 async function makeAction(type, action) {
   try {
     if (!type) {
@@ -101,10 +151,33 @@ async function makeAction(type, action) {
     if (!auth) {
         throw new Error('Cannot authorize user with Klarna');
     }
+
     switch (action) {
         case 'Create':
-          console.log(type);
-          await createType(type, token);
+          let list = await getOrderList();
+          viewList(list);
+          let orderId = await interface.getInfo(orderInfoText);
+          let orderInfo = await endpoint.findOne(orderId, 'Order');
+          console.log(orderInfo.data.attributes.Items.data.attributes);
+          console.log(orderInfo.data.attributes.Items.data.attributes.Name);
+          console.log(orderInfo.data.attributes.address.data);
+
+          orderTest = {
+            order_amount: 10,
+            order_lines: [
+              {
+                name: orderInfo.data.attributes.Items.data.attributes.Name,
+                quantity: null,
+                total_amount: null,
+                unit_price: null
+              }
+            ],
+            purchase_country: orderInfo.data.attributes.address.attributes.Country_Code,
+            purchase_currency: 'SEK'
+          }
+ 
+          console.log(orderTest);
+          await createType(type, token, order);
           break;
         case 'View':
           await viewType(type, token);
