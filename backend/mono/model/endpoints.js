@@ -1,7 +1,7 @@
 const axios = require('axios');
-require('dotenv');
+const path = require('path');
+require('dotenv').config();
 
-//TODO: Fix so that they are in .env file
 const strapiURL = 'http://localhost:1337/api/';
 const structure = 'http://localhost:1337/api/content-type-builder/content-types/';
 

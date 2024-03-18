@@ -1,25 +1,26 @@
-const controller = require('../controller/controller');
-
 const rl = require('readline').createInterface({
     input: process.stdin,
     output: process.stdout
 });
 
 const commands = {
-    strapi: {
+    Strapi: {
         title: "Strapi Commands",
-        options: ["Item", "Address", "Order", "Payment", "Stock", "User"]
+        typeOptions: ["Item", "Address", "Order", "Payment", "Stock", "User"],
+        actionOptions: ["Create", "Update", "Find One", "Find All", "Delete"]
     },
-    klarna: {
+    Klarna: {
         title: "Klarna Commands",
         options: []
     }
 };
 
-const actionCommands = ["Create", "Update", "Find One", "Find All", "Delete"];
-
 async function getInfo(info) {
     try {
+        if (!info) {
+            throw Error('No info provided');
+        }
+
         return await new Promise((resolve) => {
             rl.question(`${info}: `, (answer) => {
                 resolve(answer);
@@ -30,74 +31,140 @@ async function getInfo(info) {
     }
 }
 
-async function chooseCommand(commandType) {
+async function chooseCommand(type, optionType) {
     try {
-        const commandOptions = commands[commandType].options;
-        const commandTitle = commands[commandType].title;
-        
-        const choice = await askUser(`Choose a command type for ${commandTitle}:\n${generateOptionsList(commandOptions)}`);
-        return commandOptions[parseInt(choice) - 1];
+        let options = null;
+        let choice = null;
+        let optionsList = null;
+
+        if (!type) {
+            throw Error('Please provide a type.');
+        }
+
+        if (!optionType) {
+            throw Error('Please provide an option type');
+        }
+    
+        if (optionType === 'Command') {
+            options = commands[type].typeOptions;
+            const title = commands[type].title;
+            optionsList = await generateOptionsList(options, true);
+            choice = await askUser(`Choose a command type for ${title}:\n${optionsList}`);
+        }
+
+        if (optionType === 'Action') {
+            options = commands[type].actionOptions;
+            optionsList = await generateOptionsList(options, true);
+            choice = await askUser(`Choose an action:\n${optionsList}`);
+        }
+
+        if ((optionType === 'Command' && choice === '7') || (optionType === 'Action' && choice === '6')) {
+            return 'Return';
+        }
+    
+        return options[parseInt(choice) - 1];
     } catch (err) {
-        console.error('Error choosing command:', err.message);
-        throw err;
+        console.log('Error creating command structure.', err);
     }
 }
 
-async function chooseAction() {
-    try {
-        const choice = await askUser(`Choose an action:\n${generateOptionsList(actionCommands)}`);
-        return actionCommands[parseInt(choice) - 1];
-    } catch (err) {
-        console.error('Error choosing action:', err.message);
-        throw err;
-    }
-}
-
+//TODO: Better error handling and comment
 async function askUser(question) {
-    return new Promise((resolve) => {
-        rl.question(question, (answer) => {
-            resolve(answer.trim());
+    try {
+        if (!question) {
+            throw Error('No question provided');
+        }
+    
+        return new Promise((resolve) => {
+            rl.question(question, (answer) => {
+                resolve(answer.trim());
+            });
         });
-    });
+    } catch (err) {
+        console.log(err);
+    }
 }
 
-function generateOptionsList(options) {
-    return options.map((option, index) => `${index + 1}. ${option}`).join('\n') + '\nEnter your choice: ';
+//TODO: Add error handling and comment
+function generateOptionsList(options, includeGoBack = false) {
+    try {
+        if (!options) {
+            throw Error('List not generated because options are not provided.');
+        }
+
+        let optionsList = options.map((option, index) => `${index + 1}. ${option}`);
+        if (includeGoBack) {
+            optionsList.push(`${options.length + 1}. Go Back`);
+        }
+
+        return optionsList.join('\n') + '\nEnter your choice: ';
+    } catch (err) {
+        console.log('Error generating options list.', err);
+    }
 }
 
+
+//TODO: Better error handling and comment
 async function run(controller) {
     try {
-        let auth = await controller.authenticate();
-        console.log(auth);
+        if (!controller) {
+            throw Error('Error running interface. Please provide a Controller');
+        }
 
-        if (auth) {
-            const commandType = await askUser("Choose a command type:\n1. Strapi\n2. Klarna\n3. Logout User\nEnter your choice: ");
-        
-            switch (commandType.trim()) {
+        let auth = await controller.authenticate();
+
+        if (!auth) {
+            console.log('User must authenticate themselves');
+        }
+
+        let commandType = '';
+        let typeMenu = null;
+        let commandMenu = null;
+
+        while (true) {
+            typeMenu = true;
+            commandType = await askUser("Choose a command type:\n1. Strapi\n2. Klarna\n3. Logout User\nEnter your choice: ");
+
+            if (!typeMenu) {
+                commandType = await askUser("Choose a command type:\n1. Strapi\n2. Klarna\n3. Logout User\nEnter your choice: ");
+            }
+
+            let choice = commandType.trim();
+
+            switch (choice) {
                 case '1':
-                    const strapiCommand = await chooseCommand('strapi');
-                    const strapiAction = await chooseAction();
-                    await controller.makeAction(strapiCommand, strapiAction);
+                    while (true) {
+                        let strapiCommand = await chooseCommand('Strapi', 'Command');
+                        if (strapiCommand === 'Return') {
+                            commandMenu = false;
+                            break;
+                        }
+
+                        let strapiAction = await chooseCommand('Strapi', 'Action');
+                        if (strapiAction === 'Return') {
+                            continue;
+                        }
+
+                        await controller.makeAction(strapiCommand, strapiAction);
+                    }
                     break;
                 case '2':
-                    const klarnaCommand = await chooseCommand('klarna');
-                    const klarnaAction = await chooseAction();
+                    let klarnaCommand = await chooseCommand('Klarna', 'Command');
+                    let klarnaAction = await chooseCommand('Klarna', 'Action');
                     await controller.makeAction(klarnaCommand, klarnaAction);
                     break;
                 case '3':
+                    await controller.logoutUser();
                     console.log('User logged out.');
-                    break;
+                    rl.close();
+                    return;
                 default:
                     console.log('Invalid choice.');
                     break;
             }
-
-            rl.close();
-        } else {
-            console.log('User must authenticate themselves');
         }
-    } catch (err) {
-        console.log(err);
+    } catch (error) {
+        console.error('Error:', error);
     }
 }
 
