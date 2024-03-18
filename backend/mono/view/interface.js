@@ -93,6 +93,7 @@ function generateOptionsList(options, includeGoBack = false) {
         }
 
         let optionsList = options.map((option, index) => `${index + 1}. ${option}`);
+        
         if (includeGoBack) {
             optionsList.push(`${options.length + 1}. Go Back`);
         }
@@ -103,31 +104,20 @@ function generateOptionsList(options, includeGoBack = false) {
     }
 }
 
-
-//TODO: Better error handling and comment
-async function run(controller) {
+async function typeMenu() {
     try {
-        if (!controller) {
-            throw Error('Error running interface. Please provide a Controller');
-        }
+        return await askUser("Choose a command type:\n1. Strapi\n2. Klarna\n3. Logout User\nEnter your choice: ");
+    } catch (err) {
+        console.log(err);
+    }
+}
 
-        let auth = await controller.authenticate();
-
-        if (!auth) {
-            console.log('User must authenticate themselves');
-        }
-
+async function createInterface(controller) {
+    try {
         let commandType = '';
-        let typeMenu = null;
-        let commandMenu = null;
 
         while (true) {
-            typeMenu = true;
-            commandType = await askUser("Choose a command type:\n1. Strapi\n2. Klarna\n3. Logout User\nEnter your choice: ");
-
-            if (!typeMenu) {
-                commandType = await askUser("Choose a command type:\n1. Strapi\n2. Klarna\n3. Logout User\nEnter your choice: ");
-            }
+            commandType = await typeMenu();
 
             let choice = commandType.trim();
 
@@ -136,7 +126,6 @@ async function run(controller) {
                     while (true) {
                         let strapiCommand = await chooseCommand('Strapi', 'Command');
                         if (strapiCommand === 'Return') {
-                            commandMenu = false;
                             break;
                         }
 
@@ -155,7 +144,6 @@ async function run(controller) {
                     break;
                 case '3':
                     await controller.logoutUser();
-                    console.log('User logged out.');
                     rl.close();
                     return;
                 default:
@@ -163,6 +151,26 @@ async function run(controller) {
                     break;
             }
         }
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+//TODO: Better error handling and comment
+async function run(controller) {
+    try {
+        if (!controller) {
+            throw Error('Error running interface. Please provide a Controller');
+        }
+
+        let auth = await controller.authenticate();
+
+        if (!auth) {
+            console.log('User must authenticate themselves');
+            await controller.authenticate();
+        }
+
+        await createInterface(controller);
     } catch (error) {
         console.error('Error:', error);
     }
