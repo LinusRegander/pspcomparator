@@ -47,10 +47,6 @@ async function findAllType(type) {
     }
 }
 
-async function goBack() {
-
-}
-
 async function makeAction(type, action) {
     try {
         if (!action) {

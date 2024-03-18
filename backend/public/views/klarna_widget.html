@@ -1,0 +1,42 @@
+
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title></title>
+        </head>
+        <body>
+            <div id="klarna-payments-container"></div>
+            <button id="authorize-button">Authorize Payment</button>
+            <script src="https://x.klarnacdn.net/kp/lib/v1/api.js" async></script>
+            <script>
+                window.addEventListener('load', function () {
+                    Klarna.Payments.init({
+                        client_token: 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjgyMzA1ZWJjLWI4MTEtMzYzNy1hYTRjLTY2ZWNhMTg3NGYzZCJ9.eyJzZXNzaW9uX2lkIjoiY2ViNjFhMmUtZmYwZC01Yjc5LTkxOTUtZTE0NGVlYmVhYzE0IiwiYmFzZV91cmwiOiJodHRwczovL2pzLnBsYXlncm91bmQua2xhcm5hLmNvbS9ldS9rcCIsImRlc2lnbiI6ImtsYXJuYSIsImxhbmd1YWdlIjoiZW4iLCJwdXJjaGFzZV9jb3VudHJ5IjoiU0UiLCJlbnZpcm9ubWVudCI6InBsYXlncm91bmQiLCJtZXJjaGFudF9uYW1lIjoiWW91ciBidXNpbmVzcyBuYW1lIiwic2Vzc2lvbl90eXBlIjoiUEFZTUVOVFMiLCJjbGllbnRfZXZlbnRfYmFzZV91cmwiOiJodHRwczovL2V1LnBsYXlncm91bmQua2xhcm5hZXZ0LmNvbSIsInNjaGVtZSI6dHJ1ZSwiZXhwZXJpbWVudHMiOlt7Im5hbWUiOiJrcC1jbGllbnQtb25lLXB1cmNoYXNlLWZsb3ciLCJ2YXJpYXRlIjoidmFyaWF0ZS0xIn0seyJuYW1lIjoia3BjLTFrLXNlcnZpY2UiLCJ2YXJpYXRlIjoidmFyaWF0ZS0xIn0seyJuYW1lIjoia3AtY2xpZW50LXV0b3BpYS1mbG93IiwidmFyaWF0ZSI6InZhcmlhdGUtMSJ9LHsibmFtZSI6ImtwLWNsaWVudC11dG9waWEtc3RhdGljLXdpZGdldCIsInZhcmlhdGUiOiJpbmRleCIsInBhcmFtZXRlcnMiOnsiZHluYW1pYyI6InRydWUifX0seyJuYW1lIjoiaW4tYXBwLXNkay1uZXctaW50ZXJuYWwtYnJvd3NlciIsInBhcmFtZXRlcnMiOnsidmFyaWF0ZV9pZCI6Im5ldy1pbnRlcm5hbC1icm93c2VyLWVuYWJsZSJ9fSx7Im5hbWUiOiJrcC1jbGllbnQtdXRvcGlhLXNkay1mbG93IiwidmFyaWF0ZSI6InZhcmlhdGUtMSJ9LHsibmFtZSI6ImtwLWNsaWVudC11dG9waWEtd2Vidmlldy1mbG93IiwidmFyaWF0ZSI6InZhcmlhdGUtMSJ9LHsibmFtZSI6ImluLWFwcC1zZGstY2FyZC1zY2FubmluZyIsInBhcmFtZXRlcnMiOnsidmFyaWF0ZV9pZCI6ImNhcmQtc2Nhbm5pbmctZW5hYmxlIn19XSwicmVnaW9uIjoiZXUiLCJvcmRlcl9hbW91bnQiOjEwMCwib2ZmZXJpbmdfb3B0cyI6Miwib28iOiI1dSIsInZlcnNpb24iOiJ2MS4xMC4wLTE1OTAtZzNlYmMzOTA3In0.jnV2S-AJz3CvUha_nVLKojEzNiqZWl1Pfn3gzU7PK89YVMplagL_I1AiYhMrNB1pReqRaR7rK3gKt9MXx9FpeohoG9k3Bb601omk6QBli0gteR0ZinAwd4McPExtykUlsUTC2iaCzoPnVmic6JgxrafXo5sfSW-V-KCDhjuWjk68kyLekWwA42aUBqXrI1JresDDE4aAZCXs3R4JbBx36LP8X-AyGK1Vv2eu6clfVIrb35oDaUt9sex1UyogZRdIB5RJhnFomdsjjVJ_EJ6PRG5O6ArV7kYTX5NaZsmo9X8_5RMSGMyhectNce_XAZ0QC0Jswi6cPyl06iptyGAqIA'
+                    });
+                    Klarna.Payments.load(
+                        {
+                            container: '#klarna-payments-container'
+                        },
+                        {},
+                        function (res) {
+                            console.debug(res);
+                        }
+                    )
+                    document.getElementById('authorize-button').addEventListener('click', function() {
+                        Klarna.Payments.authorize(
+                            {},
+                            {}, 
+                            function(res) {   
+                              <!-- res.approved == true -> call endpoint to update order in strapi with res.authorization_token -->                           
+                              [object Object]
+                              console.debug(res);
+                            }
+                        );
+                    });
+                });
+            </script>
+        </body>
+        </html>
+    

@@ -24,14 +24,15 @@ module.exports = {
     try {
 
       let token = ctx.request.body.token;
-      let order = ctx.request.body.order;
+      let address = ctx.request.body.address;
+      let authToken = ctx.request.body.authToken;
 
       const headers = {
         Authorization: `Basic ${token}`,
         'Content-Type': 'application/json',
       }
   
-      const res = await axios.post(`${playgroundURL}/payments/v1/authorizations/${token}/order`, order, {headers});
+      const res = await axios.post(`${playgroundURL}/payments/v1/authorizations/${authToken}/order`, address, {headers});
       
       return res.data;
 
@@ -95,12 +96,6 @@ module.exports = {
       const res = await axios.post(`${playgroundURL}/checkout/v3/orders`, {order}, {headers});
 
       return res.data;
-      /*
-      const url = res.data.redirect_url;
-      const script = `<script>window.open('${url}', '_blank');</script>`;
-      ctx.type = 'text/html';
-      ctx.send(script);
-      */
     } catch (error) {
       console.error('Error opening the Klarna checkout:', error);
       throw error;
@@ -121,7 +116,7 @@ module.exports = {
   },
   async openWidget(ctx) {
     try {
-      const filepath = path.resolve('../backend/public/views/widget.html');
+      const filepath = path.resolve(__dirname, '../../../../public/views/widget.html');
       const htmlContent = fs.readFileSync(filepath, 'utf-8');
 
       ctx.type = 'text/html';
