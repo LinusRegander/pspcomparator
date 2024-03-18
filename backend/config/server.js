@@ -7,4 +7,11 @@ module.exports = ({ env }) => ({
   webhooks: {
     populateRelations: env.bool('WEBHOOKS_POPULATE_RELATIONS', false),
   },
+  security: {
+    csp: {
+      directives: {
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "js.klarna.com"],
+      },
+    },
+  },
 });

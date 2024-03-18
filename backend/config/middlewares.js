@@ -1,7 +1,16 @@
 module.exports = [
   'strapi::logger',
+  {
+    name: 'strapi::security',
+    config: {
+      contentSecurityPolicy: {
+        directives: {
+          'script-src': ["'self'", "'unsafe-inline'", 'https://x.klarnacdn.net']
+        }
+      }
+    }
+  },
   'strapi::errors',
-  'strapi::security',
   'strapi::cors',
   'strapi::poweredBy',
   'strapi::query',
@@ -9,4 +18,4 @@ module.exports = [
   'strapi::session',
   'strapi::favicon',
   'strapi::public',
-];
+]
