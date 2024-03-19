@@ -33,19 +33,6 @@ async function createSession(order, token) {
     }
 }
 
-async function viewSession(sessionId) {
-  try {
-      const response = await axios.post('http://localhost:1337/api/klarna/view_session', {
-        sessionId: sessionId,
-        token: auth.getEncodedCredentials(username, password)
-      });
-
-      return response;
-  } catch (error) {
-    console.error('Error creating a Klarna session:', error);
-  }
-}
-
 async function createOrder(order, authtoken) {
   try {
       const response = await axios.post('http://localhost:1337/api/klarna/create_order', {
@@ -60,13 +47,6 @@ async function createOrder(order, authtoken) {
   }
 }
 
-async function openWidget() {
-  try {
-      opn('http://localhost:1337/api/klarna/open_widget');
-  } catch (error) {
-    console.error('Error creating a Klarna session:', error);
-  }
-}
 
 function getExampleOrder() {
   const order = {
@@ -111,7 +91,7 @@ function getExampleOrder() {
   }
   return order
 }
-function createHTMLPageWithToken(token, payments) {
+function createHTMLPageWithToken(clientToken, localToken) {
   const htmlContent = `
       <!DOCTYPE html>
       <html lang="en">
@@ -127,7 +107,7 @@ function createHTMLPageWithToken(token, payments) {
           <script>
               window.addEventListener('load', function () {
                   Klarna.Payments.init({
-                      client_token: '${token}'
+                      client_token: '${clientToken}'
                   });
                   Klarna.Payments.load(
                       {
@@ -184,20 +164,6 @@ function createHTMLPageWithToken(token, payments) {
       opn('../../public/klarna_widget.html');
   });
 }
-async function createKlarnaOrderFromSession(sessionId) {
-
-  let klarnaSession = await viewSession(sessionId)
-  let klarnaOrder = {
-    locale: klarnaSession.data.locale,
-    order_amount:klarnaSession.data.order_amount,
-    order_lines: klarnaSession.data.order_lines,
-    purchase_country: klarnaSession.data.purchase_country,
-    purchase_currency: klarnaSession.data.purchase_currency,
-    intent: klarnaSession.data.intent
-  }
-  console.log(klarnaOrder)
-  return klarnaOrder
-}
 async function main() {
     
   //log in to strapi
@@ -213,9 +179,7 @@ async function main() {
   // console.log(session.data);
 
   //start klarna widget
-  createHTMLPageWithToken(session.data.clientToken, session.data.paymentCategoryHeaders)
-  // await endpoints.sendClient(session.data.clientToken, 'http://localhost:1337/api/klarna/send_token');
-  // await openWidget();
+  createHTMLPageWithToken(session.data.clientToken, localToken)
   let authToken = '';
   while(true) {
     await wait(5000);
