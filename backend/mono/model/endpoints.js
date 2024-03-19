@@ -98,7 +98,7 @@ async function findOne(id, type) {
  */
 async function findAll(type) {
     try {
-        const res = await axios.get(`${strapiURL}` + pluralEndpoint[type]);
+        const res = await axios.get(`${strapiURL}` + pluralEndpoint[type] + '/?populate=*');
         return res.data;
     } catch (error) {
         console.error('An error occurred:', error);

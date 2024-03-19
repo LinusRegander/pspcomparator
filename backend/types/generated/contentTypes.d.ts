@@ -875,7 +875,7 @@ export interface ApiOrderOrder extends Schema.CollectionType {
       'plugin::users-permissions.user'
     >;
     Status: Attribute.Enumeration<
-      ['Started', 'Payment Required', 'In Progress', 'Finished', 'Canceled']
+      ['Started', 'Authorized', 'Finished', 'Canceled']
     >;
     Ordernumber: Attribute.UID;
     Date: Attribute.DateTime;

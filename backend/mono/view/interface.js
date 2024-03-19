@@ -176,7 +176,6 @@ async function run(controller, klarnaController) {
         }
 
         console.log('User authenticated and logged in.');
-
         await createInterface(controller, klarnaController, loginToken);
     } catch (error) {
         console.error('Error:', error);

@@ -1,3 +1,4 @@
+const item = require('../../src/api/item/controllers/item');
 const auth = require('../model/auth');
 const endpoints = require('../model/endpoints');
 const interface = require('../view/interface');
@@ -40,8 +41,22 @@ async function findType(type, role) {
 
 async function findAllType(type, role) {
     try {
-        let items = await endpoints.findAll(type);
-        console.log(items.data);
+        if (role === 'Buyer' && type === 'Order') {
+            console.log(`${role} not allowed to access this.`);
+        }
+
+        if (role === 'Seller') {
+            let items = await endpoints.findAll(type);
+
+            for (let item of items.data) {
+                let status = item.attributes.Status;
+
+                if (status === ('Authorized' || 'Finished')) {
+                    console.log(item);
+                }
+            }
+        }
+
     } catch (err) {
         console.log(err);
     }
@@ -54,7 +69,7 @@ async function makeAction(type, action, loginToken) {
         }
         
         const res = await endpoints.getRole(loginToken);
-        const userRole = res.role.name;
+        let userRole = res.role.name;
 
         switch (action) {
             case 'Create':

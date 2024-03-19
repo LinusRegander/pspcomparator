@@ -26,8 +26,7 @@
       "type": "enumeration",
       "enum": [
         "Started",
-        "Payment Required",
-        "In Progress",
+        "Authorized",
         "Finished",
         "Canceled"
       ]
