@@ -143,11 +143,26 @@ async function getStructure(type) {
     }
 }
 
+async function getRole(token) {
+    try {
+        let res = await axios.get(strapiURL + pluralEndpoint['User'] + '/me' + '/?populate=role', {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        return res.data
+    } catch (err) {
+        console.log(err);
+    }
+}
+
 module.exports = {
     create,
     update,
     findOne,
     findAll,
     getStructure,
-    sendClient
+    sendClient,
+    getRole
 }

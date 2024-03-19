@@ -136,7 +136,7 @@ function viewList(list) {
   }
 }
 
-async function makeAction(type, action) {
+async function makeAction(type, action, loginToken) {
   try {
     if (!type) {
       throw new Error('Invalid type');
@@ -175,8 +175,7 @@ async function makeAction(type, action) {
             purchase_country: orderInfo.data.attributes.address.attributes.Country_Code,
             purchase_currency: 'SEK'
           }
- 
-          console.log(orderTest);
+          
           await createType(type, token, order);
           break;
         case 'View':

@@ -115,7 +115,7 @@ async function typeMenu() {
     }
 }
 
-async function interfaceType(type, controller) {
+async function interfaceType(type, controller, loginToken) {
     while (true) {
         let command = await chooseCommand(type, 'Command');
         if (command === 'Return') {
@@ -127,11 +127,11 @@ async function interfaceType(type, controller) {
             continue;
         }
 
-        await controller.makeAction(command, action);
+        await controller.makeAction(command, action, loginToken);
     }
 }
 
-async function createInterface(controller, klarnaController) {
+async function createInterface(controller, klarnaController, loginToken) {
     try {
         let commandType = '';
 
@@ -142,7 +142,7 @@ async function createInterface(controller, klarnaController) {
 
             switch (choice) {
                 case '1':
-                    await interfaceType('Strapi', controller)
+                    await interfaceType('Strapi', controller, loginToken);
                     break;
                 case '2':
                     await interfaceType('Klarna', klarnaController)
@@ -168,14 +168,16 @@ async function run(controller, klarnaController) {
             throw Error('Error running interface. Please provide a Controller');
         }
 
-        let auth = await controller.authenticate();
-
-        if (!auth) {
+        let loginToken = await controller.loginUser();
+        
+        if (!loginToken) {
             console.log('User must authenticate themselves');
-            await controller.authenticate();
+            await controller.loginUser();
         }
 
-        await createInterface(controller, klarnaController);
+        console.log('User authenticated and logged in.');
+
+        await createInterface(controller, klarnaController, loginToken);
     } catch (error) {
         console.error('Error:', error);
     }
