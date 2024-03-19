@@ -26,9 +26,7 @@
       "type": "enumeration",
       "enum": [
         "Started",
-        "Payment Required",
-        "In Progress",
-        "Finished",
+        "Authorized",
         "Canceled"
       ]
     },
@@ -42,6 +40,9 @@
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::address.address"
+    },
+    "klarna_auth_token": {
+      "type": "string"
     }
   }
 }

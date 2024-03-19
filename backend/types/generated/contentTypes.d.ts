@@ -870,9 +870,7 @@ export interface ApiOrderOrder extends Schema.CollectionType {
       'api::item.item'
     >;
     Buyer: Attribute.Relation<'api::order.order', 'oneToOne', 'admin::user'>;
-    Status: Attribute.Enumeration<
-      ['Started', 'Payment Required', 'In Progress', 'Finished', 'Canceled']
-    >;
+    Status: Attribute.Enumeration<['Started', 'Authorized', 'Canceled']>;
     Ordernumber: Attribute.UID;
     Date: Attribute.DateTime;
     address: Attribute.Relation<
@@ -880,6 +878,7 @@ export interface ApiOrderOrder extends Schema.CollectionType {
       'oneToOne',
       'api::address.address'
     >;
+    klarna_auth_token: Attribute.String;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -910,23 +909,7 @@ export interface ApiPaymentPayment extends Schema.CollectionType {
     draftAndPublish: true;
   };
   attributes: {
-    Order: Attribute.Relation<
-      'api::payment.payment',
-      'oneToOne',
-      'api::order.order'
-    >;
-    Buyer: Attribute.Relation<
-      'api::payment.payment',
-      'oneToOne',
-      'admin::user'
-    >;
-    Date: Attribute.DateTime;
-    Type: Attribute.Enumeration<['Direct', 'Invoice']>;
-    Klarna_ID: Attribute.UID;
-    Status: Attribute.Enumeration<
-      ['Pending', 'Sent', 'Canceled', 'Declined', 'Refunded', 'Expired']
-    >;
-    Currency: Attribute.Enumeration<['SEK']>;
+    klarna_auth_token: Attribute.String;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;

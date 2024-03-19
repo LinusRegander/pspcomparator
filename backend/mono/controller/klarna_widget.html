@@ -1,90 +1,4 @@
-const users = require('../model/user');
-const auth = require('../model/auth');
-const orders = require('../model/order');
-const addresses = require('../model/address');
-const klarna = require('../../src/api/klarna/controllers/klarna');
-const testOrder = require('../controller/test_data/testOrder');
-const endpoints = require('../model/endpoints');
-const axios = require('axios');
-const opn = require('opn');
-const fs = require('fs');
-require('dotenv').config();
 
-const username = 'PK250364_e8c5dc522820';
-const password = 'IEW5fYfsXOx9Nu32';
-var localToken = '12313123123';
-
-async function login() {
-    let token = await auth.getToken('thatman', 'thispassword')
-    localToken = token;
-    console.log('User logged in with token: ', localToken);
-}
-
-async function createSession(order, token) {
-    try {
-        const response = await axios.post('http://localhost:1337/api/klarna/create_session', {
-            order: order,
-            token: token
-        });
-
-        return response;
-    } catch (error) {
-      console.error('Error creating a Klarna session:', error);
-    }
-}
-
-async function viewSession(sessionId, token) {
-  try {
-      const response = await axios.post('http://localhost:1337/api/klarna/view_session', {
-        sessionId: sessionId,
-        token: token
-      });
-
-      return response;
-  } catch (error) {
-    console.error('Error creating a Klarna session:', error);
-  }
-}
-
-async function createOrder(order, token) {
-  try {
-      const response = await axios.post('http://localhost:1337/api/klarna/create_order', {
-        order: order,
-        token: token
-    });
-
-    return response;
-  } catch (error) {
-    console.error('Error creating a Klarna session:', error);
-  }
-}
-
-async function openWidget() {
-  try {
-      opn('http://localhost:1337/api/klarna/open_widget');
-  } catch (error) {
-    console.error('Error creating a Klarna session:', error);
-  }
-}
-
-function getExampleOrder() {
-  const order = {
-    "order_amount": 1000,
-    "order_lines": [
-      {
-        "name": "Ikea stol",
-        "quantity": 10,
-        "total_amount": 1000,
-        "unit_price": 100
-      }
-    ],
-    "purchase_country": "SE",
-    "purchase_currency": "SEK"
-  }
-  return order
-}
-function createHTMLPageWithToken(token, payments) {
-  const htmlContent = `
       <!DOCTYPE html>
       <html lang="en">
       <head>
@@ -99,7 +13,7 @@ function createHTMLPageWithToken(token, payments) {
           <script>
               window.addEventListener('load', function () {
                   Klarna.Payments.init({
-                      client_token: '${token}'
+                      client_token: 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjgyMzA1ZWJjLWI4MTEtMzYzNy1hYTRjLTY2ZWNhMTg3NGYzZCJ9.eyJzZXNzaW9uX2lkIjoiZmViZGE4OGYtZDExMC01MzQ1LThkNWQtMjQxMzIzNDY0MDlkIiwiYmFzZV91cmwiOiJodHRwczovL2pzLnBsYXlncm91bmQua2xhcm5hLmNvbS9ldS9rcCIsImRlc2lnbiI6ImtsYXJuYSIsImxhbmd1YWdlIjoiZW4iLCJwdXJjaGFzZV9jb3VudHJ5IjoiU0UiLCJlbnZpcm9ubWVudCI6InBsYXlncm91bmQiLCJtZXJjaGFudF9uYW1lIjoiWW91ciBidXNpbmVzcyBuYW1lIiwic2Vzc2lvbl90eXBlIjoiUEFZTUVOVFMiLCJjbGllbnRfZXZlbnRfYmFzZV91cmwiOiJodHRwczovL2V1LnBsYXlncm91bmQua2xhcm5hZXZ0LmNvbSIsInNjaGVtZSI6dHJ1ZSwiZXhwZXJpbWVudHMiOlt7Im5hbWUiOiJrcC1jbGllbnQtb25lLXB1cmNoYXNlLWZsb3ciLCJ2YXJpYXRlIjoidmFyaWF0ZS0xIn0seyJuYW1lIjoia3BjLTFrLXNlcnZpY2UiLCJ2YXJpYXRlIjoidmFyaWF0ZS0xIn0seyJuYW1lIjoia3AtY2xpZW50LXV0b3BpYS1mbG93IiwidmFyaWF0ZSI6InZhcmlhdGUtMSJ9LHsibmFtZSI6ImtwLWNsaWVudC11dG9waWEtc3RhdGljLXdpZGdldCIsInZhcmlhdGUiOiJpbmRleCIsInBhcmFtZXRlcnMiOnsiZHluYW1pYyI6InRydWUifX0seyJuYW1lIjoiaW4tYXBwLXNkay1uZXctaW50ZXJuYWwtYnJvd3NlciIsInBhcmFtZXRlcnMiOnsidmFyaWF0ZV9pZCI6Im5ldy1pbnRlcm5hbC1icm93c2VyLWVuYWJsZSJ9fSx7Im5hbWUiOiJrcC1jbGllbnQtdXRvcGlhLXNkay1mbG93IiwidmFyaWF0ZSI6InZhcmlhdGUtMSJ9LHsibmFtZSI6ImtwLWNsaWVudC11dG9waWEtd2Vidmlldy1mbG93IiwidmFyaWF0ZSI6InZhcmlhdGUtMSJ9LHsibmFtZSI6ImluLWFwcC1zZGstY2FyZC1zY2FubmluZyIsInBhcmFtZXRlcnMiOnsidmFyaWF0ZV9pZCI6ImNhcmQtc2Nhbm5pbmctZW5hYmxlIn19XSwicmVnaW9uIjoiZXUiLCJvcmRlcl9hbW91bnQiOjEwMDAsIm9mZmVyaW5nX29wdHMiOjIsIm9vIjoiNXUiLCJ2ZXJzaW9uIjoidjEuMTAuMC0xNTkwLWczZWJjMzkwNyJ9.CxbgWUmXCP6cZd8ATB7kxvTF4UbcYw5aYvfvEQM1ElLgHGgi7uMjAcuAKxgWNMCDguV0RD6k9s8YeQVdoDtODHRO59NvrMYHjsR56-JF5AKFJfdJVwXIewHBUCX16yvkT07ob7Fl9xd0zFDd-PMDw0oqBfPMfmlDxCP5sYDmXrCy-N5LnIb8mFqpw0mvXtb4lbc_j7EwOg1y7-HFgwKknFrzlzv94tUQITJbiMJeCdrryDQczvO4d5qF59xFHEefJ_MvKs43l8ZbvR3XhUdpA8qw789_wTCeHEr1-Rvj7z8cVm5g7PIywjQx9RhAe63rVqeM1CpzisYW5umUEwlFAQ'
                   });
                   Klarna.Payments.load(
                       {
@@ -146,7 +60,7 @@ function createHTMLPageWithToken(token, payments) {
                                 const request = {
                                   method: 'PUT',
                                   headers: {
-                                    Authorization: 'Bearer ${localToken}',
+                                    Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NiwiaWF0IjoxNzEwODQ2OTIzLCJleHAiOjE3MTM0Mzg5MjN9.EGk4X544dPe2z9JHUM351UyGhOuGIxKRaSztaOAUH6c',
                                     'Content-Type': 'application/json'
                                   },
                                   body: JSON.stringify({
@@ -170,37 +84,4 @@ function createHTMLPageWithToken(token, payments) {
           </script>
       </body>
       </html>
-  `;
-
-  // Write the HTML content to a file
-  fs.writeFile('klarna_widget.html', htmlContent, (err) => {
-      if (err) throw err;
-      console.log('HTML file created successfully');
-      // Open the HTML file using opn
-      opn('klarna_widget.html');
-  });
-}
-
-async function main() {
-    
-  //log in to strapi
-  await login();
-  console.log(localToken);
-  //create order in strapi;
-  let order = getExampleOrder();
-  console.log(order)
-  //start klarna session;
-  let token = auth.getEncodedCredentials(username, password);
-  console.log(token)
-  let session = await createSession(order, token);
-  console.log(session.data);
-  //start klarna widget
-  createHTMLPageWithToken(session.data.clientToken, session.data.paymentCategoryHeaders)
-  // await endpoints.sendClient(session.data.clientToken, 'http://localhost:1337/api/klarna/send_token');
-  // await openWidget();
-  //get authToken from widget
-  // await createOrder(authToken, localToken)
-
-}
-
-main();
+  
