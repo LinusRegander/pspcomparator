@@ -33,11 +33,11 @@ async function createSession(order, token) {
     }
 }
 
-async function viewSession(sessionId, token) {
+async function viewSession(sessionId) {
   try {
       const response = await axios.post('http://localhost:1337/api/klarna/view_session', {
         sessionId: sessionId,
-        token: token
+        token: auth.getEncodedCredentials(username, password)
       });
 
       return response;
@@ -46,16 +46,17 @@ async function viewSession(sessionId, token) {
   }
 }
 
-async function createOrder(order, token) {
+async function createOrder(order, authtoken) {
   try {
       const response = await axios.post('http://localhost:1337/api/klarna/create_order', {
         order: order,
-        token: token
+        authToken: authtoken,
+        token: auth.getEncodedCredentials(username, password)
     });
 
-    return response;
+    return response.data;
   } catch (error) {
-    console.error('Error creating a Klarna session:', error);
+    console.error('Error creating a Klarna order:', error);
   }
 }
 
@@ -69,17 +70,44 @@ async function openWidget() {
 
 function getExampleOrder() {
   const order = {
-    "order_amount": 1000,
+    "order_amount": 10000,
     "order_lines": [
       {
         "name": "Ikea stol",
-        "quantity": 10,
-        "total_amount": 1000,
-        "unit_price": 100
+        "quantity": 100,
+        "total_amount": 10000,
+        "unit_price": 100,
+        "total_discount_amount": 0,
+        "type": "physical"
       }
     ],
     "purchase_country": "SE",
-    "purchase_currency": "SEK"
+    "purchase_currency": "SEK",
+    "intent": "buy",
+    "locale": "en-SE",
+    billing_address: {
+        given_name: "Alice",
+        family_name: "Test",
+        email: "customer@email.se",
+        street_address: "Södra Blasieholmshamnen 2",
+        postal_code: "11148",
+        city: "Stockholm",
+        phone: "+46701740615",
+        country: "SE"
+    },
+    shipping_address: {
+        given_name: "Alice",
+        family_name: "Test",
+        email: "customer@email.se",
+        street_address: "Södra Blasieholmshamnen 2",
+        postal_code: "11148",
+        city: "Stockholm",
+        phone: "+46701740615",
+        country: "SE"
+    },
+    customer: {
+        date_of_birth: "1941-03-21",
+    },
   }
   return order
 }
@@ -113,31 +141,7 @@ function createHTMLPageWithToken(token, payments) {
                   document.getElementById('authorize-button').addEventListener('click', function() {
                       Klarna.Payments.authorize(
                           {},
-                          {
-                              billing_address: {
-                                  given_name: "Alice",
-                                  family_name: "Test",
-                                  email: "customer@email.se",
-                                  street_address: "Södra Blasieholmshamnen 2",
-                                  postal_code: "11148",
-                                  city: "Stockholm",
-                                  phone: "+46701740615",
-                                  country: "SE"
-                              },
-                              shipping_address: {
-                                  given_name: "Alice",
-                                  family_name: "Test",
-                                  email: "customer@email.se",
-                                  street_address: "Södra Blasieholmshamnen 2",
-                                  postal_code: "11148",
-                                  city: "Stockholm",
-                                  phone: "+46701740615",
-                                  country: "SE"
-                              },
-                              customer: {
-                                  date_of_birth: "1941-03-21",
-                              },
-                          }, 
+                          {}, 
                           function(res) {   
                             <!-- res.approved == true -> call endpoint to update order in strapi with res.authorization_token -->
                             console.debug(res);
@@ -157,7 +161,7 @@ function createHTMLPageWithToken(token, payments) {
                                   })
                                 };
                                 console.debug(request)
-                                const response = await fetch('http://localhost:1337/api/orders/1', request);
+                                const response = await fetch('http://localhost:1337/api/orders/4', request);
                                 
                                 console.debug(response);
                               };
@@ -173,14 +177,27 @@ function createHTMLPageWithToken(token, payments) {
   `;
 
   // Write the HTML content to a file
-  fs.writeFile('klarna_widget.html', htmlContent, (err) => {
+  fs.writeFile('../../public/klarna_widget.html', htmlContent, (err) => {
       if (err) throw err;
       console.log('HTML file created successfully');
       // Open the HTML file using opn
-      opn('klarna_widget.html');
+      opn('../../public/klarna_widget.html');
   });
 }
+async function createKlarnaOrderFromSession(sessionId) {
 
+  let klarnaSession = await viewSession(sessionId)
+  let klarnaOrder = {
+    locale: klarnaSession.data.locale,
+    order_amount:klarnaSession.data.order_amount,
+    order_lines: klarnaSession.data.order_lines,
+    purchase_country: klarnaSession.data.purchase_country,
+    purchase_currency: klarnaSession.data.purchase_currency,
+    intent: klarnaSession.data.intent
+  }
+  console.log(klarnaOrder)
+  return klarnaOrder
+}
 async function main() {
     
   //log in to strapi
@@ -193,14 +210,31 @@ async function main() {
   let token = auth.getEncodedCredentials(username, password);
   console.log(token)
   let session = await createSession(order, token);
-  console.log(session.data);
+  // console.log(session.data);
+
   //start klarna widget
   createHTMLPageWithToken(session.data.clientToken, session.data.paymentCategoryHeaders)
   // await endpoints.sendClient(session.data.clientToken, 'http://localhost:1337/api/klarna/send_token');
   // await openWidget();
+  let authToken = '';
+  while(true) {
+    await wait(5000);
+    let strapiOrder = await orders.findOneOrder(localToken, 4);
+    console.log("order status", strapiOrder.data.attributes.Status)
+    if (strapiOrder.data.attributes.Status === "Authorized") {
+      authToken = strapiOrder.data.attributes.klarna_auth_token;
+      break;
+    }
+  }
+  console.log("Order authorised")
   //get authToken from widget
-  // await createOrder(authToken, localToken)
-
+  console.log("creating order")
+  let orderDetails = await createOrder(order, authToken)
+  console.log(orderDetails)
 }
-
+function wait(timeout) {
+  return new Promise(resolve => {
+      setTimeout(resolve, timeout);
+  });
+}
 main();

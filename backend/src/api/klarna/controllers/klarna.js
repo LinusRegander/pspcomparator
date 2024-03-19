@@ -24,7 +24,7 @@ module.exports = {
     try {
 
       let token = ctx.request.body.token;
-      let address = ctx.request.body.address;
+      let order = ctx.request.body.order;
       let authToken = ctx.request.body.authToken;
 
       const headers = {
@@ -32,7 +32,7 @@ module.exports = {
         'Content-Type': 'application/json',
       }
   
-      const res = await axios.post(`${playgroundURL}/payments/v1/authorizations/${authToken}/order`, address, {headers});
+      const res = await axios.post(`${playgroundURL}/payments/v1/authorizations/${authToken}/order`, order, {headers});
       
       return res.data;
 
@@ -76,7 +76,6 @@ module.exports = {
 
       const res = await axios.get(`${playgroundURL}/payments/v1/sessions/${sessionId}`, {headers});
 
-      console.log(res.data);
       return res.data;
 
     } catch (error) {
