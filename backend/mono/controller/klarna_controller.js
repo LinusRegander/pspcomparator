@@ -3,11 +3,11 @@ const auth = require('../model/auth');
 const klarna = require('../model/klarna_endpoints');
 const endpoint = require('../model/endpoints');
 const interface = require('../view/interface');
-require('dotenv');
+require('dotenv').config({path: '../../.env'});
 
+const username = process.env.KLARNA_USERNAME;
+const password = process.env.KLARNA_PASSWORD;
 const orderInfoText = 'Select the ID of the order you want to create a transaction for';
-const username = 'PK250364_e8c5dc522820';
-const password = 'IEW5fYfsXOx9Nu32';
 
 let sessionInfo = {
   sessionId: "",
