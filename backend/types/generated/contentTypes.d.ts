@@ -897,6 +897,41 @@ export interface ApiOrderOrder extends Schema.CollectionType {
   };
 }
 
+export interface ApiOrderLineOrderLine extends Schema.CollectionType {
+  collectionName: 'order_lines';
+  info: {
+    singularName: 'order-line';
+    pluralName: 'order-lines';
+    displayName: 'Order_Line';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    item: Attribute.Relation<
+      'api::order-line.order-line',
+      'oneToOne',
+      'api::item.item'
+    >;
+    quantity: Attribute.Integer;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::order-line.order-line',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::order-line.order-line',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiPaymentPayment extends Schema.CollectionType {
   collectionName: 'payments';
   info: {
@@ -1014,6 +1049,7 @@ declare module '@strapi/types' {
       'api::address.address': ApiAddressAddress;
       'api::item.item': ApiItemItem;
       'api::order.order': ApiOrderOrder;
+      'api::order-line.order-line': ApiOrderLineOrderLine;
       'api::payment.payment': ApiPaymentPayment;
       'api::stock.stock': ApiStockStock;
       'api::user-role.user-role': ApiUserRoleUserRole;
