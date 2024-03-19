@@ -5,7 +5,8 @@ module.exports = [
     config: {
       contentSecurityPolicy: {
         directives: {
-          'script-src': ["'self'", "'unsafe-inline'", 'https://x.klarnacdn.net']
+          'script-src': ["'self'", "'unsafe-inline'", 'https://x.klarnacdn.net'],
+          'image-src': ["'self'", "'unsafe-inline'", 'https://js.playground.klarna.com']
         }
       }
     }

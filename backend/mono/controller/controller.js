@@ -1,3 +1,4 @@
+const item = require('../../src/api/item/controllers/item');
 const auth = require('../model/auth');
 const endpoints = require('../model/endpoints');
 const interface = require('../view/interface');
@@ -5,7 +6,7 @@ require('dotenv').config();
 
 let loginToken = null;
 
-async function editType(type, action) {
+async function editType(type, action, role) {
     try {
         let data = null;
         const identifiers = await endpoints.getStructure(type);
@@ -28,7 +29,7 @@ async function editType(type, action) {
     }
 }
 
-async function findType(type) {
+async function findType(type, role) {
     try {
         let id = await interface.getInfo(`Select ${type} ID`);
         let item = await endpoints.findOne(id, type);
@@ -38,37 +39,50 @@ async function findType(type) {
     }
 }
 
-async function findAllType(type) {
+async function findAllType(type, role) {
     try {
-        let items = await endpoints.findAll(type);
-        console.log(items.data);
+        if (role === 'Buyer' && type === 'Order') {
+            console.log(`${role} not allowed to access this.`);
+        }
+
+        if (role === 'Seller') {
+            let items = await endpoints.findAll(type);
+
+            for (let item of items.data) {
+                let status = item.attributes.Status;
+
+                if (status === ('Authorized' || 'Finished')) {
+                    console.log(item);
+                }
+            }
+        }
+
     } catch (err) {
         console.log(err);
     }
 }
 
-async function goBack() {
-
-}
-
-async function makeAction(type, action) {
+async function makeAction(type, action, loginToken) {
     try {
         if (!action) {
             throw new Error('Invalid command');
         }
         
+        const res = await endpoints.getRole(loginToken);
+        let userRole = res.role.name;
+
         switch (action) {
             case 'Create':
-                await editType(type, action);
+                await editType(type, action, userRole);
                 break;
             case 'Update':
-                await editType(type, action);
+                await editType(type, action, userRole);
                 break;
             case 'Find One':
-                await findType(type);
+                await findType(type, userRole);
                 break;
             case 'Find All':
-                await findAllType(type);
+                await findAllType(type, userRole);
                 break;
             default:
                 break;
@@ -98,23 +112,8 @@ async function loginUser() {
     }
 }
 
-async function authenticate() {
-    try {
-        if (!loginToken) {
-            loginToken = await loginUser();
-        }
-
-        if (loginToken) {
-            console.log('User authenticated and logged in.');
-            return true;
-        }
-    } catch (err) {
-        console.log(err);
-    }
-}
-
 module.exports = {
     makeAction,
     logoutUser,
-    authenticate
+    loginUser
 }

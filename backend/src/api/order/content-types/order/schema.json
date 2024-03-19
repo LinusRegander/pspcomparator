@@ -20,14 +20,13 @@
     "Buyer": {
       "type": "relation",
       "relation": "oneToOne",
-      "target": "admin::user"
+      "target": "plugin::users-permissions.user"
     },
     "Status": {
       "type": "enumeration",
       "enum": [
         "Started",
-        "Payment Required",
-        "In Progress",
+        "Authorized",
         "Finished",
         "Canceled"
       ]
@@ -42,6 +41,9 @@
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::address.address"
+    },
+    "klarna_auth_token": {
+      "type": "string"
     }
   }
 }

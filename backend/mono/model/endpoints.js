@@ -33,15 +33,15 @@ const singularEndpoint = {
  */
 async function create(token, ctx, type) {
     try {
-        const response = await axios.post(`${strapiURL}` + pluralEndpoint[type], {
+        const res = await axios.post(`${strapiURL}` + pluralEndpoint[type], {
             data: ctx,
             headers: {
                 Authorization: `Bearer ${token}`
             }
         });
-        return response.data;
+        return res.data;
     } catch (error) {
-        console.error('An error occurred:', error.response);
+        console.error('An error occurred:', error);
         throw error;
     }
 }
@@ -57,15 +57,15 @@ async function create(token, ctx, type) {
  */
 async function update(token, id, ctx, type) {
     try {
-        const response = await axios.put(`${strapiURL}` + pluralEndpoint[type] + `/${id}`, {
+        const res = await axios.put(`${strapiURL}` + pluralEndpoint[type] + `/${id}`, {
             data: ctx,
             headers: {
                 Authorization: `Bearer ${token}`
             }
         });
-        return response.data;
+        return res.data;
     } catch (error) {
-        console.error('An error occurred:', error.response);
+        console.error('An error occurred:', error);
         throw error;
     }
 }
@@ -79,14 +79,14 @@ async function update(token, id, ctx, type) {
  */
 async function findOne(id, type) {
     try {
-        const response = await axios.get(`${strapiURL}` + pluralEndpoint[type] + `/${id}`, {
+        const res = await axios.get(`${strapiURL}` + pluralEndpoint[type] + `/${id}` + '?populate=*', {
             headers: {
                 Accept: '*/*'
-            }
+            },
         });
-        return response.data;
+        return res.data;
     } catch (error) {
-        console.error('An error occurred:', error.response);
+        console.error('An error occurred:', error);
         throw error;
     }
 }
@@ -98,10 +98,10 @@ async function findOne(id, type) {
  */
 async function findAll(type) {
     try {
-        const response = await axios.get(`${strapiURL}` + pluralEndpoint[type]);
-        return response.data;
+        const res = await axios.get(`${strapiURL}` + pluralEndpoint[type] + '/?populate=*');
+        return res.data;
     } catch (error) {
-        console.error('An error occurred:', error.response);
+        console.error('An error occurred:', error);
         throw error;
     }
 }
@@ -109,8 +109,8 @@ async function findAll(type) {
 //TODO: Add comments
 async function sendClient(token, endpoint) {
     try {
-        let response = await axios.post(endpoint, { token: token });
-        return response;
+        let res = await axios.post(endpoint, { token: token });
+        return res;
     } catch (error) {
         console.error('Error sending client token to widget', error);
         return null;
@@ -143,11 +143,26 @@ async function getStructure(type) {
     }
 }
 
+async function getRole(token) {
+    try {
+        let res = await axios.get(strapiURL + pluralEndpoint['User'] + '/me' + '/?populate=role', {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        return res.data
+    } catch (err) {
+        console.log(err);
+    }
+}
+
 module.exports = {
     create,
     update,
     findOne,
     findAll,
     getStructure,
-    sendClient
+    sendClient,
+    getRole
 }

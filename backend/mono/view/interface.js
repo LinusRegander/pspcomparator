@@ -11,7 +11,8 @@ const commands = {
     },
     Klarna: {
         title: "Klarna Commands",
-        options: []
+        typeOptions: ["Session", "Order"],
+        actionOptions: ["Create", "View"]
     }
 };
 
@@ -58,7 +59,9 @@ async function chooseCommand(type, optionType) {
             choice = await askUser(`Choose an action:\n${optionsList}`);
         }
 
-        if ((optionType === 'Command' && choice === '7') || (optionType === 'Action' && choice === '6')) {
+        let index = optionsList.split('\n').length - 1;
+
+        if ((optionType === 'Command' && choice === String(index)) || (optionType === 'Action' && choice === String(index))) {
             return 'Return';
         }
     
@@ -112,7 +115,23 @@ async function typeMenu() {
     }
 }
 
-async function createInterface(controller) {
+async function interfaceType(type, controller, loginToken) {
+    while (true) {
+        let command = await chooseCommand(type, 'Command');
+        if (command === 'Return') {
+            break;
+        }
+
+        let action = await chooseCommand(type, 'Action');
+        if (action === 'Return') {
+            continue;
+        }
+
+        await controller.makeAction(command, action, loginToken);
+    }
+}
+
+async function createInterface(controller, klarnaController, loginToken) {
     try {
         let commandType = '';
 
@@ -123,24 +142,10 @@ async function createInterface(controller) {
 
             switch (choice) {
                 case '1':
-                    while (true) {
-                        let strapiCommand = await chooseCommand('Strapi', 'Command');
-                        if (strapiCommand === 'Return') {
-                            break;
-                        }
-
-                        let strapiAction = await chooseCommand('Strapi', 'Action');
-                        if (strapiAction === 'Return') {
-                            continue;
-                        }
-
-                        await controller.makeAction(strapiCommand, strapiAction);
-                    }
+                    await interfaceType('Strapi', controller, loginToken);
                     break;
                 case '2':
-                    let klarnaCommand = await chooseCommand('Klarna', 'Command');
-                    let klarnaAction = await chooseCommand('Klarna', 'Action');
-                    await controller.makeAction(klarnaCommand, klarnaAction);
+                    await interfaceType('Klarna', klarnaController)
                     break;
                 case '3':
                     await controller.logoutUser();
@@ -157,20 +162,21 @@ async function createInterface(controller) {
 }
 
 //TODO: Better error handling and comment
-async function run(controller) {
+async function run(controller, klarnaController) {
     try {
         if (!controller) {
             throw Error('Error running interface. Please provide a Controller');
         }
 
-        let auth = await controller.authenticate();
-
-        if (!auth) {
+        let loginToken = await controller.loginUser();
+        
+        if (!loginToken) {
             console.log('User must authenticate themselves');
-            await controller.authenticate();
+            await controller.loginUser();
         }
 
-        await createInterface(controller);
+        console.log('User authenticated and logged in.');
+        await createInterface(controller, klarnaController, loginToken);
     } catch (error) {
         console.error('Error:', error);
     }

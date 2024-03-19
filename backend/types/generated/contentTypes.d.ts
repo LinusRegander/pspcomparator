@@ -869,9 +869,13 @@ export interface ApiOrderOrder extends Schema.CollectionType {
       'oneToMany',
       'api::item.item'
     >;
-    Buyer: Attribute.Relation<'api::order.order', 'oneToOne', 'admin::user'>;
+    Buyer: Attribute.Relation<
+      'api::order.order',
+      'oneToOne',
+      'plugin::users-permissions.user'
+    >;
     Status: Attribute.Enumeration<
-      ['Started', 'Payment Required', 'In Progress', 'Finished', 'Canceled']
+      ['Started', 'Authorized', 'Finished', 'Canceled']
     >;
     Ordernumber: Attribute.UID;
     Date: Attribute.DateTime;
@@ -880,6 +884,7 @@ export interface ApiOrderOrder extends Schema.CollectionType {
       'oneToOne',
       'api::address.address'
     >;
+    klarna_auth_token: Attribute.String;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -891,6 +896,41 @@ export interface ApiOrderOrder extends Schema.CollectionType {
       Attribute.Private;
     updatedBy: Attribute.Relation<
       'api::order.order',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiOrderLineOrderLine extends Schema.CollectionType {
+  collectionName: 'order_lines';
+  info: {
+    singularName: 'order-line';
+    pluralName: 'order-lines';
+    displayName: 'Order_Line';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    item: Attribute.Relation<
+      'api::order-line.order-line',
+      'oneToOne',
+      'api::item.item'
+    >;
+    quantity: Attribute.Integer;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::order-line.order-line',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::order-line.order-line',
       'oneToOne',
       'admin::user'
     > &
@@ -910,23 +950,7 @@ export interface ApiPaymentPayment extends Schema.CollectionType {
     draftAndPublish: true;
   };
   attributes: {
-    Order: Attribute.Relation<
-      'api::payment.payment',
-      'oneToOne',
-      'api::order.order'
-    >;
-    Buyer: Attribute.Relation<
-      'api::payment.payment',
-      'oneToOne',
-      'admin::user'
-    >;
-    Date: Attribute.DateTime;
-    Type: Attribute.Enumeration<['Direct', 'Invoice']>;
-    Klarna_ID: Attribute.UID;
-    Status: Attribute.Enumeration<
-      ['Pending', 'Sent', 'Canceled', 'Declined', 'Refunded', 'Expired']
-    >;
-    Currency: Attribute.Enumeration<['SEK']>;
+    klarna_auth_token: Attribute.String;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -958,7 +982,7 @@ export interface ApiStockStock extends Schema.CollectionType {
   };
   attributes: {
     Amount: Attribute.Integer;
-    item: Attribute.Relation<'api::stock.stock', 'oneToOne', 'api::item.item'>;
+    Item: Attribute.Relation<'api::stock.stock', 'oneToOne', 'api::item.item'>;
     Seller: Attribute.Relation<'api::stock.stock', 'oneToOne', 'admin::user'>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
@@ -1031,6 +1055,7 @@ declare module '@strapi/types' {
       'api::address.address': ApiAddressAddress;
       'api::item.item': ApiItemItem;
       'api::order.order': ApiOrderOrder;
+      'api::order-line.order-line': ApiOrderLineOrderLine;
       'api::payment.payment': ApiPaymentPayment;
       'api::stock.stock': ApiStockStock;
       'api::user-role.user-role': ApiUserRoleUserRole;

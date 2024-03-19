@@ -1,5 +1,4 @@
 const axios = require('axios');
-const base64 = require('base-64');
 const endpoint = 'http://localhost:1337/api/auth/local';
 
 /**

@@ -1,0 +1,23 @@
+{
+  "kind": "collectionType",
+  "collectionName": "order_lines",
+  "info": {
+    "singularName": "order-line",
+    "pluralName": "order-lines",
+    "displayName": "Order_Line"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "item": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::item.item"
+    },
+    "quantity": {
+      "type": "integer"
+    }
+  }
+}
