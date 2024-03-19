@@ -869,8 +869,14 @@ export interface ApiOrderOrder extends Schema.CollectionType {
       'oneToMany',
       'api::item.item'
     >;
-    Buyer: Attribute.Relation<'api::order.order', 'oneToOne', 'admin::user'>;
-    Status: Attribute.Enumeration<['Started', 'Authorized', 'Canceled']>;
+    Buyer: Attribute.Relation<
+      'api::order.order',
+      'oneToOne',
+      'plugin::users-permissions.user'
+    >;
+    Status: Attribute.Enumeration<
+      ['Started', 'Authorized', 'Finished', 'Canceled']
+    >;
     Ordernumber: Attribute.UID;
     Date: Attribute.DateTime;
     address: Attribute.Relation<
@@ -976,7 +982,7 @@ export interface ApiStockStock extends Schema.CollectionType {
   };
   attributes: {
     Amount: Attribute.Integer;
-    item: Attribute.Relation<'api::stock.stock', 'oneToOne', 'api::item.item'>;
+    Item: Attribute.Relation<'api::stock.stock', 'oneToOne', 'api::item.item'>;
     Seller: Attribute.Relation<'api::stock.stock', 'oneToOne', 'admin::user'>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;

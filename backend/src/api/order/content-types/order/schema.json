@@ -20,13 +20,14 @@
     "Buyer": {
       "type": "relation",
       "relation": "oneToOne",
-      "target": "admin::user"
+      "target": "plugin::users-permissions.user"
     },
     "Status": {
       "type": "enumeration",
       "enum": [
         "Started",
         "Authorized",
+        "Finished",
         "Canceled"
       ]
     },

@@ -95,12 +95,6 @@ module.exports = {
       const res = await axios.post(`${playgroundURL}/checkout/v3/orders`, {order}, {headers});
 
       return res.data;
-      /*
-      const url = res.data.redirect_url;
-      const script = `<script>window.open('${url}', '_blank');</script>`;
-      ctx.type = 'text/html';
-      ctx.send(script);
-      */
     } catch (error) {
       console.error('Error opening the Klarna checkout:', error);
       throw error;
@@ -121,7 +115,6 @@ module.exports = {
   },
   async openWidget(ctx) {
     try {
-      //Add real path
       const filepath = path.resolve(__dirname, '../../../../public/views/widget.html');
       const htmlContent = fs.readFileSync(filepath, 'utf-8');
 

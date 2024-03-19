@@ -1,5 +1,4 @@
 const axios = require('axios');
-
 const endpoint = 'http://localhost:1337/api/auth/local';
 
 /**
@@ -12,18 +11,20 @@ const endpoint = 'http://localhost:1337/api/auth/local';
  */
 async function getToken(id, pass) {
     try {
-        const response = await axios.post(endpoint, {
+        const res = await axios.post(endpoint, {
             identifier: id,
             password: pass
         });
-        return response.data.jwt;
+        
+        return res.data.jwt;
     } catch (error) {
         console.error('Error fetching token:', error.message);
-        throw error;
+        return null;
     }
 }
 
-function getEncodedCredentials(username, password) {
+
+async function getEncodedCredentials(username, password) {
     try {
         const encodedCredentials = Buffer.from(username + ":" + password).toString('base64')
         return encodedCredentials
