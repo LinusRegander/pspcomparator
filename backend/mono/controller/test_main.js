@@ -8,10 +8,10 @@ const endpoints = require('../model/endpoints');
 const axios = require('axios');
 const opn = require('opn');
 const fs = require('fs');
-require('dotenv').config();
+require('dotenv').config({path: '../../.env'});
 
-const username = 'PK250364_e8c5dc522820';
-const password = 'IEW5fYfsXOx9Nu32';
+const username = process.env.KLARNA_USERNAME;
+const password = process.env.KLARNA_PASSWORD;
 var localToken = '12313123123';
 
 async function login() {
