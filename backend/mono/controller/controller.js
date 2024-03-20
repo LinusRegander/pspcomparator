@@ -69,6 +69,7 @@ async function makeAction(type, action, loginToken) {
         }
         
         const res = await endpoints.getRole(loginToken);
+        console.log(res);
         let userRole = res.role.name;
 
         switch (action) {

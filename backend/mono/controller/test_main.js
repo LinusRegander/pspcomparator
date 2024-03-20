@@ -1,7 +1,5 @@
-const users = require('../model/user');
 const auth = require('../model/auth');
 const orders = require('../model/order');
-const addresses = require('../model/address');
 const klarna = require('../../src/api/klarna/controllers/klarna');
 const testOrder = require('../controller/test_data/testOrder');
 const endpoints = require('../model/endpoints');
@@ -10,8 +8,9 @@ const opn = require('opn');
 const fs = require('fs');
 require('dotenv').config({path: '../../.env'});
 
-const username = process.env.KLARNA_USERNAME;
-const password = process.env.KLARNA_PASSWORD;
+const username = "PK250364_e8c5dc522820";
+const password = "IEW5fYfsXOx9Nu32";
+;
 var localToken = '12313123123';
 
 async function login() {

@@ -15,7 +15,7 @@ async function getToken(id, pass) {
             identifier: id,
             password: pass
         });
-        
+        console.log(res.data.jwt)
         return res.data.jwt;
     } catch (error) {
         console.error('Error fetching token:', error.message);
@@ -24,7 +24,7 @@ async function getToken(id, pass) {
 }
 
 
-async function getEncodedCredentials(username, password) {
+function getEncodedCredentials(username, password) {
     try {
         const encodedCredentials = Buffer.from(username + ":" + password).toString('base64')
         return encodedCredentials

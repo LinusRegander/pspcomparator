@@ -4,3 +4,4 @@ backend/mono/controller/klarna_payments.html
 backend/public/views/klarna_widget.html
 backend/mono/controller/klarna_widget.html
 backend/mono/controller/klarna_widget.html
+backend/public/klarna_widget.html
