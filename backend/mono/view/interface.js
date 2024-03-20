@@ -4,17 +4,23 @@ const rl = require('readline').createInterface({
 });
 
 const commands = {
-    Strapi: {
-        title: "Strapi Commands",
-        typeOptions: ["Item", "Address", "Order", "Payment", "Stock", "User"],
-        actionOptions: ["Create", "Update", "Find One", "Find All", "Delete"]
+    Items: {
+        title: "Item Options",
+        Seller: ["Create", "Find One", "Find All"],
+        Buyer: ["Find One", "Find All"]
     },
-    Klarna: {
-        title: "Klarna Commands",
-        typeOptions: ["Session", "Order"],
-        actionOptions: ["Create", "View"]
+    Orders: {
+        title: "Order Options",
+        Seller: ["Find One", "Find All"],
+        Buyer: ["Create", "Find One", "Find All"]
+    },
+    Users: {
+        title: "User Options",
+        Seller: ["Me"],
+        Buyer: ["Me"]
     }
 };
+
 
 async function getInfo(info) {
     try {
@@ -32,36 +38,25 @@ async function getInfo(info) {
     }
 }
 
-async function chooseCommand(type, optionType) {
+
+async function chooseCommand(command, role) {
     try {
-        let options = null;
         let choice = null;
         let optionsList = null;
 
-        if (!type) {
+        if (!command) {
             throw Error('Please provide a type.');
         }
+        
 
-        if (!optionType) {
-            throw Error('Please provide an option type');
-        }
+        let options = commands[command][role];
+
+        optionsList = await generateOptionsList(options, true);
+        choice = await askUser(`Choose an action:\n${optionsList}`);
     
-        if (optionType === 'Command') {
-            options = commands[type].typeOptions;
-            const title = commands[type].title;
-            optionsList = await generateOptionsList(options, true);
-            choice = await askUser(`Choose a command type for ${title}:\n${optionsList}`);
-        }
-
-        if (optionType === 'Action') {
-            options = commands[type].actionOptions;
-            optionsList = await generateOptionsList(options, true);
-            choice = await askUser(`Choose an action:\n${optionsList}`);
-        }
-
         let index = optionsList.split('\n').length - 1;
 
-        if ((optionType === 'Command' && choice === String(index)) || (optionType === 'Action' && choice === String(index))) {
+        if (choice === String(index)) {
             return 'Return';
         }
     
@@ -109,29 +104,26 @@ function generateOptionsList(options, includeGoBack = false) {
 
 async function typeMenu() {
     try {
-        return await askUser("Choose a command type:\n1. Strapi\n2. Klarna\n3. Logout User\nEnter your choice: ");
+        return await askUser("Choose a command type:\n1. Items \n2. Orders \n3. User details \n4. Logout User \nEnter your choice: ");
     } catch (err) {
         console.log(err);
     }
 }
 
-async function interfaceType(type, controller, loginToken) {
+async function interfaceType(controller, command, role, loginToken) {
     while (true) {
-        let command = await chooseCommand(type, 'Command');
-        if (command === 'Return') {
-            break;
-        }
 
-        let action = await chooseCommand(type, 'Action');
+        
+        let action = await chooseCommand(command, role);
         if (action === 'Return') {
             continue;
         }
 
-        await controller.makeAction(command, action, loginToken);
+        await controller.makeAction(command, action, role, loginToken);
     }
 }
 
-async function createInterface(controller, klarnaController, loginToken) {
+async function createInterface(controller, klarnaController, role, loginToken) {
     try {
         let commandType = '';
 
@@ -142,12 +134,15 @@ async function createInterface(controller, klarnaController, loginToken) {
 
             switch (choice) {
                 case '1':
-                    await interfaceType('Strapi', controller, loginToken);
+                    await interfaceType(controller, "Items", role, loginToken);
                     break;
                 case '2':
-                    await interfaceType('Klarna', klarnaController)
+                    await interfaceType(controller, "Orders", role, loginToken)
                     break;
                 case '3':
+                    await interfaceType(controller, "Users", role, loginToken)
+                    break;
+                case '4':
                     await controller.logoutUser();
                     rl.close();
                     return;
@@ -176,7 +171,8 @@ async function run(controller, klarnaController) {
         }
 
         console.log('User authenticated and logged in.');
-        await createInterface(controller, klarnaController, loginToken);
+        let role = await controller.getRole(loginToken)
+        await createInterface(controller, klarnaController, role, loginToken);
     } catch (error) {
         console.error('Error:', error);
     }

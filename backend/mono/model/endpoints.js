@@ -6,21 +6,30 @@ const strapiURL = 'http://localhost:1337/api/';
 const structure = 'http://localhost:1337/api/content-type-builder/content-types/';
 
 const pluralEndpoint = {
-    Item: 'items',
-    Order: 'orders',
-    Payment: 'payments',
-    Stock: 'stocks',
-    User: 'users',
+    Items: 'items',
+    Orders: 'orders',
+    Payments: 'payments',
+    Stocks: 'stocks',
+    Users: 'users',
     Address: 'addresses' 
 }
 
 const singularEndpoint = {
-    Item: 'item',
-    Order: 'order',
-    Payment: 'payment',
-    Stock: 'stock',
-    User: 'user',
+    Items: 'item',
+    Orders: 'order',
+    Payments: 'payment',
+    Stocks: 'stock',
+    Users: 'user',
     Address: 'address' 
+}
+
+const contentIDs = {    
+    Address: 1,
+    Items: 2,
+    Orders: 3,
+    Payments: 5,
+    Stocks: 6,
+    Users: 7
 }
 
 /**
@@ -33,9 +42,12 @@ const singularEndpoint = {
  */
 async function create(token, ctx, type) {
     try {
-        const res = await axios.post(`${strapiURL}` + pluralEndpoint[type], {
+        const headers =  {
+            Authorization: `Bearer ${token}`
+        }
+        const res = await axios.post(strapiURL + pluralEndpoint[type], {
             data: ctx,
-            headers: {
+            headers:  {
                 Authorization: `Bearer ${token}`
             }
         });
@@ -45,6 +57,7 @@ async function create(token, ctx, type) {
         throw error;
     }
 }
+
 
 /**
  * Update an item by its ID.
@@ -77,7 +90,7 @@ async function update(token, id, ctx, type) {
  * @returns The json item object corresponding to the provided ID.
  * @throws {Error} If there is an error fetching the item or the request fails.
  */
-async function findOne(id, type) {
+async function findOne(id, type, loginToken) {
     try {
         const res = await axios.get(`${strapiURL}` + pluralEndpoint[type] + `/${id}` + '?populate=*', {
             headers: {
@@ -96,7 +109,7 @@ async function findOne(id, type) {
  * 
  * @throws {Error} If there is an error fetching the items or the request fails.
  */
-async function findAll(type) {
+async function findAll(type, loginTOken) {
     try {
         const res = await axios.get(`${strapiURL}` + pluralEndpoint[type] + '/?populate=*');
         return res.data;
@@ -119,16 +132,18 @@ async function sendClient(token, endpoint) {
 
 
 //TODO: Add comments
-async function getStructure(type) {
+async function getStructure(type, loginToken) {
     try {
         const identifiers = [];
-        let contentType = singularEndpoint[type];
+        let contentType = contentIDs[type];
         let res = null;
+
+        console.log(`get structure for: ${type}`)
 
         if (type === 'User') {
             res = await axios.get(structure + `admin::${contentType}`);
         } else {
-            res = await axios.get(structure + `api::${contentType}.${contentType}`);
+            res = await axios.get(structure + `api::${contentType}`);
         }
 
         const attributes = res.data.data.schema.attributes;
@@ -143,9 +158,9 @@ async function getStructure(type) {
     }
 }
 
-async function getRole(token) {
+async function me(token) {
     try {
-        let res = await axios.get(strapiURL + pluralEndpoint['User'] + '/me' + '/?populate=role', {
+        let res = await axios.get(strapiURL + pluralEndpoint['Users'] + '/me' + '/?populate=role', {
             headers: {
                 Authorization: `Bearer ${token}`
             }
@@ -164,5 +179,5 @@ module.exports = {
     findAll,
     getStructure,
     sendClient,
-    getRole
+    me
 }

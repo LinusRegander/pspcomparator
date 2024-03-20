@@ -53,9 +53,9 @@ function getExampleOrder() {
     "order_lines": [
       {
         "name": "Ikea stol",
-        "quantity": 100,
+        "quantity": 10,
         "total_amount": 10000,
-        "unit_price": 100,
+        "unit_price": 1000,
         "total_discount_amount": 0,
         "type": "physical"
       }
@@ -90,7 +90,7 @@ function getExampleOrder() {
   }
   return order
 }
-function createHTMLPageWithToken(clientToken, localToken) {
+function createHTMLPageWithToken(clientToken, localToken, strapiOrderNo) {
   const htmlContent = `
       <!DOCTYPE html>
       <html lang="en">
@@ -140,7 +140,7 @@ function createHTMLPageWithToken(clientToken, localToken) {
                                   })
                                 };
                                 console.debug(request)
-                                const response = await fetch('http://localhost:1337/api/orders/4', request);
+                                const response = await fetch('http://localhost:1337/api/orders/${strapiOrderNo}', request);
                                 
                                 console.debug(response);
                               };
@@ -176,13 +176,14 @@ async function main() {
   console.log(token)
   let session = await createSession(order, token);
   // console.log(session.data);
-
+  // specify strapi order number  
+  const strapiOrderNo = 4;
   //start klarna widget
-  createHTMLPageWithToken(session.data.clientToken, localToken)
+  createHTMLPageWithToken(session.data.clientToken, localToken, strapiOrderNo)
   let authToken = '';
   while(true) {
     await wait(5000);
-    let strapiOrder = await orders.findOneOrder(localToken, 4);
+    let strapiOrder = await orders.findOneOrder(localToken, strapiOrderNo);
     console.log("order status", strapiOrder.data.attributes.Status)
     if (strapiOrder.data.attributes.Status === "Authorized") {
       authToken = strapiOrder.data.attributes.klarna_auth_token;

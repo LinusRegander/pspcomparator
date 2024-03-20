@@ -1,7 +1,14 @@
 const opn = require('opn');
 const fs = require('fs');
 
-function createHTMLPageWithToken(token, orderID) {
+/**
+ * Builds a html page for displaying klarna widget
+ * TODO remove localToken requirement for PUT method, create validation endpoint(POST) in API instead
+ * @param {*} clientToken 
+ * @param {*} localToken 
+ * @param {*} strapiOrderNo 
+ */
+function createHTMLPageWithToken(clientToken, localToken, strapiOrderNo) {
     const htmlContent = `
         <!DOCTYPE html>
         <html lang="en">
@@ -17,7 +24,7 @@ function createHTMLPageWithToken(token, orderID) {
             <script>
                 window.addEventListener('load', function () {
                     Klarna.Payments.init({
-                        client_token: '${token}'
+                        client_token: '${clientToken}'
                     });
                     Klarna.Payments.load(
                         {
@@ -33,9 +40,30 @@ function createHTMLPageWithToken(token, orderID) {
                             {},
                             {}, 
                             function(res) {   
-                              <!-- res.approved == true -> call endpoint to update order in strapi with res.authorization_token -->                           
-                              ${orderID}
-                              console.debug(res);
+                                <!-- res.approved == true -> call endpoint to update order in strapi with res.authorization_token -->
+                                console.debug(res);
+                                if (res.approved === true) {
+                                const postToken = async () => {
+                                    const request = {
+                                    method: 'PUT',
+                                    headers: {
+                                        Authorization: 'Bearer ${localToken}',
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({
+                                        data: {
+                                        klarna_auth_token: res.authorization_token,
+                                        Status: 'Authorized'
+                                        }
+                                    })
+                                    };
+                                    console.debug(request)
+                                    const response = await fetch('http://localhost:1337/api/orders/${strapiOrderNo}', request);
+                                    
+                                    console.debug(response);
+                                };
+                                postToken();
+                                }
                             }
                         );
                     });
@@ -45,11 +73,12 @@ function createHTMLPageWithToken(token, orderID) {
         </html>
     `;
   
-    // Write to file so that it can be displayed
-    fs.writeFile('../../public/views/klarna_widget.html', htmlContent, (err) => {
+    // Write the HTML content to a file
+    fs.writeFile('../../public/klarna_widget.html', htmlContent, (err) => {
         if (err) throw err;
-        // Display html after creation
-        opn('../../public/views/klarna_widget.html');
+        console.log('HTML file created successfully');
+        // Open the HTML file using opn
+        opn('../../public/klarna_widget.html');
     });
   }
 

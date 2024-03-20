@@ -6,7 +6,7 @@ require('dotenv').config();
 
 let loginToken = null;
 
-async function editType(type, action, role) {
+async function createType(type, loginToken) {
     try {
         let data = null;
         const identifiers = await endpoints.getStructure(type);
@@ -17,11 +17,8 @@ async function editType(type, action, role) {
             obj[identifier] = value;
         }
 
-        if (action === 'Create') {
-            data = await endpoints.create(loginToken, obj, type);
-        } else if (action === 'Update') {
-            data = await endpoints.create(loginToken, obj, type);
-        }
+        data = await endpoints.create(loginToken, obj, type);
+       
 
         return data;
     } catch (err) {
@@ -29,61 +26,101 @@ async function editType(type, action, role) {
     }
 }
 
-async function findType(type, role) {
+async function updateType(type, loginToken) {
+    try {
+        let data = null;
+        const identifiers = await endpoints.getStructure(type, loginToken);
+
+        const obj = {};
+        for (const identifier of identifiers) {
+            const value = await interface.getInfo(identifier);
+            obj[identifier] = value;
+        }
+
+        let id = await interface.getInfo(`Select ${type} ID`);
+
+        data = await endpoints.update(loginToken, id, obj, type);
+        
+
+        return data;
+    } catch (err) {
+        console.log(`Error creating ${type}`);
+    }
+}
+
+async function findType(type, loginToken) {
     try {
         let id = await interface.getInfo(`Select ${type} ID`);
-        let item = await endpoints.findOne(id, type);
+        let item = await endpoints.findOne(id, type, loginToken);
         console.log(item.data);
     } catch (err) {
         console.log(err);
     }
 }
 
-async function findAllType(type, role) {
+async function findAllType(type, role, loginToken) {
     try {
-        if (role === 'Buyer' && type === 'Order') {
-            console.log(`${role} not allowed to access this.`);
-        }
 
-        if (role === 'Seller') {
-            let items = await endpoints.findAll(type);
+        //some logic here to constrain results based on role
+        //eg orders only for buyerID or items that match sellerID
+        
+        let results = await endpoints.findAll(type, loginToken);
 
-            for (let item of items.data) {
+        if (type == "Orders" && role == "Seller") {
+            for (let item of results.data) {
                 let status = item.attributes.Status;
-
+    
                 if (status === ('Authorized' || 'Finished')) {
                     console.log(item);
                 }
             }
+        } else {
+            for (let item of results.data) {
+                console.log(item);
+                }            
         }
+    
 
     } catch (err) {
         console.log(err);
     }
 }
 
-async function makeAction(type, action, loginToken) {
+async function me(loginToken) {
+    try {
+
+        //some logic here to constrain results based on role
+        //eg orders only for buyerID or items that match sellerID
+        
+        let data = await endpoints.me(loginToken);
+        console.log(data)
+
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+async function makeAction(type, action, role, loginToken) {
     try {
         if (!action) {
             throw new Error('Invalid command');
         }
-        
-        const res = await endpoints.getRole(loginToken);
-        console.log(res);
-        let userRole = res.role.name;
 
         switch (action) {
             case 'Create':
-                await editType(type, action, userRole);
+                await createType(type, loginToken);
                 break;
             case 'Update':
-                await editType(type, action, userRole);
+                await updateType(type, loginToken);
                 break;
             case 'Find One':
-                await findType(type, userRole);
+                await findType(type, loginToken);
                 break;
             case 'Find All':
-                await findAllType(type, userRole);
+                await findAllType(type, role, loginToken);
+                break;
+            case 'Me':
+                await me(loginToken);
                 break;
             default:
                 break;
@@ -92,6 +129,19 @@ async function makeAction(type, action, loginToken) {
         console.error('Error making action:', error.message);
         throw error;
     }
+}
+
+async function getRole(loginToken) {
+    try {
+
+        const res = await endpoints.me(loginToken);
+            let userRole = res.role.name;
+            return userRole
+    } catch (error) {
+        console.error('Error fetching role:', error.message);
+        throw error;
+    }
+        
 }
 
 async function logoutUser() {
@@ -116,5 +166,6 @@ async function loginUser() {
 module.exports = {
     makeAction,
     logoutUser,
-    loginUser
+    loginUser,
+    getRole
 }
