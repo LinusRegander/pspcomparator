@@ -6,30 +6,21 @@ const strapiURL = 'http://localhost:1337/api/';
 const structure = 'http://localhost:1337/api/content-type-builder/content-types/';
 
 const pluralEndpoint = {
-    Items: 'items',
-    Orders: 'orders',
-    Payments: 'payments',
-    Stocks: 'stocks',
-    Users: 'users',
+    Item: 'items',
+    Order: 'orders',
+    Payment: 'payments',
+    Stock: 'stocks',
+    User: 'users',
     Address: 'addresses' 
 }
 
 const singularEndpoint = {
-    Items: 'item',
-    Orders: 'order',
-    Payments: 'payment',
-    Stocks: 'stock',
-    Users: 'user',
+    Item: 'item',
+    Order: 'order',
+    Payment: 'payment',
+    Stock: 'stock',
+    User: 'user',
     Address: 'address' 
-}
-
-const contentIDs = {    
-    Address: 1,
-    Items: 2,
-    Orders: 3,
-    Payments: 5,
-    Stocks: 6,
-    Users: 7
 }
 
 /**
@@ -45,12 +36,12 @@ async function create(token, ctx, type) {
         const headers =  {
             Authorization: `Bearer ${token}`
         }
-        const res = await axios.post(strapiURL + pluralEndpoint[type], {
-            data: ctx,
-            headers:  {
+        const res = await axios.post(strapiURL + pluralEndpoint[type], 
+            {data: ctx},
+            {headers:  {
                 Authorization: `Bearer ${token}`
-            }
-        });
+            }}
+        );
         return res.data;
     } catch (error) {
         console.error('An error occurred:', error);
@@ -135,15 +126,15 @@ async function sendClient(token, endpoint) {
 async function getStructure(type, loginToken) {
     try {
         const identifiers = [];
-        let contentType = contentIDs[type];
+        let contentType = singularEndpoint[type];
         let res = null;
 
-        console.log(`get structure for: ${type}`)
+        console.log(`Fill in : ${type}`)
 
         if (type === 'User') {
             res = await axios.get(structure + `admin::${contentType}`);
         } else {
-            res = await axios.get(structure + `api::${contentType}`);
+            res = await axios.get(structure + `api::${contentType}.${contentType}`);
         }
 
         const attributes = res.data.data.schema.attributes;
@@ -160,7 +151,7 @@ async function getStructure(type, loginToken) {
 
 async function me(token) {
     try {
-        let res = await axios.get(strapiURL + pluralEndpoint['Users'] + '/me' + '/?populate=role', {
+        let res = await axios.get(strapiURL + pluralEndpoint['User'] + '/me' + '/?populate=role', {
             headers: {
                 Authorization: `Bearer ${token}`
             }

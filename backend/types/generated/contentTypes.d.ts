@@ -765,16 +765,6 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'manyToOne',
       'plugin::users-permissions.role'
     >;
-    address: Attribute.Relation<
-      'plugin::users-permissions.user',
-      'oneToOne',
-      'api::address.address'
-    >;
-    user_role: Attribute.Relation<
-      'plugin::users-permissions.user',
-      'oneToOne',
-      'api::user-role.user-role'
-    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -841,7 +831,11 @@ export interface ApiItemItem extends Schema.CollectionType {
     Name: Attribute.String;
     Description: Attribute.Text;
     Price: Attribute.Decimal;
-    Seller: Attribute.Relation<'api::item.item', 'oneToOne', 'admin::user'>;
+    Seller: Attribute.Relation<
+      'api::item.item',
+      'oneToOne',
+      'plugin::users-permissions.user'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -1002,38 +996,6 @@ export interface ApiStockStock extends Schema.CollectionType {
   };
 }
 
-export interface ApiUserRoleUserRole extends Schema.CollectionType {
-  collectionName: 'user_roles';
-  info: {
-    singularName: 'user-role';
-    pluralName: 'user-roles';
-    displayName: 'User_Role';
-    description: '';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    Authorized: Attribute.Boolean;
-    Token: Attribute.String;
-    createdAt: Attribute.DateTime;
-    updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
-    createdBy: Attribute.Relation<
-      'api::user-role.user-role',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-    updatedBy: Attribute.Relation<
-      'api::user-role.user-role',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-  };
-}
-
 declare module '@strapi/types' {
   export module Shared {
     export interface ContentTypes {
@@ -1058,7 +1020,6 @@ declare module '@strapi/types' {
       'api::order-line.order-line': ApiOrderLineOrderLine;
       'api::payment.payment': ApiPaymentPayment;
       'api::stock.stock': ApiStockStock;
-      'api::user-role.user-role': ApiUserRoleUserRole;
     }
   }
 }
