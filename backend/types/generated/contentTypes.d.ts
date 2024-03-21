@@ -861,7 +861,7 @@ export interface ApiOrderOrder extends Schema.CollectionType {
     Items: Attribute.Relation<
       'api::order.order',
       'oneToMany',
-      'api::item.item'
+      'api::order-line.order-line'
     >;
     Buyer: Attribute.Relation<
       'api::order.order',
@@ -872,7 +872,6 @@ export interface ApiOrderOrder extends Schema.CollectionType {
       ['Started', 'Authorized', 'Finished', 'Canceled']
     >;
     Ordernumber: Attribute.UID;
-    Date: Attribute.DateTime;
     address: Attribute.Relation<
       'api::order.order',
       'oneToOne',

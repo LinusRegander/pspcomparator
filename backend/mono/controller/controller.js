@@ -1,5 +1,6 @@
 const item = require('../../src/api/item/controllers/item');
 const auth = require('../model/auth');
+const test_order = require('./test_data/strapiTestOrder')
 const endpoints = require('../model/endpoints');
 const interface = require('../view/interface');
 require('dotenv').config();
@@ -7,18 +8,30 @@ require('dotenv').config();
 let loginToken = null;
 
 async function createType(type, loginToken) {
+
     try {
         let data = null;
-        const identifiers = await endpoints.getStructure(type);
+        let obj = {};
+        if (type === "Order") {
+            console.log("creating example order");
 
-        const obj = {};
-        for (const identifier of identifiers) {
-            const value = await interface.getInfo(identifier);
-            obj[identifier] = value;
+            obj = {
+                Items: [
+                    1,2
+                ],
+                Buyer: 7,
+                Address: 2,
+            }
+        } else {
+            const identifiers = await endpoints.getStructure(type);
+            for (const identifier of identifiers) {
+                const value = await interface.getInfo(identifier);
+                obj[identifier] = value;
+            }
         }
 
         data = await endpoints.create(loginToken, obj, type);
-       
+        console.log(data)
 
         return data;
     } catch (err) {

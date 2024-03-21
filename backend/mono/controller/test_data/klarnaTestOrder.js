@@ -1,4 +1,4 @@
-const testOrder = {
+const klarnaTestOrder = {
     "order_amount": 10000,
     "order_lines": [
       {
@@ -40,5 +40,5 @@ const testOrder = {
   }
 
 module.exports = {
-    testOrder
+    testOrder: klarnaTestOrder
 }
