@@ -136,6 +136,7 @@ async function handleCommandChoice(controller, klarnaController, command, role, 
             }
             console.log(`Creating order for auth_token: ${klarna_auth_token}`)
             await klarnaController.makeAction(command, action, klarna_auth_token, loginToken)
+            //TODO on confirmation that order has been created, update order Status (eg.'Finished')
             break;
         }
 
