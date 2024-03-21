@@ -14,10 +14,9 @@ async function createType(type, loginToken) {
         let obj = {};
         if (type === "Order") {
             console.log("creating example order");
-
             obj = {
                 Items: [
-                    1,2
+                    1, 2
                 ],
                 Buyer: 7,
                 Address: 2,

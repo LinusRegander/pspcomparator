@@ -8,15 +8,10 @@
     "description": ""
   },
   "options": {
-    "draftAndPublish": true
+    "draftAndPublish": false
   },
   "pluginOptions": {},
   "attributes": {
-    "Items": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::order-line.order-line"
-    },
     "Buyer": {
       "type": "relation",
       "relation": "oneToOne",
@@ -29,17 +24,15 @@
         "Authorized",
         "Finished",
         "Canceled"
-      ]
-    },
-    "Ordernumber": {
-      "type": "uid"
+      ],
+      "default": "Started"
     },
     "address": {
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::address.address"
     },
-    "klarna_auth_token": {
+    "klarna_order_number": {
       "type": "string"
     }
   }

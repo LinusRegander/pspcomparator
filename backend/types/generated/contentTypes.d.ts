@@ -788,9 +788,10 @@ export interface ApiAddressAddress extends Schema.CollectionType {
     singularName: 'address';
     pluralName: 'addresses';
     displayName: 'Address';
+    description: '';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
     Country: Attribute.Enumeration<['Sweden']>;
@@ -800,7 +801,6 @@ export interface ApiAddressAddress extends Schema.CollectionType {
     Country_Code: Attribute.Enumeration<['SE']>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
       'api::address.address',
       'oneToOne',
@@ -825,7 +825,7 @@ export interface ApiItemItem extends Schema.CollectionType {
     description: '';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
     Name: Attribute.String;
@@ -838,7 +838,6 @@ export interface ApiItemItem extends Schema.CollectionType {
     >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<'api::item.item', 'oneToOne', 'admin::user'> &
       Attribute.Private;
     updatedBy: Attribute.Relation<'api::item.item', 'oneToOne', 'admin::user'> &
@@ -855,14 +854,9 @@ export interface ApiOrderOrder extends Schema.CollectionType {
     description: '';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
-    Items: Attribute.Relation<
-      'api::order.order',
-      'oneToMany',
-      'api::order-line.order-line'
-    >;
     Buyer: Attribute.Relation<
       'api::order.order',
       'oneToOne',
@@ -870,17 +864,16 @@ export interface ApiOrderOrder extends Schema.CollectionType {
     >;
     Status: Attribute.Enumeration<
       ['Started', 'Authorized', 'Finished', 'Canceled']
-    >;
-    Ordernumber: Attribute.UID;
+    > &
+      Attribute.DefaultTo<'Started'>;
     address: Attribute.Relation<
       'api::order.order',
       'oneToOne',
       'api::address.address'
     >;
-    klarna_auth_token: Attribute.String;
+    klarna_order_number: Attribute.String;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
       'api::order.order',
       'oneToOne',
@@ -901,10 +894,10 @@ export interface ApiOrderLineOrderLine extends Schema.CollectionType {
   info: {
     singularName: 'order-line';
     pluralName: 'order-lines';
-    displayName: 'Order_Line';
+    displayName: 'Order-line';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
     item: Attribute.Relation<
@@ -915,7 +908,6 @@ export interface ApiOrderLineOrderLine extends Schema.CollectionType {
     quantity: Attribute.Integer;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
       'api::order-line.order-line',
       'oneToOne',
@@ -924,70 +916,6 @@ export interface ApiOrderLineOrderLine extends Schema.CollectionType {
       Attribute.Private;
     updatedBy: Attribute.Relation<
       'api::order-line.order-line',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-  };
-}
-
-export interface ApiPaymentPayment extends Schema.CollectionType {
-  collectionName: 'payments';
-  info: {
-    singularName: 'payment';
-    pluralName: 'payments';
-    displayName: 'Payment';
-    description: '';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    klarna_auth_token: Attribute.String;
-    createdAt: Attribute.DateTime;
-    updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
-    createdBy: Attribute.Relation<
-      'api::payment.payment',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-    updatedBy: Attribute.Relation<
-      'api::payment.payment',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-  };
-}
-
-export interface ApiStockStock extends Schema.CollectionType {
-  collectionName: 'stocks';
-  info: {
-    singularName: 'stock';
-    pluralName: 'stocks';
-    displayName: 'Stock';
-    description: '';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    Amount: Attribute.Integer;
-    Item: Attribute.Relation<'api::stock.stock', 'oneToOne', 'api::item.item'>;
-    Seller: Attribute.Relation<'api::stock.stock', 'oneToOne', 'admin::user'>;
-    createdAt: Attribute.DateTime;
-    updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
-    createdBy: Attribute.Relation<
-      'api::stock.stock',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-    updatedBy: Attribute.Relation<
-      'api::stock.stock',
       'oneToOne',
       'admin::user'
     > &
@@ -1017,8 +945,6 @@ declare module '@strapi/types' {
       'api::item.item': ApiItemItem;
       'api::order.order': ApiOrderOrder;
       'api::order-line.order-line': ApiOrderLineOrderLine;
-      'api::payment.payment': ApiPaymentPayment;
-      'api::stock.stock': ApiStockStock;
     }
   }
 }
