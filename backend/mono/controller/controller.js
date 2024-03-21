@@ -40,7 +40,6 @@ async function updateType(type, loginToken) {
         let id = await interface.getInfo(`Select ${type} ID`);
 
         data = await endpoints.update(loginToken, id, obj, type);
-        
 
         return data;
     } catch (err) {

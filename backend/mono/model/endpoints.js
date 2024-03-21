@@ -45,6 +45,7 @@ async function create(token, ctx, type) {
         const headers =  {
             Authorization: `Bearer ${token}`
         }
+        
         const res = await axios.post(strapiURL + pluralEndpoint[type], {
             data: ctx,
             headers:  {
