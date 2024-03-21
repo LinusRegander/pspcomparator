@@ -1,7 +1,7 @@
 'use strict'
 
-const klarnaServer = require('../services/klarna/controller/server');
-const strapiServer = require('../services/strapi/controller/server');
+const klarnaServer = require('../services/klarna/server');
+const strapiServer = require('../services/strapi/server');
 const axios = require('axios');
 
 async function run() {
