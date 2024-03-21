@@ -34,6 +34,11 @@
     },
     "klarna_order_number": {
       "type": "string"
+    },
+    "order_lines": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::order-line.order-line"
     }
   }
 }

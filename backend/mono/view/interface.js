@@ -169,7 +169,7 @@ async function run(controller, klarnaController) {
         
         if (!loginToken) {
             console.log('User must authenticate themselves');
-            await controller.loginUser();
+            loginToken = await controller.loginUser();
         }
 
         console.log('User authenticated and logged in.');

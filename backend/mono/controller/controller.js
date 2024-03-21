@@ -15,11 +15,11 @@ async function createType(type, loginToken) {
         if (type === "Order") {
             console.log("creating example order");
             obj = {
-                Items: [
+                order_lines: [
                     1, 2
                 ],
-                Buyer: 7,
-                Address: 2,
+                Buyer: 1,
+                address: 1
             }
         } else {
             const identifiers = await endpoints.getStructure(type);

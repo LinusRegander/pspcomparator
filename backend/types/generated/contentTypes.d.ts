@@ -872,6 +872,11 @@ export interface ApiOrderOrder extends Schema.CollectionType {
       'api::address.address'
     >;
     klarna_order_number: Attribute.String;
+    order_lines: Attribute.Relation<
+      'api::order.order',
+      'oneToMany',
+      'api::order-line.order-line'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
