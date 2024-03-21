@@ -32,7 +32,7 @@
       "relation": "oneToOne",
       "target": "api::address.address"
     },
-    "klarna_order_number": {
+    "klarna_auth_token": {
       "type": "string"
     },
     "order_lines": {

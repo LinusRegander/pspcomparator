@@ -53,28 +53,34 @@ async function authenticate() {
   }
 }
 
-async function createType(type, token, strapiOrderID, klarnaOrder, localToken) {
+async function createSession(token, strapiOrderID, klarnaOrder, localToken) {
   try {
-    if (!type) {
-      throw Error('Cannot find matching type');
-    }
-
-    if (!type) {
-      throw Error('User not allowed to make choice');
-    }
     
     let res = null;
 
-    if (type === 'Order') {
-      res = await klarna.create('Session', klarnaOrder, token);
-      console.log(res);
-      let sessionId = res.sessionId;
-      let clientToken = res.clientToken;
-      sessionInfo = { sessionId, clientToken };
-      widgetBuilder.createHTMLPageWithToken(sessionInfo.clientToken, localToken, strapiOrderID)
-    }
+    res = await klarna.createSession(klarnaOrder, token);
+    console.log(res);
+    let sessionId = res.sessionId;
+    let clientToken = res.clientToken;
+    sessionInfo = { sessionId, clientToken };
+    widgetBuilder.createHTMLPageWithToken(sessionInfo.clientToken, localToken, strapiOrderID)
+  
 
-    console.log(`Klarna ${type} created successfully.`, res);
+    console.log(`Klarna Session created successfully.`, res);
+  } catch (err) {
+    console.log(err);
+  }
+}
+async function createOrder(token, klarna_auth_token, klarnaOrder) {
+  try {
+    
+    let res = null;
+
+    res = await klarna.createOrder(klarnaOrder, klarna_auth_token, token);
+    console.log(res);
+  
+
+    console.log(`Klarna Session created successfully.`, res);
   } catch (err) {
     console.log(err);
   }
@@ -121,7 +127,7 @@ function viewList(list) {
   }
 }
 
-async function makeAction(type, action, strapiOrderID, loginToken) {
+async function makeAction(type, action, data, loginToken) {
   try {
     if (!type) {
       throw new Error('Invalid type');
@@ -163,7 +169,11 @@ async function makeAction(type, action, strapiOrderID, loginToken) {
           break;
         case 'Payment':
           console.log('Creating example order and starting session with Klarna');
-          await createType(type, token, strapiOrderID, testOrder, loginToken);
+          await createSession(token, data, testOrder, loginToken);
+          break;
+        case 'Complete': //used by seller for completing an authorised order
+          console.log('Creating order with Klarna');
+          await createOrder(token, data, testOrder);
           break;
         case 'View':
           await viewType(type, token);

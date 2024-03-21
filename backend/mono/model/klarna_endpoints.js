@@ -1,8 +1,8 @@
 const axios = require('axios');
 
-async function create(type, order, token) {
+async function createSession(order, token) {
     try {
-        const res = await axios.post(`http://localhost:1337/api/klarna/create_${type.toLowerCase()}`, {
+        const res = await axios.post(`http://localhost:1337/api/klarna/create_session`, {
             order: order,
             token: token
         });
@@ -13,6 +13,19 @@ async function create(type, order, token) {
     }
 }
 
+async function createOrder(order, authtoken, token) {
+  try {
+      const response = await axios.post('http://localhost:1337/api/klarna/create_order', {
+        order: order,
+        authToken: authtoken,
+        token: token
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Error creating a Klarna order:', error);
+  }
+}
 async function view(type, sessionId, token) {
   try {
       const res = await axios.post(`http://localhost:1337/api/klarna/view_${type.toLowerCase()}`, {
@@ -27,6 +40,7 @@ async function view(type, sessionId, token) {
 }
 
 module.exports = {
-    create,
+    createOrder,
+    createSession,
     view
 }

@@ -65,6 +65,7 @@ async function findType(type, loginToken) {
         let id = await interface.getInfo(`Select ${type} ID`);
         let item = await endpoints.findOne(id, type, loginToken);
         console.log(item.data);
+        return item.data;
     } catch (err) {
         console.log(err);
     }
@@ -91,7 +92,7 @@ async function findAllType(type, role, loginToken) {
                 console.log(item);
                 }            
         }
-    
+        return results;
 
     } catch (err) {
         console.log(err);
@@ -106,7 +107,7 @@ async function me(loginToken) {
         
         let data = await endpoints.me(loginToken);
         console.log(data)
-
+        return data;
     } catch (err) {
         console.log(err);
     }
@@ -114,29 +115,31 @@ async function me(loginToken) {
 
 async function makeAction(type, action, role, loginToken) {
     try {
+        let data = {}
         if (!action) {
             throw new Error('Invalid command');
         }
 
         switch (action) {
             case 'Create':
-                await createType(type, loginToken);
+                data = await createType(type, loginToken);
                 break;
             case 'Update':
-                await updateType(type, loginToken);
+                data = await updateType(type, loginToken);
                 break;
             case 'Find One':
-                await findType(type, loginToken);
+                data = await findType(type, loginToken);
                 break;
             case 'Find All':
-                await findAllType(type, role, loginToken);
+                data = await findAllType(type, role, loginToken);
                 break;
             case 'Me':
-                await me(loginToken);
+                data = await me(loginToken);
                 break;
             default:
                 break;
         }
+        return data;
     } catch (error) {
         console.error('Error making action:', error.message);
         throw error;

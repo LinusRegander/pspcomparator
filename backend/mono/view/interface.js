@@ -1,3 +1,5 @@
+
+
 const rl = require('readline').createInterface({
     input: process.stdin,
     output: process.stdout
@@ -11,7 +13,7 @@ const commands = {
     },
     Order: {
         title: "Order Options",
-        Seller: ["Find One", "Find All"],
+        Seller: ["Find One", "Find All", "Complete"],
         Buyer: ["Create", "Find One", "Find All", "Payment"]
     },
     User: {
@@ -123,6 +125,17 @@ async function handleCommandChoice(controller, klarnaController, command, role, 
             let strapiOrderID = 1;
             // let strapiOrderID = await getInfo(`Select ${command} ID to pay for: `)
             await klarnaController.makeAction(command, action, strapiOrderID, loginToken)
+            break;
+        }
+        if (action === 'Complete') {
+            // let strapiOrderID = await getInfo(`Select ${command} ID to authorise: `)
+            let strapiOrder = await controller.makeAction(command, 'Find One');
+            let klarna_auth_token = strapiOrder.attributes.klarna_auth_token;
+            if (!klarna_auth_token) {
+                console.log("No authorisation token found in Strapi order")
+            }
+            console.log(`Creating order for auth_token: ${klarna_auth_token}`)
+            await klarnaController.makeAction(command, action, klarna_auth_token, loginToken)
             break;
         }
 

@@ -871,7 +871,7 @@ export interface ApiOrderOrder extends Schema.CollectionType {
       'oneToOne',
       'api::address.address'
     >;
-    klarna_order_number: Attribute.String;
+    klarna_auth_token: Attribute.String;
     order_lines: Attribute.Relation<
       'api::order.order',
       'oneToMany',
