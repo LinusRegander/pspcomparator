@@ -1,8 +1,9 @@
 const widgetBuilder = require('../view/widgetbuilder');
 const auth = require('../model/auth');
 const klarna = require('../model/klarna_endpoints');
-const endpoint = require('../model/endpoints');
+const endpoints = require('../model/endpoints');
 const interface = require('../view/interface');
+const { testOrder } = require('./test_data/klarnaTestOrder');
 require('dotenv').config({path: '../../.env'});
 
 const username = process.env.KLARNA_USERNAME;
@@ -14,46 +15,6 @@ let sessionInfo = {
   clientToken: ""
 };
 
-const order = {
-  "order_amount": 10000,
-  "order_lines": [
-    {
-      "name": "Ikea stol",
-      "quantity": 10,
-      "total_amount": 10000,
-      "unit_price": 1000,
-      "total_discount_amount": 0,
-      "type": "physical"
-    }
-  ],
-  "purchase_country": "SE",
-  "purchase_currency": "SEK",
-  "intent": "buy",
-  "locale": "en-SE",
-  billing_address: {
-      given_name: "Alice",
-      family_name: "Test",
-      email: "customer@email.se",
-      street_address: "Södra Blasieholmshamnen 2",
-      postal_code: "11148",
-      city: "Stockholm",
-      phone: "+46701740615",
-      country: "SE"
-  },
-  shipping_address: {
-      given_name: "Alice",
-      family_name: "Test",
-      email: "customer@email.se",
-      street_address: "Södra Blasieholmshamnen 2",
-      postal_code: "11148",
-      city: "Stockholm",
-      phone: "+46701740615",
-      country: "SE"
-  },
-  customer: {
-      date_of_birth: "1941-03-21",
-  },
-}
 
 let orderTest = {
   order_amount: null,
@@ -92,7 +53,7 @@ async function authenticate() {
   }
 }
 
-async function createType(type, token, order) {
+async function createType(type, token, strapiOrderID, klarnaOrder, localToken) {
   try {
     if (!type) {
       throw Error('Cannot find matching type');
@@ -104,16 +65,13 @@ async function createType(type, token, order) {
     
     let res = null;
 
-    if (type === 'Session') {
-      res = await klarna.create(type, order, token);
+    if (type === 'Order') {
+      res = await klarna.create('Session', klarnaOrder, token);
       console.log(res);
       let sessionId = res.sessionId;
       let clientToken = res.clientToken;
       sessionInfo = { sessionId, clientToken };
-    }
-
-    if (type === 'Order') {
-      widgetBuilder.createHTMLPageWithToken(sessionInfo.clientToken, order)
+      widgetBuilder.createHTMLPageWithToken(sessionInfo.clientToken, localToken, strapiOrderID)
     }
 
     console.log(`Klarna ${type} created successfully.`, res);
@@ -148,7 +106,7 @@ async function viewType(type, token) {
 
 async function getOrderList() {
   try {
-    let order = await endpoint.findAll('Order');
+    let order = await endpoints.findAll('Order');
     return order.data;
   } catch (err) {
     console.log(err);
@@ -163,7 +121,7 @@ function viewList(list) {
   }
 }
 
-async function makeAction(type, action, loginToken) {
+async function makeAction(type, action, strapiOrderID, loginToken) {
   try {
     if (!type) {
       throw new Error('Invalid type');
@@ -184,7 +142,7 @@ async function makeAction(type, action, loginToken) {
           let list = await getOrderList();
           viewList(list);
           let orderId = await interface.getInfo(orderInfoText);
-          let orderInfo = await endpoint.findOne(orderId, 'Order');
+          let orderInfo = await endpoints.findOne(orderId, 'Order');
           console.log(orderInfo.data.attributes.Items.data.attributes);
           console.log(orderInfo.data.attributes.Items.data.attributes.Name);
           console.log(orderInfo.data.attributes.address.data);
@@ -202,8 +160,10 @@ async function makeAction(type, action, loginToken) {
             purchase_country: orderInfo.data.attributes.address.attributes.Country_Code,
             purchase_currency: 'SEK'
           }
-          
-          await createType(type, token, order);
+          break;
+        case 'Payment':
+          console.log('Creating example order and starting session with Klarna');
+          await createType(type, token, strapiOrderID, testOrder, loginToken);
           break;
         case 'View':
           await viewType(type, token);

@@ -1,63 +1,63 @@
 
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title></title>
-      </head>
-      <body>
-          <div id="klarna-payments-container"></div>
-          <button id="authorize-button">Authorize Payment</button>
-          <script src="https://x.klarnacdn.net/kp/lib/v1/api.js" async></script>
-          <script>
-              window.addEventListener('load', function () {
-                  Klarna.Payments.init({
-                      client_token: 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjgyMzA1ZWJjLWI4MTEtMzYzNy1hYTRjLTY2ZWNhMTg3NGYzZCJ9.eyJzZXNzaW9uX2lkIjoiYjhiNDE3YzAtZGU1NS01M2I2LWI4ZDUtNjUyMDEyMmI2MmM1IiwiYmFzZV91cmwiOiJodHRwczovL2pzLnBsYXlncm91bmQua2xhcm5hLmNvbS9ldS9rcCIsImRlc2lnbiI6ImtsYXJuYSIsImxhbmd1YWdlIjoiZW4iLCJwdXJjaGFzZV9jb3VudHJ5IjoiU0UiLCJlbnZpcm9ubWVudCI6InBsYXlncm91bmQiLCJtZXJjaGFudF9uYW1lIjoiWW91ciBidXNpbmVzcyBuYW1lIiwic2Vzc2lvbl90eXBlIjoiUEFZTUVOVFMiLCJjbGllbnRfZXZlbnRfYmFzZV91cmwiOiJodHRwczovL2V1LnBsYXlncm91bmQua2xhcm5hZXZ0LmNvbSIsInNjaGVtZSI6dHJ1ZSwiZXhwZXJpbWVudHMiOlt7Im5hbWUiOiJrcC1jbGllbnQtb25lLXB1cmNoYXNlLWZsb3ciLCJ2YXJpYXRlIjoidmFyaWF0ZS0xIn0seyJuYW1lIjoia3BjLTFrLXNlcnZpY2UiLCJ2YXJpYXRlIjoidmFyaWF0ZS0xIn0seyJuYW1lIjoia3AtY2xpZW50LXV0b3BpYS1mbG93IiwidmFyaWF0ZSI6InZhcmlhdGUtMSJ9LHsibmFtZSI6ImtwLWNsaWVudC11dG9waWEtc3RhdGljLXdpZGdldCIsInZhcmlhdGUiOiJpbmRleCIsInBhcmFtZXRlcnMiOnsiZHluYW1pYyI6InRydWUifX0seyJuYW1lIjoiaW4tYXBwLXNkay1uZXctaW50ZXJuYWwtYnJvd3NlciIsInBhcmFtZXRlcnMiOnsidmFyaWF0ZV9pZCI6Im5ldy1pbnRlcm5hbC1icm93c2VyLWVuYWJsZSJ9fSx7Im5hbWUiOiJrcC1jbGllbnQtdXRvcGlhLXNkay1mbG93IiwidmFyaWF0ZSI6InZhcmlhdGUtMSJ9LHsibmFtZSI6ImtwLWNsaWVudC11dG9waWEtd2Vidmlldy1mbG93IiwidmFyaWF0ZSI6InZhcmlhdGUtMSJ9LHsibmFtZSI6ImluLWFwcC1zZGstY2FyZC1zY2FubmluZyIsInBhcmFtZXRlcnMiOnsidmFyaWF0ZV9pZCI6ImNhcmQtc2Nhbm5pbmctZW5hYmxlIn19XSwicmVnaW9uIjoiZXUiLCJvcmRlcl9hbW91bnQiOjEwMDAwLCJvZmZlcmluZ19vcHRzIjoyLCJvbyI6IjV1IiwidmVyc2lvbiI6InYxLjEwLjAtMTU5MC1nM2ViYzM5MDcifQ.Gy68WriSkIeO4V4WjzjggwNIEHxngumRVW5f76Wkv7u0xW03YhmYI5HYg65bJ4yij7aYMgtNrNhBnKAn-se5x1ZKW7pZgC_--Sk5nuYssexwHq3g1W6ZBCt9mQHBLZ8jSu9zmm91SEdCnUxkPQ_6kAt6hxI9ffbh8JVeeYG4ga0u-RdPpzcnYm2QbxKhjVT5SYrYrDUiYCUlpc0ZlMZssQ94cUf64DwBRCzXEQ4l2vGfFVSl6AlmC56I4ZQv_WaJckP_DCHTFThixvbhSNj_E5MppqDTaHBH1qoV-fn7CwzMTBHKCNKavVfuDoI20s76Sgsu-8KE0QYPfM_IgOLQMQ'
-                  });
-                  Klarna.Payments.load(
-                      {
-                          container: '#klarna-payments-container'
-                      },
-                      {},
-                      function (res) {
-                          console.debug(res);
-                      }
-                  )
-                  document.getElementById('authorize-button').addEventListener('click', function() {
-                      Klarna.Payments.authorize(
-                          {},
-                          {}, 
-                          function(res) {   
-                            <!-- res.approved == true -> call endpoint to update order in strapi with res.authorization_token -->
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title></title>
+        </head>
+        <body>
+            <div id="klarna-payments-container"></div>
+            <button id="authorize-button">Authorize Payment</button>
+            <script src="https://x.klarnacdn.net/kp/lib/v1/api.js" async></script>
+            <script>
+                window.addEventListener('load', function () {
+                    Klarna.Payments.init({
+                        client_token: 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjgyMzA1ZWJjLWI4MTEtMzYzNy1hYTRjLTY2ZWNhMTg3NGYzZCJ9.eyJzZXNzaW9uX2lkIjoiMWRiZDE2MmItNmNkMS01NTQyLTgwMmYtYzZiN2MwYzQ1YTRjIiwiYmFzZV91cmwiOiJodHRwczovL2pzLnBsYXlncm91bmQua2xhcm5hLmNvbS9ldS9rcCIsImRlc2lnbiI6ImtsYXJuYSIsImxhbmd1YWdlIjoiZW4iLCJwdXJjaGFzZV9jb3VudHJ5IjoiU0UiLCJlbnZpcm9ubWVudCI6InBsYXlncm91bmQiLCJtZXJjaGFudF9uYW1lIjoiWW91ciBidXNpbmVzcyBuYW1lIiwic2Vzc2lvbl90eXBlIjoiUEFZTUVOVFMiLCJjbGllbnRfZXZlbnRfYmFzZV91cmwiOiJodHRwczovL2V1LnBsYXlncm91bmQua2xhcm5hZXZ0LmNvbSIsInNjaGVtZSI6dHJ1ZSwiZXhwZXJpbWVudHMiOlt7Im5hbWUiOiJrcC1jbGllbnQtb25lLXB1cmNoYXNlLWZsb3ciLCJ2YXJpYXRlIjoidmFyaWF0ZS0xIn0seyJuYW1lIjoia3BjLTFrLXNlcnZpY2UiLCJ2YXJpYXRlIjoidmFyaWF0ZS0xIn0seyJuYW1lIjoia3AtY2xpZW50LXV0b3BpYS1mbG93IiwidmFyaWF0ZSI6InZhcmlhdGUtMSJ9LHsibmFtZSI6ImtwLWNsaWVudC11dG9waWEtc3RhdGljLXdpZGdldCIsInZhcmlhdGUiOiJpbmRleCIsInBhcmFtZXRlcnMiOnsiZHluYW1pYyI6InRydWUifX0seyJuYW1lIjoiaW4tYXBwLXNkay1uZXctaW50ZXJuYWwtYnJvd3NlciIsInBhcmFtZXRlcnMiOnsidmFyaWF0ZV9pZCI6Im5ldy1pbnRlcm5hbC1icm93c2VyLWVuYWJsZSJ9fSx7Im5hbWUiOiJrcC1jbGllbnQtdXRvcGlhLXNkay1mbG93IiwidmFyaWF0ZSI6InZhcmlhdGUtMSJ9LHsibmFtZSI6ImtwLWNsaWVudC11dG9waWEtd2Vidmlldy1mbG93IiwidmFyaWF0ZSI6InZhcmlhdGUtMSJ9LHsibmFtZSI6ImluLWFwcC1zZGstY2FyZC1zY2FubmluZyIsInBhcmFtZXRlcnMiOnsidmFyaWF0ZV9pZCI6ImNhcmQtc2Nhbm5pbmctZW5hYmxlIn19XSwicmVnaW9uIjoiZXUiLCJvcmRlcl9hbW91bnQiOjEwMDAwLCJvZmZlcmluZ19vcHRzIjoyLCJvbyI6IjV1IiwidmVyc2lvbiI6InYxLjEwLjAtMTU5MC1nM2ViYzM5MDcifQ.M9RlGwRqheY4n2csNXyRmE9AaClnxNcF01BqyHgGYWpY0keeFLW0wD4x69YrIoVmkWM8POaJ9eJBHqpnw1qJ-L3B33XTSlcm-B13-eG48Bbye2sP7LHutebJPz_1X2ze04sjNSyg9WcARopqe1g8dbGrZo_wwLF1IHbh0sSZ-Q-wOT0i193ShT4WkMJMf5P0fteBWAUeZmSh757DtnAAs1n6Gsupxm0sdbsBg39i03jqNoBYTuesGMEl2x0Bzb6ijOUM2SUdHz18Ve_HdDWRqhwzGY1CT5Y_Rmm9ol5_ZO72c74OFJd6Md9ue4OMthcME2TMGjBZTpUlRQ8SRRh-Rg'
+                    });
+                    Klarna.Payments.load(
+                        {
+                            container: '#klarna-payments-container'
+                        },
+                        {},
+                        function (res) {
                             console.debug(res);
-                            if (res.approved === true) {
-                              const postToken = async () => {
-                                const request = {
-                                  method: 'PUT',
-                                  headers: {
-                                    Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NiwiaWF0IjoxNzEwOTM5OTE2LCJleHAiOjE3MTM1MzE5MTZ9.ubiEDqMaQb492OjpoyVogesLMdKKITtxIp7jGbic3ro',
-                                    'Content-Type': 'application/json'
-                                  },
-                                  body: JSON.stringify({
-                                    data: {
-                                      klarna_auth_token: res.authorization_token,
-                                      Status: 'Authorized'
-                                    }
-                                  })
+                        }
+                    )
+                    document.getElementById('authorize-button').addEventListener('click', function() {
+                        Klarna.Payments.authorize(
+                            {},
+                            {}, 
+                            function(res) {   
+                                <!-- res.approved == true -> call endpoint to update order in strapi with res.authorization_token -->
+                                console.debug(res);
+                                if (res.approved === true) {
+                                const postToken = async () => {
+                                    const request = {
+                                    method: 'PUT',
+                                    headers: {
+                                        Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzExMDI0MDA5LCJleHAiOjE3MTM2MTYwMDl9.xApUw5HNtTuAKrKsrE3FgI-HFBgKSVt1IIxUC5WkJUQ',
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({
+                                        data: {
+                                        klarna_auth_token: res.authorization_token,
+                                        Status: 'Authorized'
+                                        }
+                                    })
+                                    };
+                                    console.debug(request)
+                                    const response = await fetch('http://localhost:1337/api/orders/1', request);
+                                    
+                                    console.debug(response);
                                 };
-                                console.debug(request)
-                                const response = await fetch('http://localhost:1337/api/orders/4', request);
-                                
-                                console.debug(response);
-                              };
-                              postToken();
+                                postToken();
+                                }
                             }
-                          }
-                      );
-                  });
-              });
-          </script>
-      </body>
-      </html>
-  
+                        );
+                    });
+                });
+            </script>
+        </body>
+        </html>
+    

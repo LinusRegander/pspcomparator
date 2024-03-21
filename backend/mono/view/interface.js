@@ -12,7 +12,7 @@ const commands = {
     Order: {
         title: "Order Options",
         Seller: ["Find One", "Find All"],
-        Buyer: ["Create", "Find One", "Find All"]
+        Buyer: ["Create", "Find One", "Find All", "Payment"]
     },
     User: {
         title: "User Options",
@@ -116,6 +116,13 @@ async function handleCommandChoice(controller, klarnaController, command, role, 
         
         let action = await chooseCommand(command, role);
         if (action === 'Return') {
+            break;
+        }
+        if (action === 'Payment') {
+            //for testing purposes:
+            let strapiOrderID = 1;
+            // let strapiOrderID = await getInfo(`Select ${command} ID to pay for: `)
+            await klarnaController.makeAction(command, action, strapiOrderID, loginToken)
             break;
         }
 
