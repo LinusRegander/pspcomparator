@@ -1,3 +1,5 @@
+'use strict'
+
 const StrapiController = require('../services/strapi/controller');
 
 async function run() {
