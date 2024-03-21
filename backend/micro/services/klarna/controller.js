@@ -5,7 +5,7 @@ const auth = require('./auth');
 require('dotenv').config();
 
 class KlarnaController {
-    async function createSession(order, token) {
+    async createSession(order, token) {
         try {
             const url = process.env.KLARNA_CREATE_SESSION_URL;
             const authHeader = await auth.createAuthorization(token);
@@ -22,7 +22,7 @@ class KlarnaController {
         }
     }
     
-    async function viewSession(sessionId, token) {
+    async viewSession(sessionId, token) {
         try {
             const url = process.env.KLARNA_VIEW_SESSION_URL;
             const authHeader = await auth.createAuthorization(token);
@@ -43,7 +43,7 @@ class KlarnaController {
         }
     }
     
-    async function createOrder(address, token, authToken) {
+    async createOrder(address, token, authToken) {
         try {
             const url = process.env.KLARNA_CREATE_ORDER_URL;
             const authHeader = await auth.createAuthorization(token);
@@ -66,8 +66,4 @@ class KlarnaController {
     }
 }
 
-module.exports = {
-    createSession,
-    viewSession,
-    createOrder
-}
+module.exports = KlarnaController;

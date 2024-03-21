@@ -1,10 +1,12 @@
 'use strict'
 
 const axios = require('axios');
-const auth = require('./auth');
+const auth = require('../auth/auth');
 
-require('dotenv').config();
-const URL = 'http://localhost:1337/api/';
+require('dotenv').config({ path: '../../.env' });
+
+const URL = process.env.STRAPI_URL;
+const structure = process.env.STRAPI_CONTENT_TYPE_URL;
 
 class StrapiController {
     async create(ctx, endpoint, token) {
@@ -50,6 +52,32 @@ class StrapiController {
             const headers = await auth.getHeaders(token);
             let res = await axios.get(URL + endpoint + '/me' + '/?populate=role', {headers});
             return res.data
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    async getStructure(type) {
+        try {
+            const identifiers = [];
+            const typeID = {
+                Item: 1,
+                Order: 2
+            }
+
+            let res = null;
+    
+            console.log(`get structure for: ${type}`)
+            
+            res = await axios.get(structure + `api::${typeID[type]}`);
+    
+            const attributes = res.data.data.schema.attributes;
+        
+            for (const identifier in attributes) {
+              identifiers.push(identifier)
+            }
+        
+            return identifiers;
         } catch (err) {
             console.log(err);
         }
