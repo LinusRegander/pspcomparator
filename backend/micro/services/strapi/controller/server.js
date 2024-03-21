@@ -1,6 +1,8 @@
+'use strict'
+
 const express = require('express');
 const bodyParser = require('body-parser');
-const strapiController = require('../controller/controller');
+const controller = require('../controller/controller');
 
 require('dotenv').config({ path: '../../.env'});
 
@@ -19,7 +21,7 @@ class StrapiServer {
             const { ctx } = req.body;
           
             try {
-              const result = await strapiController.create(ctx, endpoint, token);
+              const result = await controller.create(ctx, endpoint, token);
               res.json(result);
             } catch (err) {
               res.status(500).json({ error: err.message });
@@ -34,7 +36,7 @@ class StrapiServer {
             const { ctx } = req.body;
           
             try {
-              const result = await strapiController.update(ctx, endpoint, token, id);
+              const result = await controller.update(ctx, endpoint, token, id);
               res.json(result);
             } catch (err) {
               res.status(500).json({ error: err.message });
@@ -47,7 +49,7 @@ class StrapiServer {
             const { endpoint, id } = req.params;
         
             try {
-              const result = await strapiController.findOne(endpoint, id);
+              const result = await controller.findOne(endpoint, id);
               res.json(result);
             } catch (err) {
               res.status(500).json({ error: err.message });
@@ -60,7 +62,7 @@ class StrapiServer {
             const { endpoint } = req.params;
           
             try {
-              const result = await strapiController.findAll(endpoint);
+              const result = await controller.findAll(endpoint);
               res.json(result);
             } catch (err) {
               res.status(500).json({ error: err.message });
@@ -73,7 +75,7 @@ class StrapiServer {
             const { type } = req.params;
           
             try {
-              const result = await strapiController.getStructure(type);
+              const result = await controller.getStructure(type);
               res.json(result);
             } catch (err) {
               res.status(500).json({ error: err.message });
@@ -88,4 +90,4 @@ class StrapiServer {
     }
 }
 
-module.exports = StrapiServer
+module.exports = new StrapiServer();

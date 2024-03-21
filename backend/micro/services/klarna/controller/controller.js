@@ -1,8 +1,9 @@
 'use strict'
 
 const axios = require('axios');
-const auth = require('./auth');
-require('dotenv').config();
+const auth = require('../auth/auth');
+
+require('dotenv').config({ path: '../../.env'});
 
 class KlarnaController {
     async createSession(order, token) {
@@ -27,17 +28,13 @@ class KlarnaController {
             const url = process.env.KLARNA_VIEW_SESSION_URL;
             const authHeader = await auth.createAuthorization(token);
       
-            const res = await axios.get(url, {
+            const res = await axios.get(url + sessionId, {
                 headers: {
                     ...authHeader
-                },
-                params: {
-                    session_id: sessionId
                 }
             });
       
             return res.data;
-      
         } catch (err) {
             console.log(err);
         }
@@ -48,22 +45,17 @@ class KlarnaController {
             const url = process.env.KLARNA_CREATE_ORDER_URL;
             const authHeader = await auth.createAuthorization(token);
         
-            const res = await axios.post(url, address, {
+            const res = await axios.post(url + `${authToken}/order`, address, {
                 headers: {
                     ...authHeader
-                },
-                params: {
-                    authorizationToken: authToken
                 }
-            
             });
             
             return res.data;
-      
         } catch (err) {
             console.log(err);
         }
     }
 }
 
-module.exports = KlarnaController;
+module.exports = new KlarnaController();
