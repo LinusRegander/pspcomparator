@@ -1,4 +1,4 @@
-const StrapiController = require('../services/strapi/controllers/controller');
+const StrapiController = require('../services/strapi/controller');
 
 async function run() {
     let getItems = await StrapiController.findAll('items');

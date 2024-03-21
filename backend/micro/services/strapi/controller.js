@@ -1,11 +1,10 @@
 const axios = require('axios');
-const auth = require('../utils/auth');
+const auth = require('./auth');
 
 require('dotenv').config();
-
 const URL = 'http://localhost:1337/api/';
 
-class CRUDInterface {
+class StrapiController {
     async create(ctx, endpoint, token) {
         try {
             const headers = await auth.getHeaders(token);
@@ -55,4 +54,4 @@ class CRUDInterface {
     }
 }
 
-module.exports = CRUDInterface;
+module.exports = new StrapiController();

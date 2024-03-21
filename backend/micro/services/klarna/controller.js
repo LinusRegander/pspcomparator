@@ -6,7 +6,7 @@ require('dotenv').config();
 
 async function createSession(order, token) {
     try {
-        const url = process.env.KLARNA_CREATE_SESSION_URL
+        const url = process.env.KLARNA_CREATE_SESSION_URL;
         const authHeader = await auth.createAuthorization(token);
 
         const res = await axios.post(url, order, {
