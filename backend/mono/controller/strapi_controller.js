@@ -4,15 +4,15 @@ const strapiEndpoints = require('../model/strapi_endpoints');
 const strapiTestOrder = require('./test_data/strapi_test_order')
 require('dotenv').config({path: '../../.env'});
 
-let loginToken = null;
+//store login token for current logged in user
+let userToken = null;
 
 /**
  * Generic create method, fetches type structure that user can fill in using UI
  * @param {*} type //type of object to create (eg item, order...)
- * @param {*} loginToken 
  * @returns strapi object thats been created
  */
-async function createType(type, loginToken) {
+async function createType(type) {
     try {
         let obj = {};
         if (type === "Order") { //create example order
@@ -25,7 +25,7 @@ async function createType(type, loginToken) {
             }
         }
         //call relevant create endpoint
-        let result = await strapiEndpoints.create(loginToken, obj, type);
+        let result = await strapiEndpoints.create(userToken, obj, type);
         return result.data;
     } catch (err) {
         console.error(`Error creating ${type}: `, err);
@@ -34,21 +34,20 @@ async function createType(type, loginToken) {
 /**
  * Generic update method, fetches type structure that user can fill in using UI
  * @param {*} type 
- * @param {*} loginToken 
  * @returns strapi object thats been updated 
  */
-async function updateType(type, loginToken) {
+async function updateType(type) {
     try {
         let obj = {};
         //get structure from strapi, let user fill in each field
-        const identifiers = await strapiEndpoints.getStructure(type, loginToken);
+        const identifiers = await strapiEndpoints.getStructure(type, userToken);
         for (const identifier of identifiers) {
             const value = await interface.getInfo(identifier);
             obj[identifier] = value;
         }
         //let user specify which object to update by it's id, call relevant endpoint
         let id = await interface.getInfo(`Select ${type} ID`);
-        let result = await strapiEndpoints.update(loginToken, id, obj, type);
+        let result = await strapiEndpoints.update(userToken, id, obj, type);
         return result.data;
     } catch (err) {
         console.error(`Error updating ${type}:`, err);
@@ -57,14 +56,13 @@ async function updateType(type, loginToken) {
 /**
  * Generic find method, fetches an object of chosen type
  * @param {*} type 
- * @param {*} loginToken 
  * @returns found strapi object
  */
-async function findType(type, loginToken) {
+async function findType(type) {
     try {
         //let user specify which object to fetch by it's id, call relevant endpoint
         let id = await interface.getInfo(`Select ${type} ID`);
-        let result = await strapiEndpoints.findOne(id, type, loginToken);
+        let result = await strapiEndpoints.findOne(id, type, userToken);
         return result.data;
     } catch (err) {
         console.error(err);
@@ -73,13 +71,12 @@ async function findType(type, loginToken) {
 /**
  * Generic find method, fetches all objects of chosen type
  * @param {*} type 
- * @param {*} loginToken 
  * @returns list of strapi objects
  */
-async function findAllType(type, user, loginToken) {
+async function findAllType(type, user) {
     try {
         //call endpoint for given type
-        let results = await strapiEndpoints.findAll(type, loginToken);
+        let results = await strapiEndpoints.findAll(type, userToken);
         //filter results based on type/role, alt. use '?filter[attribute]=query'
         if (type == "Orders" && user.role.name == "Seller") {
             //only show orders that have been authorised to a seller
@@ -97,12 +94,11 @@ async function findAllType(type, user, loginToken) {
 }
 /**
  * Get details for the logged in user
- * @param {*} loginToken 
  * @returns 
  */
-async function me(loginToken) {
+async function me() {
     try {        
-        let result = await strapiEndpoints.me(loginToken);
+        let result = await strapiEndpoints.me(userToken);
         console.log("me result id: ", result.id)
         return result;
         //role = result.role.name
@@ -116,28 +112,27 @@ async function me(loginToken) {
  * Switch case that chooses which method to call based on type/action chosen
  * @param {*} type 
  * @param {*} action 
- * @param {*} user 
- * @param {*} strapiCreds 
+ * @param {*} user
  * @returns 
  */
-async function makeAction(type, action, user, strapiCreds) {
+async function makeAction(type, action, user) {
     try {
         let data = {};
         switch (action) {
             case 'Create':
-                data = await createType(type, strapiCreds);
+                data = await createType(type);
                 break;
             case 'Update':
-                data = await updateType(type, strapiCreds);
+                data = await updateType(type);
                 break;
             case 'Find One':
-                data = await findType(type, strapiCreds);
+                data = await findType(type);
                 break;
             case 'Find All':
-                data = await findAllType(type, user, strapiCreds);
+                data = await findAllType(type, user);
                 break;
             case 'Me':
-                data = await me(strapiCreds);
+                data = await me();
                 break;
             default:
                 break;
@@ -154,7 +149,7 @@ async function makeAction(type, action, user, strapiCreds) {
 async function logoutUser() {
     try {
         console.log('User logged out.');
-        return loginToken = null;
+        return userToken = null;
     } catch (err) {
         console.error(err);
     }
@@ -167,8 +162,8 @@ async function loginUser() {
     try {
         let username = await interface.getInfo('Username');
         let password = await interface.getInfo('Password');
-        loginToken = await auth.getStrapiCreds(username, password);
-        return loginToken;
+        userToken = await auth.getStrapiCreds(username, password);
+        return userToken;
     } catch (err) {
         console.error(err);
     }

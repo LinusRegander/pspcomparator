@@ -10,10 +10,10 @@ require('dotenv').config({path: '../../.env'});
 /**
  * Class for testing the authorisation flow of creating a session in klarna, getting authorisation, and finally creating an order in klarna
  */
-const username = "PK250364_e8c5dc522820";
-const password = "IEW5fYfsXOx9Nu32";
+const username = process.env.KLARNA_USERNAME;
+const password = process.env.KLARNA_PASSWORD;
 
-var strapiCreds = '12313123123';
+var strapiCreds = '';
 /**
  * Login user to strapi and save token to global variable
  */

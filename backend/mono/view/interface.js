@@ -129,7 +129,7 @@ async function handleCommandChoice(strapiController, klarnaController, command, 
         }
         if (action === 'Complete') {
             // let strapiOrderID = await getInfo(`Select ${command} ID to authorise: `)
-            let strapiOrder = await strapiController.makeAction(command, 'Find One', user, strapiCreds);
+            let strapiOrder = await strapiController.makeAction(command, 'Find One', user);
             let klarna_auth_token = strapiOrder.attributes.klarna_auth_token;
             if (!klarna_auth_token) {
                 console.error("Error: No authorisation token found in Strapi order");
@@ -141,7 +141,7 @@ async function handleCommandChoice(strapiController, klarnaController, command, 
             break;
         }
         //if no matching klarna action found, call strapi controller
-        await strapiController.makeAction(command, action, user, strapiCreds);
+        await strapiController.makeAction(command, action, user);
     }
     //if loop broken, show command menu again
     getCommandChoice(strapiController, klarnaController, user, strapiCreds);
@@ -194,17 +194,17 @@ async function run(strapiController, klarnaController) {
             throw Error('Error running interface. Please provide a Controller');
         }
 
-        let loginToken = await strapiController.loginUser();
+        let strapiCreds = await strapiController.loginUser();
         
-        if (!loginToken) {
+        if (!strapiCreds) {
             console.log('User must authenticate themselves');
-            loginToken = await strapiController.loginUser();
+            strapiCreds = await strapiController.loginUser();
         }
 
         console.log('User authenticated and logged in.');
         //get user details for use in menus
-        let user = await strapiController.me(loginToken);
-        await getCommandChoice(strapiController, klarnaController, user, loginToken);
+        let user = await strapiController.me(strapiCreds);
+        await getCommandChoice(strapiController, klarnaController, user, strapiCreds);
     } catch (error) {
         console.error('Error:', error);
     }

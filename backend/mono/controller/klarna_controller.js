@@ -7,6 +7,7 @@ require('dotenv').config({path: '../../.env'});
 const username = process.env.KLARNA_USERNAME;
 const password = process.env.KLARNA_PASSWORD;
 
+//global varable for storing session details (in case of bug/UIbreak)
 let sessionInfo = {
   sessionId: "",
   clientToken: ""
