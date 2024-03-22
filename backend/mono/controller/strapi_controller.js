@@ -1,8 +1,7 @@
-const item = require('../../src/api/item/controllers/item');
 const auth = require('../model/auth');
-const strapiTestOrder = require('./test_data/strapiTestOrder')
-const endpoints = require('../model/endpoints');
 const interface = require('../view/interface');
+const strapiEndpoints = require('../model/strapi_endpoints');
+const strapiTestOrder = require('./test_data/strapi_test_order')
 require('dotenv').config({path: '../../.env'});
 
 let loginToken = null;
@@ -19,14 +18,14 @@ async function createType(type, loginToken) {
         if (type === "Order") { //create example order
             obj = strapiTestOrder;
         } else { //get structure from strapi, let user fill in each field
-            const identifiers = await endpoints.getStructure(type);
+            const identifiers = await strapiEndpoints.getStructure(type);
             for (const identifier of identifiers) {
                 const value = await interface.getInfo(identifier);
                 obj[identifier] = value;
             }
         }
         //call relevant create endpoint
-        let result = await endpoints.create(loginToken, obj, type);
+        let result = await strapiEndpoints.create(loginToken, obj, type);
         return result;
     } catch (err) {
         console.error(`Error creating ${type}: `, err);
@@ -42,14 +41,14 @@ async function updateType(type, loginToken) {
     try {
         let obj = {};
         //get structure from strapi, let user fill in each field
-        const identifiers = await endpoints.getStructure(type, loginToken);
+        const identifiers = await strapiEndpoints.getStructure(type, loginToken);
         for (const identifier of identifiers) {
             const value = await interface.getInfo(identifier);
             obj[identifier] = value;
         }
         //let user specify which object to update by it's id, call relevant endpoint
         let id = await interface.getInfo(`Select ${type} ID`);
-        let result = await endpoints.update(loginToken, id, obj, type);
+        let result = await strapiEndpoints.update(loginToken, id, obj, type);
         return result;
     } catch (err) {
         console.error(`Error creating ${type}:`, err);
@@ -65,7 +64,7 @@ async function findType(type, loginToken) {
     try {
         //let user specify which object to fetch by it's id, call relevant endpoint
         let id = await interface.getInfo(`Select ${type} ID`);
-        let result = await endpoints.findOne(id, type, loginToken);
+        let result = await strapiEndpoints.findOne(id, type, loginToken);
         return result.data;
     } catch (err) {
         console.error(err);
@@ -80,7 +79,7 @@ async function findType(type, loginToken) {
 async function findAllType(type, role, loginToken) {
     try {
         //call endpoint for given type
-        let results = await endpoints.findAll(type, loginToken);
+        let results = await strapiEndpoints.findAll(type, loginToken);
         //filter results based on type/role, alt. use '?filter[attribute]=query'
         if (type == "Orders" && role == "Seller") {
             //only show orders that have been authorised to a seller
@@ -103,7 +102,7 @@ async function findAllType(type, role, loginToken) {
  */
 async function me(loginToken) {
     try {        
-        let result = await endpoints.me(loginToken);
+        let result = await strapiEndpoints.me(loginToken);
         console.log(result);
         return result;
     } catch (err) {
@@ -155,7 +154,7 @@ async function makeAction(type, action, role, loginToken) {
  */
 async function getRole(loginToken) {
     try {
-        const res = await endpoints.me(loginToken);
+        const res = await strapiEndpoints.me(loginToken);
             let userRole = res.role.name;
             return userRole;
     } catch (err) {

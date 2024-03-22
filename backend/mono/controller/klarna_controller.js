@@ -1,6 +1,6 @@
-const widgetBuilder = require('../view/widgetbuilder');
 const auth = require('../model/auth');
-const klarna = require('../model/klarna_endpoints');
+const widgetBuilder = require('../view/widgetbuilder');
+const klarnaEndpoints = require('../model/klarna_endpoints');
 const klarnaTestOrder = require('./test_data/klarnaTestOrder');
 require('dotenv').config({path: '../../.env'});
 
@@ -33,7 +33,7 @@ async function authenticate() {
 async function createSession(klarnaCreds, strapiOrderID, klarnaOrder, strapiCreds) {
   try {
     //use order and klarna creds to create a session
-    let res = await klarna.createSession(klarnaOrder, klarnaCreds);
+    let res = await klarnaEndpoints.createSession(klarnaOrder, klarnaCreds);
     let sessionId = res.sessionId;
     let clientToken = res.clientToken;
     //save sessionId and clientToken to global object
@@ -52,7 +52,7 @@ async function createSession(klarnaCreds, strapiOrderID, klarnaOrder, strapiCred
  */
 async function createOrder(klarnaCreds, klarnaAuthToken, klarnaOrder) {
   try {
-    let res = await klarna.createOrder(klarnaOrder, klarnaAuthToken, klarnaCreds);
+    let res = await klarnaEndpoints.createOrder(klarnaOrder, klarnaAuthToken, klarnaCreds);
     console.log(`Klarna Session created successfully.`, res);
   } catch (err) {
     console.log(err);
@@ -71,7 +71,7 @@ async function viewSession(klarnaCreds) {
     if (!id) {
         throw new Error('Session ID is missing. Please create a session first');
     }
-    let res = await klarna.view('session', id, klarnaCreds);
+    let res = await klarnaEndpoints.view('session', id, klarnaCreds);
     console.log('Session: ', res);
   } catch (err) {
     console.log(err);

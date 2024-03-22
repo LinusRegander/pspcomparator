@@ -1,5 +1,5 @@
 const strapiController = require('./strapi_controller');
-const klarnaController = require('../controller/klarna_controller');
+const klarnaController = require('./klarna_controller');
 const interface = require('../view/interface');
 
 /**

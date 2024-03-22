@@ -1,5 +1,5 @@
 const axios = require('axios');
-const endpoint = 'http://localhost:1337/api/auth/local';
+const strapiEndpoint = 'http://localhost:1337/api/auth/local';
 
 /**
  * Get authentication token by providing identifier and password.
@@ -11,7 +11,7 @@ const endpoint = 'http://localhost:1337/api/auth/local';
  */
 async function getStrapiCreds(id, pass) {
     try {
-        const res = await axios.post(endpoint, {
+        const res = await axios.post(strapiEndpoint, {
             identifier: id,
             password: pass
         });
@@ -22,9 +22,9 @@ async function getStrapiCreds(id, pass) {
     }
 }
 /**
- * 
- * @param {*} username 
- * @param {*} password 
+ * Creates a base-64 string from credentials to be used as a 'Basic Authentication' token
+ * @param {*} username - username linked to klarna merchant account
+ * @param {*} password
  * @returns 
  */
 function encodeCredentials(username, password) {
