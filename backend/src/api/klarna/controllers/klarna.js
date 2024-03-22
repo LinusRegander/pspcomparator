@@ -1,8 +1,6 @@
 'use strict';
 
 const axios = require('axios');
-const fs = require('fs');
-const path = require('path');
 
 require('dotenv').config();
 
@@ -11,14 +9,6 @@ const playgroundURL = process.env.KLARNA_PLAYGROUND_URL
 module.exports = {
   async test() {
     return "Hello World";
-  },
-  async sendToken(ctx) {
-    try {
-      let token = ctx.request.body.token;
-      ctx.send({ token });
-    } catch (error) {
-      console.error('Error sending token', error);
-    }
   },
   async createOrder(ctx) {
     try {
@@ -82,47 +72,5 @@ module.exports = {
       console.log('Error creating an order', error);
       throw error;
     }
-  },
-  async createCheckoutOrder(ctx) {
-    try {
-      const { order, partner } = ctx.params;
-
-      const headers = {
-        'Content-Type': 'application/json',
-        'Klarna_Partner': partner,
-      }
-
-      const res = await axios.post(`${playgroundURL}/checkout/v3/orders`, {order}, {headers});
-
-      return res.data;
-    } catch (error) {
-      console.error('Error opening the Klarna checkout:', error);
-      throw error;
-    }
-  },
-  async viewCheckoutOrder(ctx) {
-    try {
-      const { orderId } = ctx.params;
-
-      const res = await axios.get(`${playgroundURL}/checkout/v3/orders/${orderId}`);
-
-      return res.data;
-
-    } catch (error) {
-      console.log('Error creating an order', error);
-      throw error;
-    }
-  },
-  async openWidget(ctx) {
-    try {
-      const filepath = path.resolve(__dirname, '../../../../public/views/widget.html');
-      const htmlContent = fs.readFileSync(filepath, 'utf-8');
-
-      ctx.type = 'text/html';
-      ctx.send(htmlContent);
-    } catch (error) {
-      console.log('Error creating an order', error);
-      throw error;
-    }
-  },
+  }
 };

@@ -35,7 +35,7 @@ async function view(type, sessionId, token) {
 
       return res.data;
   } catch (error) {
-    console.error('Error creating a Klarna session:', error);
+    console.error('Error retrieving type:', error);
   }
 }
 

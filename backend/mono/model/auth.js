@@ -9,22 +9,25 @@ const endpoint = 'http://localhost:1337/api/auth/local';
  * @returns The JWT authentication token.
  * @throws {Error} If there is an error fetching the token or the request fails.
  */
-async function getToken(id, pass) {
+async function getStrapiCreds(id, pass) {
     try {
         const res = await axios.post(endpoint, {
             identifier: id,
             password: pass
         });
-        console.log(res.data.jwt)
         return res.data.jwt;
     } catch (error) {
         console.error('Error fetching token:', error.message);
         return null;
     }
 }
-
-
-function getEncodedCredentials(username, password) {
+/**
+ * 
+ * @param {*} username 
+ * @param {*} password 
+ * @returns 
+ */
+function encodeCredentials(username, password) {
     try {
         const encodedCredentials = Buffer.from(username + ":" + password).toString('base64')
         return encodedCredentials
@@ -34,6 +37,6 @@ function getEncodedCredentials(username, password) {
 }
 
 module.exports = { 
-    getToken,
-    getEncodedCredentials
+    getStrapiCreds,
+    encodeCredentials
 };

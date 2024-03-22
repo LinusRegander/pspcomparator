@@ -1,14 +1,11 @@
 const widgetBuilder = require('../view/widgetbuilder');
 const auth = require('../model/auth');
 const klarna = require('../model/klarna_endpoints');
-const endpoints = require('../model/endpoints');
-const interface = require('../view/interface');
-const { testOrder } = require('./test_data/klarnaTestOrder');
+const klarnaTestOrder = require('./test_data/klarnaTestOrder');
 require('dotenv').config({path: '../../.env'});
 
 const username = process.env.KLARNA_USERNAME;
 const password = process.env.KLARNA_PASSWORD;
-const orderInfoText = 'Select the ID of the order you want to create a transaction for';
 
 let sessionInfo = {
   sessionId: "",
@@ -21,127 +18,95 @@ let sessionInfo = {
  */
 async function authenticate() {
   try {
-    return await auth.getEncodedCredentials(username, password);
+    return await auth.encodeCredentials(username, password);
   } catch (err) {
     console.log(err);
   }
 }
 /**
- * 
- * @param {*} token 
+ * Starts a session in klarna, then uses the recieved client token to create html page with klarna widget
+ * @param {*} klarnaCreds 
  * @param {*} strapiOrderID 
  * @param {*} klarnaOrder 
- * @param {*} localToken 
+ * @param {*} strapiCreds 
  */
-async function createSession(token, strapiOrderID, klarnaOrder, localToken) {
+async function createSession(klarnaCreds, strapiOrderID, klarnaOrder, strapiCreds) {
   try {
-    
-    let res = null;
-    res = await klarna.createSession(klarnaOrder, token);
+    //use order and klarna creds to create a session
+    let res = await klarna.createSession(klarnaOrder, klarnaCreds);
     let sessionId = res.sessionId;
     let clientToken = res.clientToken;
+    //save sessionId and clientToken to global object
     sessionInfo = { sessionId, clientToken };
-    widgetBuilder.createHTMLPageWithToken(sessionInfo.clientToken, localToken, strapiOrderID)
-    console.log(`Klarna Session created successfully.`, res);
+    //create html page with klarna widget
+    widgetBuilder.createHTMLPageWithToken(sessionInfo.clientToken, strapiCreds, strapiOrderID);
   } catch (err) {
     console.log(err);
   }
 }
-async function createOrder(token, klarna_auth_token, klarnaOrder) {
+/**
+ * Once authorised, uses auth-token and order object to create an order in klarna
+ * @param {*} klarnaCreds 
+ * @param {*} klarnaAuthToken 
+ * @param {*} klarnaOrder 
+ */
+async function createOrder(klarnaCreds, klarnaAuthToken, klarnaOrder) {
   try {
-    
-    let res = null;
-    res = await klarna.createOrder(klarnaOrder, klarna_auth_token, token);
+    let res = await klarna.createOrder(klarnaOrder, klarnaAuthToken, klarnaCreds);
     console.log(`Klarna Session created successfully.`, res);
   } catch (err) {
     console.log(err);
   }
 }
 /**
- * 
- * @param {*} type 
- * @param {*} token 
+ * Fetch the current klarna session, used in case of dropped connection, bugs etc
+ * @param {*} klarnaCreds 
  */
-async function viewType(type, token) {
+async function viewSession(klarnaCreds) {
   try {
-    if (!type) {
-      throw Error('Cannot find matching type');
+    if (!klarnaCreds) {
+      throw Error('No credentials found');
     }
-
-    if (!token) {
-      throw Error('User not allowed to make choice');
-    }
-
     let id = sessionInfo.sessionId;
-
     if (!id) {
         throw new Error('Session ID is missing. Please create a session first');
     }
-
-    let res = await klarna.view(type, id, token);
-
-    console.log(`${type}`, res);
+    let res = await klarna.view('session', id, klarnaCreds);
+    console.log('Session: ', res);
   } catch (err) {
     console.log(err);
   }
 }
 /**
- * 
- * @returns 
- */
-async function getOrderList() {
-  try {
-    let order = await endpoints.findAll('Order');
-    return order.data;
-  } catch (err) {
-    console.log(err);
-  }
-}
-/**
- * 
- * @param {*} list 
- */
-function viewList(list) {
-  try {
-    console.log(list);
-  } catch (err) {
-    console.log(err);
-  }
-}
-/**
- * 
+ * Switch case that chooses which method to call based on type/action chosen
  * @param {*} type 
  * @param {*} action 
- * @param {*} data 
- * @param {*} loginToken 
+ * @param {*} data //contextual data such as object Ids or tokens
+ * @param {*} strapiCreds //temporarily needed for callback method
  */
-async function makeAction(type, action, data, loginToken) {
+async function makeAction(type, action, data, strapiCreds) {
   try {
     if (!type) {
       throw new Error('Invalid type');
     }
-
     if (!action) {
         throw new Error('Invalid command');
     }
-
-    let token = await authenticate();
-
+    let klarnaCreds = await authenticate();
     if (!auth) {
         throw new Error('Cannot authorize user with Klarna');
     }
-
     switch (action) {
-        case 'Payment':
+        case 'Payment': //used by buyer to start a payment with klarna
           console.log('Creating example order and starting session with Klarna');
-          await createSession(token, data, testOrder, loginToken);
+          await createSession(klarnaCreds, data, klarnaTestOrder, strapiCreds);
           break;
         case 'Complete': //used by seller for completing an authorised order
-          console.log('Creating order with Klarna');
-          await createOrder(token, data, testOrder);
+          console.log('Confirming order with Klarna');
+          await createOrder(klarnaCreds, data, klarnaTestOrder);
           break;
-        case 'View':
-          await viewType(type, token);
+        case 'View': //used to fetch current session details
+          await viewSession(klarnaCreds);
           break;
         default:
           break;

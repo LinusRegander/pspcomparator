@@ -15,21 +15,20 @@ var localToken = '12313123123';
  * Login user to strapi and save token to global variable
  */
 async function login(identifier, password) {
-    let token = await auth.getToken(identifier, password)
+    let token = await auth.getStrapiCreds(identifier, password);
     localToken = token;
     console.log('User logged in with token: ', localToken);
 }
 /**
- * Send klarna credentials and order object to strapi endpoint that creates a klarna session
+ * Send order object to strapi endpoint that creates a klarna session
  * @param {*} order 
- * @param {*} token 
  * @returns klarna session id
  */
-async function createSession(order, token) {
+async function createSession(order) {
     try {
         const response = await axios.post('http://localhost:1337/api/klarna/create_session', {
             order: order,
-            token: token
+            token: auth.encodeCredentials(username, password)
         });
 
         return response;
@@ -48,7 +47,7 @@ async function createOrder(order, authtoken) {
       const response = await axios.post('http://localhost:1337/api/klarna/create_order', {
         order: order,
         authToken: authtoken,
-        token: auth.getEncodedCredentials(username, password)
+        token: auth.encodeCredentials(username, password)
     });
 
     return response.data;
@@ -186,15 +185,14 @@ async function main() {
     
   //log in to strapi
   await login('thatman', 'thispassword');
-  //create order in strapi;
+  //create order;
   let order = getExampleOrder();
   //start klarna session;
-  let token = auth.getEncodedCredentials(username, password);
-  let session = await createSession(order, token);
-  // specify strapi order number  
+  let session = await createSession(order);
+  //specify strapi order number  
   const strapiOrderNo = 4;
   //start klarna widget
-  createHTMLPageWithToken(session.data.clientToken, localToken, strapiOrderNo)
+  createHTMLPageWithToken(session.data.clientToken, localToken, strapiOrderNo);
   //check order periodically for status = 'Authenticated'
   let authToken = '';
   while(true) {
@@ -206,7 +204,7 @@ async function main() {
     }
   }
   //use klarna auth token to create klarna order
-  await createOrder(order, authToken)
+  await createOrder(order, authToken);
 }
 /**
  * Simple wait function that returns after the specified time (ms)

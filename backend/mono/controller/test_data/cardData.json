@@ -1,8 +1,0 @@
-{
-    "sampleCardData": {
-        "card_number": "4111 1111 1111 1111",
-        "cvc": 123,
-        "expiration_date": "12/28",
-        "3d-secure": "4687388888888881"
-    }
-}
