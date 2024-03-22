@@ -1,24 +1,30 @@
 const auth = require('../model/auth');
 const orders = require('../model/order');
-const klarna = require('../../src/api/klarna/controllers/klarna');
-const testOrder = require('../controller/test_data/strapiTestOrder');
-const endpoints = require('../model/endpoints');
 const axios = require('axios');
 const opn = require('opn');
 const fs = require('fs');
 require('dotenv').config({path: '../../.env'});
-
+/**
+ * Class for testing the authorisation flow of creating a session in klarna, getting authorisation, and finally creating an order in klarna
+ */
 const username = "PK250364_e8c5dc522820";
 const password = "IEW5fYfsXOx9Nu32";
-;
-var localToken = '12313123123';
 
-async function login() {
-    let token = await auth.getToken('thatman', 'thispassword')
+var localToken = '12313123123';
+/**
+ * Login user to strapi and save token to global variable
+ */
+async function login(identifier, password) {
+    let token = await auth.getToken(identifier, password)
     localToken = token;
     console.log('User logged in with token: ', localToken);
 }
-
+/**
+ * Send klarna credentials and order object to strapi endpoint that creates a klarna session
+ * @param {*} order 
+ * @param {*} token 
+ * @returns klarna session id
+ */
 async function createSession(order, token) {
     try {
         const response = await axios.post('http://localhost:1337/api/klarna/create_session', {
@@ -31,7 +37,12 @@ async function createSession(order, token) {
       console.error('Error creating a Klarna session:', error);
     }
 }
-
+/**
+ * Send klarna authorisation token and order object to strapi endpoint that creates a klarna order
+ * @param {*} order 
+ * @param {*} authtoken 
+ * @returns klarna order id
+ */
 async function createOrder(order, authtoken) {
   try {
       const response = await axios.post('http://localhost:1337/api/klarna/create_order', {
@@ -45,8 +56,10 @@ async function createOrder(order, authtoken) {
     console.error('Error creating a Klarna order:', error);
   }
 }
-
-
+/**
+ * Example klarna order, containing all fields necessary to create a klarna session and get authorisation
+ * @returns 
+ */
 function getExampleOrder() {
   const order = {
     "order_amount": 10000,
@@ -90,6 +103,12 @@ function getExampleOrder() {
   }
   return order
 }
+/**
+ * Creates a html page containing the klarna payment widget, plus a callback to update the strapi order status
+ * @param {*} clientToken 
+ * @param {*} localToken //strapi authorisation token. Not needed if merchant_urls.authorization callback url included in order when creating session
+ * @param {*} strapiOrderNo 
+ */
 function createHTMLPageWithToken(clientToken, localToken, strapiOrderNo) {
   const htmlContent = `
       <!DOCTYPE html>
@@ -166,39 +185,38 @@ function createHTMLPageWithToken(clientToken, localToken, strapiOrderNo) {
 async function main() {
     
   //log in to strapi
-  await login();
-  console.log(localToken);
+  await login('thatman', 'thispassword');
   //create order in strapi;
   let order = getExampleOrder();
-  console.log(order)
   //start klarna session;
   let token = auth.getEncodedCredentials(username, password);
-  console.log(token)
   let session = await createSession(order, token);
-  // console.log(session.data);
   // specify strapi order number  
   const strapiOrderNo = 4;
   //start klarna widget
   createHTMLPageWithToken(session.data.clientToken, localToken, strapiOrderNo)
+  //check order periodically for status = 'Authenticated'
   let authToken = '';
   while(true) {
     await wait(5000);
     let strapiOrder = await orders.findOneOrder(localToken, strapiOrderNo);
-    console.log("order status", strapiOrder.data.attributes.Status)
     if (strapiOrder.data.attributes.Status === "Authorized") {
       authToken = strapiOrder.data.attributes.klarna_auth_token;
       break;
     }
   }
-  console.log("Order authorised")
-  //get authToken from widget
-  console.log("creating order")
-  let orderDetails = await createOrder(order, authToken)
-  console.log(orderDetails)
+  //use klarna auth token to create klarna order
+  await createOrder(order, authToken)
 }
+/**
+ * Simple wait function that returns after the specified time (ms)
+ * @param {*} timeout 
+ * @returns 
+ */
 function wait(timeout) {
   return new Promise(resolve => {
       setTimeout(resolve, timeout);
   });
 }
+
 main();
