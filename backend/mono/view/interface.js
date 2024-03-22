@@ -41,7 +41,7 @@ async function getInfo(info) {
 }
 
 
-async function chooseCommand(command, role) {
+async function chooseAction(command, role) {
     try {
         let choice = null;
         let optionsList = null;
@@ -96,6 +96,8 @@ function generateOptionsList(options, includeGoBack = false) {
         
         if (includeGoBack) {
             optionsList.push(`${options.length + 1}. Go Back`);
+        } else {
+            optionsList.push(`${options.length + 1}. Logout`);
         }
 
         return optionsList.join('\n') + '\nEnter your choice: ';
@@ -104,19 +106,17 @@ function generateOptionsList(options, includeGoBack = false) {
     }
 }
 
-async function typeMenu() {
-    try {
-        return await askUser("Choose a command type:\n1. Items \n2. Orders \n3. User details \n4. Logout User \nEnter your choice: ");
-    } catch (err) {
-        console.log(err);
-    }
+async function typeMenu(role) {
+    let options = Object.keys(commands);
+    let optionsList = await generateOptionsList(options, false);
+    return await askUser(`${role} command options:\n${optionsList}`);
 }
 
 async function handleCommandChoice(strapiController, klarnaController, command, role, strapiCreds) {
     while (true) {
 
         
-        let action = await chooseCommand(command, role);
+        let action = await chooseAction(command, role);
         if (action === 'Return') {
             break;
         }
@@ -158,7 +158,7 @@ async function getCommandChoice(controller, klarnaController, role, strapiCreds)
         let commandType = '';
 
         while (true) {
-            commandType = await typeMenu();
+            commandType = await typeMenu(role);
 
             let choice = commandType.trim();
 
