@@ -26,10 +26,10 @@ async function authenticate() {
 }
 /**
  * Starts a session in klarna, then uses the recieved client token to create html page with klarna widget
- * @param {*} klarnaCreds - base64 token for klarna authentication
- * @param {*} strapiOrderID - order ID in strapi used for callback
- * @param {*} klarnaOrder - klarna order object to be sent
- * @param {*} strapiCreds - strapi credentials for callback (OBS can be depreciated once klarna/receive_auth endpoint in place)
+ * @param {string} klarnaCreds - base64 token for klarna authentication
+ * @param {string} strapiOrderID - order ID in strapi used for callback
+ * @param {object} klarnaOrder - klarna order object to be sent
+ * @param {string} strapiCreds - strapi credentials for callback (OBS can be depreciated once klarna/receive_auth endpoint in place)
  */
 async function createSession(klarnaCreds, strapiOrderID, klarnaOrder, strapiCreds) {
   try {
@@ -47,9 +47,9 @@ async function createSession(klarnaCreds, strapiOrderID, klarnaOrder, strapiCred
 }
 /**
  * Once authorised, uses auth-token and order object to create an order in klarna
- * @param {*} klarnaCreds - base64 token for klarna autShentication
- * @param {*} klarnaAuthToken - auth token recieved from authorisation callback
- * @param {*} klarnaOrder - klarna order object to be confirmed
+ * @param {string} klarnaCreds - base64 token for klarna autShentication
+ * @param {string} klarnaAuthToken - auth token recieved from authorisation callback
+ * @param {object} klarnaOrder - klarna order object to be confirmed
  */
 async function createOrder(klarnaCreds, klarnaAuthToken, klarnaOrder) {
   try {
@@ -61,7 +61,7 @@ async function createOrder(klarnaCreds, klarnaAuthToken, klarnaOrder) {
 }
 /**
  * Fetch the current klarna session, used in case of dropped connection, bugs etc
- * @param {*} klarnaCreds - base64 token for klarna authentication
+ * @param {string} klarnaCreds - base64 token for klarna authentication
  */
 async function viewSession(klarnaCreds) {
   try {
@@ -80,10 +80,10 @@ async function viewSession(klarnaCreds) {
 }
 /**
  * Switch case that chooses which method to call based on type/action chosen
- * @param {*} type 
- * @param {*} action - the action to be performed, create, update...
- * @param {*} data - contextual data such as objects or tokens
- * @param {*} strapiCreds - strapi token, temporarily needed for callback method
+ * @param {string} type 
+ * @param {string} action - the action to be performed, create, update...
+ * @param {object} data - contextual data such as objects or tokens
+ * @param {string} strapiCreds - strapi token, temporarily needed for callback method
  */
 async function makeAction(type, action, data, strapiCreds) {
   try {
