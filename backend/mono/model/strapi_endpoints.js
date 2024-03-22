@@ -32,7 +32,7 @@ const singularEndpoint = {
  */
 async function create(strapiCreds, ctx, strapiType) {
     try {
-        const res = await axios.post(strapiURL + pluralEndpoint[strapiType], {
+        const res = await axios.post(strapiURL + pluralEndpoint[strapiType] + '?populate=*', {
             data: ctx,
             headers:  {
                 Authorization: `Bearer ${strapiCreds}`
@@ -57,7 +57,7 @@ async function create(strapiCreds, ctx, strapiType) {
  */
 async function update(strapiCreds, id, ctx, strapiType) {
     try {
-        const res = await axios.put(`${strapiURL}` + pluralEndpoint[strapiType] + `/${id}`, {
+        const res = await axios.put(`${strapiURL}` + pluralEndpoint[strapiType] + `/${id}` + '?populate=*', {
             data: ctx,
             headers: {
                 Authorization: `Bearer ${strapiCreds}`

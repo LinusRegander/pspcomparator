@@ -41,7 +41,7 @@ async function getInfo(info) {
 }
 
 
-async function chooseAction(command, role) {
+async function chooseAction(command, user) {
     try {
         let choice = null;
         let optionsList = null;
@@ -51,10 +51,11 @@ async function chooseAction(command, role) {
         }
         
         //get options depending on role
-        let options = commands[command][role];
+        let options = commands[command][user.role.name];
 
         optionsList = await generateOptionsList(options, true);
-        choice = await askUser(`${role} ${command} options:\n${optionsList}`);
+        console.log(`Logged in as '${user.username}' [id:${user.id}]`);
+        choice = await askUser(`${user.role.name} ${command} options:\n${optionsList}`);
     
         let index = optionsList.split('\n').length - 1;
 
@@ -106,17 +107,16 @@ function generateOptionsList(options, includeGoBack = false) {
     }
 }
 
-async function typeMenu(role) {
+async function typeMenu(user) {
     let options = Object.keys(commands);
     let optionsList = await generateOptionsList(options, false);
-    return await askUser(`${role} Command options:\n${optionsList}`);
+    console.log(`Logged in as '${user.username}' [id:${user.id}]`);
+    return await askUser(`${user.role.name} Command options:\n${optionsList}`);
 }
 
-async function handleCommandChoice(strapiController, klarnaController, command, role, strapiCreds) {
+async function handleCommandChoice(strapiController, klarnaController, command, user, strapiCreds) {
     while (true) {
-
-        
-        let action = await chooseAction(command, role);
+        let action = await chooseAction(command, user);
         //first check if 'return' selected
         if (action === 'Return') {
             break;
@@ -129,7 +129,7 @@ async function handleCommandChoice(strapiController, klarnaController, command, 
         }
         if (action === 'Complete') {
             // let strapiOrderID = await getInfo(`Select ${command} ID to authorise: `)
-            let strapiOrder = await strapiController.makeAction(command, 'Find One', role, strapiCreds);
+            let strapiOrder = await strapiController.makeAction(command, 'Find One', user, strapiCreds);
             let klarna_auth_token = strapiOrder.attributes.klarna_auth_token;
             if (!klarna_auth_token) {
                 console.error("Error: No authorisation token found in Strapi order");
@@ -141,44 +141,44 @@ async function handleCommandChoice(strapiController, klarnaController, command, 
             break;
         }
         //if no matching klarna action found, call strapi controller
-        await strapiController.makeAction(command, action, role, strapiCreds);
+        await strapiController.makeAction(command, action, user, strapiCreds);
     }
     //if loop broken, show command menu again
-    getCommandChoice(strapiController, klarnaController, role, strapiCreds);
+    getCommandChoice(strapiController, klarnaController, user, strapiCreds);
 }
 /**
  * Main menu shown after login, switch to decide which sub-menu of actions to display to user
  * @param {*} controller 
  * @param {*} klarnaController 
- * @param {*} role 
+ * @param {*} user 
  * @param {*} strapiCreds 
  * @returns 
  */
-async function getCommandChoice(controller, klarnaController, role, strapiCreds) {
+async function getCommandChoice(controller, klarnaController, user, strapiCreds) {
     try {
         let commandType = '';
 
         while (true) {
-            commandType = await typeMenu(role);
+            commandType = await typeMenu(user);
 
             let choice = commandType.trim();
 
             switch (choice) {
                 case '1':
-                    await handleCommandChoice(controller, klarnaController, "Item", role, strapiCreds);
+                    await handleCommandChoice(controller, klarnaController, "Item", user, strapiCreds);
                     break;
                 case '2':
-                    await handleCommandChoice(controller, klarnaController, "Order", role, strapiCreds)
+                    await handleCommandChoice(controller, klarnaController, "Order", user, strapiCreds)
                     break;
                 case '3':
-                    await handleCommandChoice(controller, klarnaController, "User", role, strapiCreds)
+                    await handleCommandChoice(controller, klarnaController, "User", user, strapiCreds)
                     break;
                 case '4':
                     await controller.logoutUser();
                     rl.close();
                     return;
                 default:
-                    console.log('Invalid choice.');
+                    console.log('Invalid choice. Please choose an option between 1 - 4');
                     break;
             }
         }
@@ -188,22 +188,23 @@ async function getCommandChoice(controller, klarnaController, role, strapiCreds)
 }
 
 //TODO: Better error handling and comment
-async function run(controller, klarnaController) {
+async function run(strapiController, klarnaController) {
     try {
-        if (!controller) {
+        if (!strapiController) {
             throw Error('Error running interface. Please provide a Controller');
         }
 
-        let loginToken = await controller.loginUser();
+        let loginToken = await strapiController.loginUser();
         
         if (!loginToken) {
             console.log('User must authenticate themselves');
-            loginToken = await controller.loginUser();
+            loginToken = await strapiController.loginUser();
         }
 
         console.log('User authenticated and logged in.');
-        let role = await controller.getRole(loginToken)
-        await getCommandChoice(controller, klarnaController, role, loginToken);
+        //get user details for use in menus
+        let user = await strapiController.me(loginToken);
+        await getCommandChoice(strapiController, klarnaController, user, loginToken);
     } catch (error) {
         console.error('Error:', error);
     }

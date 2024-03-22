@@ -76,12 +76,12 @@ async function findType(type, loginToken) {
  * @param {*} loginToken 
  * @returns list of strapi objects
  */
-async function findAllType(type, role, loginToken) {
+async function findAllType(type, user, loginToken) {
     try {
         //call endpoint for given type
         let results = await strapiEndpoints.findAll(type, loginToken);
         //filter results based on type/role, alt. use '?filter[attribute]=query'
-        if (type == "Orders" && role == "Seller") {
+        if (type == "Orders" && user.role.name == "Seller") {
             //only show orders that have been authorised to a seller
             for (let item of results.data) {
                 let status = item.attributes.Status;
@@ -107,40 +107,22 @@ async function me(loginToken) {
         return result;
         //role = result.role.name
         //id = result.id
+        //username = result.username
     } catch (err) {
         console.error(err);
     }
 }
 /**
- * Fetches a users role
- * @param {*} loginToken 
- * @returns 
- */
-async function getRole(loginToken) {
-    try {
-        const res = await strapiEndpoints.me(loginToken);1
-        console.log("get role result: ", res.role.name)
-            let userRole = res.role.name;
-            return userRole;
-    } catch (err) {
-        console.error('Error fetching role:', err);
-    }
-        
-}
-/**
  * Switch case that chooses which method to call based on type/action chosen
  * @param {*} type 
  * @param {*} action 
- * @param {*} role 
+ * @param {*} user 
  * @param {*} strapiCreds 
  * @returns 
  */
-async function makeAction(type, action, role, strapiCreds) {
+async function makeAction(type, action, user, strapiCreds) {
     try {
-        let data = {}
-        if (!action) {
-            throw new Error('Invalid action');
-        }
+        let data = {};
         switch (action) {
             case 'Create':
                 data = await createType(type, strapiCreds);
@@ -152,7 +134,7 @@ async function makeAction(type, action, role, strapiCreds) {
                 data = await findType(type, strapiCreds);
                 break;
             case 'Find All':
-                data = await findAllType(type, role, strapiCreds);
+                data = await findAllType(type, user, strapiCreds);
                 break;
             case 'Me':
                 data = await me(strapiCreds);
@@ -162,7 +144,7 @@ async function makeAction(type, action, role, strapiCreds) {
         }
         console.log(data);
     } catch (err) {
-        console.error('Error making action:', err);
+        console.error('Error making action, please choose a valid option:');
     }
 }
 /**
@@ -196,5 +178,5 @@ module.exports = {
     makeAction,
     logoutUser,
     loginUser,
-    getRole
+    me
 }
