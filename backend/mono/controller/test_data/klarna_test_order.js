@@ -45,5 +45,5 @@ const klarnaTestOrder = {
   }
 
 module.exports = {
-    testOrder: klarnaTestOrder
+    klarnaTestOrder
 }

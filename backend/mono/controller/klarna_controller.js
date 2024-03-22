@@ -46,14 +46,14 @@ async function createSession(klarnaCreds, strapiOrderID, klarnaOrder, strapiCred
 }
 /**
  * Once authorised, uses auth-token and order object to create an order in klarna
- * @param {*} klarnaCreds - base64 token for klarna authentication
+ * @param {*} klarnaCreds - base64 token for klarna autShentication
  * @param {*} klarnaAuthToken - auth token recieved from authorisation callback
  * @param {*} klarnaOrder - klarna order object to be confirmed
  */
 async function createOrder(klarnaCreds, klarnaAuthToken, klarnaOrder) {
   try {
     let res = await klarnaEndpoints.createOrder(klarnaOrder, klarnaAuthToken, klarnaCreds);
-    console.log(`Klarna Session created successfully.`, res);
+    console.log(`Klarna Order created successfully.`, res);
   } catch (err) {
     console.log(err);
   }
@@ -99,11 +99,11 @@ async function makeAction(type, action, data, strapiCreds) {
     switch (action) {
         case 'Payment': //used by buyer to start a payment with klarna
           console.log('Creating example order and starting session with Klarna');
-          await createSession(klarnaCreds, data, klarnaTestOrder, strapiCreds);
+          await createSession(klarnaCreds, data, klarnaTestOrder.klarnaTestOrder, strapiCreds);
           break;
         case 'Complete': //used by seller for completing an authorised order
           console.log('Confirming order with Klarna');
-          await createOrder(klarnaCreds, data, klarnaTestOrder);
+          await createOrder(klarnaCreds, data, klarnaTestOrder.klarnaTestOrder);
           break;
         case 'View': //used to fetch current session details
           await viewSession(klarnaCreds);

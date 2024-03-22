@@ -109,7 +109,7 @@ function generateOptionsList(options, includeGoBack = false) {
 async function typeMenu(role) {
     let options = Object.keys(commands);
     let optionsList = await generateOptionsList(options, false);
-    return await askUser(`${role} command options:\n${optionsList}`);
+    return await askUser(`${role} Command options:\n${optionsList}`);
 }
 
 async function handleCommandChoice(strapiController, klarnaController, command, role, strapiCreds) {
@@ -117,13 +117,14 @@ async function handleCommandChoice(strapiController, klarnaController, command, 
 
         
         let action = await chooseAction(command, role);
+        //first check if 'return' selected
         if (action === 'Return') {
             break;
         }
-        //check for klarna-related actions
+        //now check for klarna-related actions
         if (action === 'Payment') {
-            let strapiOrderID = await getInfo(`Select ${command} ID to pay for: `)
-            await klarnaController.makeAction(command, action, strapiOrderID, strapiCreds)
+            let strapiOrderID = await getInfo(`Select ${command} ID to pay for: `);
+            await klarnaController.makeAction(command, action, strapiOrderID, strapiCreds);
             break;
         }
         if (action === 'Complete') {
@@ -131,11 +132,11 @@ async function handleCommandChoice(strapiController, klarnaController, command, 
             let strapiOrder = await strapiController.makeAction(command, 'Find One', role, strapiCreds);
             let klarna_auth_token = strapiOrder.attributes.klarna_auth_token;
             if (!klarna_auth_token) {
-                console.log("No authorisation token found in Strapi order")
+                console.error("Error: No authorisation token found in Strapi order");
                 break;
             }
-            console.log(`Creating order with auth_token: ${klarna_auth_token}`)
-            await klarnaController.makeAction(command, action, klarna_auth_token, strapiCreds)
+            console.log(`Creating order with auth_token: ${klarna_auth_token}`);
+            await klarnaController.makeAction(command, action, klarna_auth_token, strapiCreds);
             //TODO on confirmation that order has been created, update order Status (eg.'Finished')
             break;
         }
@@ -143,7 +144,7 @@ async function handleCommandChoice(strapiController, klarnaController, command, 
         await strapiController.makeAction(command, action, role, strapiCreds);
     }
     //if loop broken, show command menu again
-    getCommandChoice(strapiController, klarnaController, role, strapiCreds)
+    getCommandChoice(strapiController, klarnaController, role, strapiCreds);
 }
 /**
  * Main menu shown after login, switch to decide which sub-menu of actions to display to user

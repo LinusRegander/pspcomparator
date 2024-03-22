@@ -26,7 +26,7 @@ async function createType(type, loginToken) {
         }
         //call relevant create endpoint
         let result = await strapiEndpoints.create(loginToken, obj, type);
-        return result;
+        return result.data;
     } catch (err) {
         console.error(`Error creating ${type}: `, err);
     }
@@ -49,9 +49,9 @@ async function updateType(type, loginToken) {
         //let user specify which object to update by it's id, call relevant endpoint
         let id = await interface.getInfo(`Select ${type} ID`);
         let result = await strapiEndpoints.update(loginToken, id, obj, type);
-        return result;
+        return result.data;
     } catch (err) {
-        console.error(`Error creating ${type}:`, err);
+        console.error(`Error updating ${type}:`, err);
     }
 }
 /**
@@ -90,7 +90,7 @@ async function findAllType(type, role, loginToken) {
                 }
             }
         }
-        return results;
+        return results.data;
     } catch (err) {
         console.error(err);
     }
@@ -103,11 +103,29 @@ async function findAllType(type, role, loginToken) {
 async function me(loginToken) {
     try {        
         let result = await strapiEndpoints.me(loginToken);
-        console.log(result);
+        console.log("me result id: ", result.id)
         return result;
+        //role = result.role.name
+        //id = result.id
     } catch (err) {
         console.error(err);
     }
+}
+/**
+ * Fetches a users role
+ * @param {*} loginToken 
+ * @returns 
+ */
+async function getRole(loginToken) {
+    try {
+        const res = await strapiEndpoints.me(loginToken);1
+        console.log("get role result: ", res.role.name)
+            let userRole = res.role.name;
+            return userRole;
+    } catch (err) {
+        console.error('Error fetching role:', err);
+    }
+        
 }
 /**
  * Switch case that chooses which method to call based on type/action chosen
@@ -142,25 +160,10 @@ async function makeAction(type, action, role, strapiCreds) {
             default:
                 break;
         }
-        return data;
+        console.log(data);
     } catch (err) {
         console.error('Error making action:', err);
     }
-}
-/**
- * Fetches a users role
- * @param {*} loginToken 
- * @returns 
- */
-async function getRole(loginToken) {
-    try {
-        const res = await strapiEndpoints.me(loginToken);
-            let userRole = res.role.name;
-            return userRole;
-    } catch (err) {
-        console.error('Error fetching role:', err);
-    }
-        
 }
 /**
  * Logs out user by setting token to null
