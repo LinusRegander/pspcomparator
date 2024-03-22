@@ -53,7 +53,7 @@ async function updateOrder(strapiCreds, id, ctx) {
 }
 
 /**
- * Find an strapiOrder by its ID.
+ * Find a strapiOrder by its ID.
  * 
  * @param {string} strapiCreds - The authentication token for authorization.
  * @param {number} id - The ID of the strapiOrder to be retrieved.

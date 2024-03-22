@@ -1,5 +1,5 @@
 const axios = require('axios');
-const strapiEndpoint = 'http://localhost:1337/api/auth/local';
+const endpoint = 'http://localhost:1337/api/auth/local';
 
 /**
  * Get authentication token by providing identifier and password.
@@ -11,7 +11,7 @@ const strapiEndpoint = 'http://localhost:1337/api/auth/local';
  */
 async function getStrapiCreds(id, pass) {
     try {
-        const res = await axios.post(strapiEndpoint, {
+        const res = await axios.post(endpoint, {
             identifier: id,
             password: pass
         });

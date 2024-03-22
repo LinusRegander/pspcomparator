@@ -4,11 +4,11 @@ const fs = require('fs');
 /**
  * Builds a html page for displaying klarna widget
  * TODO remove localToken requirement for PUT method, create validation endpoint(POST) in API instead
- * @param {*} clientToken 
- * @param {*} localToken 
+ * @param {*} klarnaClientToken 
+ * @param {*} strapiCreds 
  * @param {*} strapiOrderNo 
  */
-function createHTMLPageWithToken(clientToken, localToken, strapiOrderNo) {
+function createHTMLPageWithToken(klarnaClientToken, strapiCreds, strapiOrderNo) {
     const htmlContent = `
         <!DOCTYPE html>
         <html lang="en">
@@ -24,7 +24,7 @@ function createHTMLPageWithToken(clientToken, localToken, strapiOrderNo) {
             <script>
                 window.addEventListener('load', function () {
                     Klarna.Payments.init({
-                        client_token: '${clientToken}'
+                        client_token: '${klarnaClientToken}'
                     });
                     Klarna.Payments.load(
                         {
@@ -47,7 +47,7 @@ function createHTMLPageWithToken(clientToken, localToken, strapiOrderNo) {
                                     const request = {
                                     method: 'PUT',
                                     headers: {
-                                        Authorization: 'Bearer ${localToken}',
+                                        Authorization: 'Bearer ${strapiCreds}',
                                         'Content-Type': 'application/json'
                                     },
                                     body: JSON.stringify({

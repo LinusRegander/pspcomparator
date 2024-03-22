@@ -104,11 +104,11 @@ function getExampleOrder() {
 }
 /**
  * Creates a html page containing the klarna payment widget, plus a callback to update the strapi order status
- * @param {*} clientToken 
- * @param {*} localToken //strapi authorisation token. Not needed if merchant_urls.authorization callback url included in order when creating session
+ * @param {*} klarnaClientToken 
+ * @param {*} strapiCreds //strapi authorisation token. Not needed if merchant_urls.authorization callback url included in order when creating session
  * @param {*} strapiOrderNo 
  */
-function createHTMLPageWithToken(clientToken, localToken, strapiOrderNo) {
+function createHTMLPageWithToken(klarnaClientToken, strapiCreds, strapiOrderNo) {
   const htmlContent = `
       <!DOCTYPE html>
       <html lang="en">
@@ -124,7 +124,7 @@ function createHTMLPageWithToken(clientToken, localToken, strapiOrderNo) {
           <script>
               window.addEventListener('load', function () {
                   Klarna.Payments.init({
-                      client_token: '${clientToken}'
+                      client_token: '${klarnaClientToken}'
                   });
                   Klarna.Payments.load(
                       {
@@ -147,7 +147,7 @@ function createHTMLPageWithToken(clientToken, localToken, strapiOrderNo) {
                                 const request = {
                                   method: 'PUT',
                                   headers: {
-                                    Authorization: 'Bearer ${localToken}',
+                                    Authorization: 'Bearer ${strapiCreds}',
                                     'Content-Type': 'application/json'
                                   },
                                   body: JSON.stringify({

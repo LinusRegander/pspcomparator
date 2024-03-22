@@ -1,7 +1,7 @@
 const auth = require('../model/auth');
-const widgetBuilder = require('../view/widgetbuilder');
+const widgetBuilder = require('../view/widget_builder');
 const klarnaEndpoints = require('../model/klarna_endpoints');
-const klarnaTestOrder = require('./test_data/klarnaTestOrder');
+const klarnaTestOrder = require('./test_data/klarna_test_order');
 require('dotenv').config({path: '../../.env'});
 
 const username = process.env.KLARNA_USERNAME;
@@ -18,17 +18,17 @@ let sessionInfo = {
  */
 async function authenticate() {
   try {
-    return await auth.encodeCredentials(username, password);
+    return auth.encodeCredentials(username, password);
   } catch (err) {
     console.log(err);
   }
 }
 /**
  * Starts a session in klarna, then uses the recieved client token to create html page with klarna widget
- * @param {*} klarnaCreds 
- * @param {*} strapiOrderID 
- * @param {*} klarnaOrder 
- * @param {*} strapiCreds 
+ * @param {*} klarnaCreds - base64 token for klarna authentication
+ * @param {*} strapiOrderID - order ID in strapi used for callback
+ * @param {*} klarnaOrder - klarna order object to be sent
+ * @param {*} strapiCreds - strapi credentials for callback (OBS can be depreciated once klarna/receive_auth endpoint in place)
  */
 async function createSession(klarnaCreds, strapiOrderID, klarnaOrder, strapiCreds) {
   try {
@@ -46,9 +46,9 @@ async function createSession(klarnaCreds, strapiOrderID, klarnaOrder, strapiCred
 }
 /**
  * Once authorised, uses auth-token and order object to create an order in klarna
- * @param {*} klarnaCreds 
- * @param {*} klarnaAuthToken 
- * @param {*} klarnaOrder 
+ * @param {*} klarnaCreds - base64 token for klarna authentication
+ * @param {*} klarnaAuthToken - auth token recieved from authorisation callback
+ * @param {*} klarnaOrder - klarna order object to be confirmed
  */
 async function createOrder(klarnaCreds, klarnaAuthToken, klarnaOrder) {
   try {
@@ -60,7 +60,7 @@ async function createOrder(klarnaCreds, klarnaAuthToken, klarnaOrder) {
 }
 /**
  * Fetch the current klarna session, used in case of dropped connection, bugs etc
- * @param {*} klarnaCreds 
+ * @param {*} klarnaCreds - base64 token for klarna authentication
  */
 async function viewSession(klarnaCreds) {
   try {
@@ -80,9 +80,9 @@ async function viewSession(klarnaCreds) {
 /**
  * Switch case that chooses which method to call based on type/action chosen
  * @param {*} type 
- * @param {*} action 
- * @param {*} data //contextual data such as object Ids or tokens
- * @param {*} strapiCreds //temporarily needed for callback method
+ * @param {*} action - the action to be performed, create, update...
+ * @param {*} data - contextual data such as objects or tokens
+ * @param {*} strapiCreds - strapi token, temporarily needed for callback method
  */
 async function makeAction(type, action, data, strapiCreds) {
   try {
