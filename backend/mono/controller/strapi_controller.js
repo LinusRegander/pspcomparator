@@ -16,7 +16,7 @@ async function createType(type, loginToken) {
     try {
         let obj = {};
         if (type === "Order") { //create example order
-            obj = strapiTestOrder;
+            obj = strapiTestOrder.orderData;
         } else { //get structure from strapi, let user fill in each field
             const identifiers = await strapiEndpoints.getStructure(type);
             for (const identifier of identifiers) {
@@ -114,10 +114,10 @@ async function me(loginToken) {
  * @param {*} type 
  * @param {*} action 
  * @param {*} role 
- * @param {*} loginToken 
+ * @param {*} strapiCreds 
  * @returns 
  */
-async function makeAction(type, action, role, loginToken) {
+async function makeAction(type, action, role, strapiCreds) {
     try {
         let data = {}
         if (!action) {
@@ -125,19 +125,19 @@ async function makeAction(type, action, role, loginToken) {
         }
         switch (action) {
             case 'Create':
-                data = await createType(type, loginToken);
+                data = await createType(type, strapiCreds);
                 break;
             case 'Update':
-                data = await updateType(type, loginToken);
+                data = await updateType(type, strapiCreds);
                 break;
             case 'Find One':
-                data = await findType(type, loginToken);
+                data = await findType(type, strapiCreds);
                 break;
             case 'Find All':
-                data = await findAllType(type, role, loginToken);
+                data = await findAllType(type, role, strapiCreds);
                 break;
             case 'Me':
-                data = await me(loginToken);
+                data = await me(strapiCreds);
                 break;
             default:
                 break;

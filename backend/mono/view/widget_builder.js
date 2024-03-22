@@ -5,7 +5,7 @@ const fs = require('fs');
  * Builds a html page for displaying klarna widget
  * TODO remove localToken requirement for PUT method, create validation endpoint(POST) in API instead
  * @param {*} klarnaClientToken 
- * @param {*} strapiCreds 
+ * @param {*} strapiCreds - strapi auth token OBS not neccessary once callback endpoint in place
  * @param {*} strapiOrderNo 
  */
 function createHTMLPageWithToken(klarnaClientToken, strapiCreds, strapiOrderNo) {

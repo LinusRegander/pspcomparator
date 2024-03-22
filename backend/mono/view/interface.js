@@ -112,7 +112,7 @@ async function typeMenu() {
     }
 }
 
-async function handleCommandChoice(controller, klarnaController, command, role, loginToken) {
+async function handleCommandChoice(strapiController, klarnaController, command, role, strapiCreds) {
     while (true) {
 
         
@@ -120,33 +120,40 @@ async function handleCommandChoice(controller, klarnaController, command, role, 
         if (action === 'Return') {
             break;
         }
+        //check for klarna-related actions
         if (action === 'Payment') {
-            //for testing purposes:
-            let strapiOrderID = 1;
-            // let strapiOrderID = await getInfo(`Select ${command} ID to pay for: `)
-            await klarnaController.makeAction(command, action, strapiOrderID, loginToken)
+            let strapiOrderID = await getInfo(`Select ${command} ID to pay for: `)
+            await klarnaController.makeAction(command, action, strapiOrderID, strapiCreds)
             break;
         }
         if (action === 'Complete') {
             // let strapiOrderID = await getInfo(`Select ${command} ID to authorise: `)
-            let strapiOrder = await controller.makeAction(command, 'Find One');
+            let strapiOrder = await strapiController.makeAction(command, 'Find One', role, strapiCreds);
             let klarna_auth_token = strapiOrder.attributes.klarna_auth_token;
             if (!klarna_auth_token) {
                 console.log("No authorisation token found in Strapi order")
+                break;
             }
-            console.log(`Creating order for auth_token: ${klarna_auth_token}`)
-            await klarnaController.makeAction(command, action, klarna_auth_token, loginToken)
+            console.log(`Creating order with auth_token: ${klarna_auth_token}`)
+            await klarnaController.makeAction(command, action, klarna_auth_token, strapiCreds)
             //TODO on confirmation that order has been created, update order Status (eg.'Finished')
             break;
         }
-
-        await controller.makeAction(command, action, role, loginToken);
+        //if no matching klarna action found, call strapi controller
+        await strapiController.makeAction(command, action, role, strapiCreds);
     }
     //if loop broken, show command menu again
-    getCommandChoice(controller, klarnaController, role, loginToken)
+    getCommandChoice(strapiController, klarnaController, role, strapiCreds)
 }
-
-async function getCommandChoice(controller, klarnaController, role, loginToken) {
+/**
+ * Main menu shown after login, switch to decide which sub-menu of actions to display to user
+ * @param {*} controller 
+ * @param {*} klarnaController 
+ * @param {*} role 
+ * @param {*} strapiCreds 
+ * @returns 
+ */
+async function getCommandChoice(controller, klarnaController, role, strapiCreds) {
     try {
         let commandType = '';
 
@@ -157,13 +164,13 @@ async function getCommandChoice(controller, klarnaController, role, loginToken) 
 
             switch (choice) {
                 case '1':
-                    await handleCommandChoice(controller, klarnaController, "Item", role, loginToken);
+                    await handleCommandChoice(controller, klarnaController, "Item", role, strapiCreds);
                     break;
                 case '2':
-                    await handleCommandChoice(controller, klarnaController, "Order", role, loginToken)
+                    await handleCommandChoice(controller, klarnaController, "Order", role, strapiCreds)
                     break;
                 case '3':
-                    await handleCommandChoice(controller, klarnaController, "User", role, loginToken)
+                    await handleCommandChoice(controller, klarnaController, "User", role, strapiCreds)
                     break;
                 case '4':
                     await controller.logoutUser();
