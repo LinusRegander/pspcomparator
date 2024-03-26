@@ -4,10 +4,10 @@
   "info": {
     "singularName": "order-line",
     "pluralName": "order-lines",
-    "displayName": "Order_Line"
+    "displayName": "Order-line"
   },
   "options": {
-    "draftAndPublish": true
+    "draftAndPublish": false
   },
   "pluginOptions": {},
   "attributes": {

@@ -1,4 +1,9 @@
-const testOrder = {
+
+/**
+ * a simple example order object, containing the minimum required 
+ * data to successfully create a session and subsequent order in klarna
+ */
+const klarnaTestOrder = {
     "order_amount": 10000,
     "order_lines": [
       {
@@ -40,5 +45,5 @@ const testOrder = {
   }
 
 module.exports = {
-    testOrder
+    klarnaTestOrder
 }

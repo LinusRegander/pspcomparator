@@ -2,24 +2,32 @@ const rl = require('readline').createInterface({
     input: process.stdin,
     output: process.stdout
 });
-
+/**
+ * Structure for available commands based on user roles.
+ */
 const commands = {
-    Strapi: {
-        title: "Strapi Commands",
-        typeOptions: ["Item", "Address", "Order", "Payment", "Stock", "User"],
-        actionOptions: ["Create", "Update", "Find One", "Find All", "Delete"]
+    Item: {
+        Seller: ["Create", "Find One", "Find All"],
+        Buyer: ["Find One", "Find All"]
     },
-    Klarna: {
-        title: "Klarna Commands",
-        typeOptions: ["Session", "Order"],
-        actionOptions: ["Create", "View"]
+    Order: {
+        Seller: ["Find One", "Find All", "Complete"],
+        Buyer: ["Create", "Find One", "Find All", "Payment"]
+    },
+    User: {
+        Seller: ["Me"],
+        Buyer: ["Me"]
     }
 };
-
+/**
+ * Retrieves user input from command line interface.
+ * @param {string} info - Information to prompt the user.
+ * @returns {Promise<string>} - User input.
+ */
 async function getInfo(info) {
     try {
         if (!info) {
-            throw Error('No info provided');
+            throw new Error('No info provided');
         }
 
         return await new Promise((resolve) => {
@@ -28,54 +36,55 @@ async function getInfo(info) {
             });
         });
     } catch (err) {
-        console.log(`Error getting ${info}`, err);
+        console.error(`Error getting ${info}`, err);
+        throw err;
     }
 }
 
-async function chooseCommand(type, optionType) {
+/**
+ * Allows the user to choose an action based on the available options.
+ * @param {string} command - Type of command.
+ * @param {Object} user - User currently logged in
+ * @returns {Promise<string>} - Chosen action.
+ */
+async function chooseAction(command, user) {
     try {
-        let options = null;
         let choice = null;
         let optionsList = null;
 
-        if (!type) {
-            throw Error('Please provide a type.');
+        if (!command) {
+            throw new Error('No command type chosen.');
         }
+        
+        //get options depending on role
+        let options = commands[command][user.role.name];
 
-        if (!optionType) {
-            throw Error('Please provide an option type');
-        }
+        optionsList = await generateOptionsList(options, true);
+        console.log(`Logged in as '${user.username}' [id:${user.id}]`);
+        choice = await askUser(`${user.role.name} ${command} options:\n${optionsList}`);
     
-        if (optionType === 'Command') {
-            options = commands[type].typeOptions;
-            const title = commands[type].title;
-            optionsList = await generateOptionsList(options, true);
-            choice = await askUser(`Choose a command type for ${title}:\n${optionsList}`);
-        }
-
-        if (optionType === 'Action') {
-            options = commands[type].actionOptions;
-            optionsList = await generateOptionsList(options, true);
-            choice = await askUser(`Choose an action:\n${optionsList}`);
-        }
-
         let index = optionsList.split('\n').length - 1;
 
-        if ((optionType === 'Command' && choice === String(index)) || (optionType === 'Action' && choice === String(index))) {
+        if (choice === String(index)) {
             return 'Return';
         }
     
         return options[parseInt(choice) - 1];
     } catch (err) {
-        console.log('Error creating command structure.', err);
+        console.error('Error creating command structure: ', err);
+        throw err;
     }
 }
 
-//TODO: Better error handling and comment
+/**
+ * Prompts the user with a question and returns the answer.
+ * @param {string} question - Question to ask the user.
+ * @returns {Promise<string>} - User's answer.
+ */
 async function askUser(question) {
     try {
         if (!question) {
-            throw Error('No question provided');
+            throw new Error('No question provided');
         }
     
         return new Promise((resolve) => {
@@ -84,101 +93,156 @@ async function askUser(question) {
             });
         });
     } catch (err) {
-        console.log(err);
+        console.error('Error creating question text: ', err);
+        throw err;
     }
 }
 
-//TODO: Add error handling and comment
+/**
+ * Generates a list of options for the user.
+ * @param {string[]} options - List of available options.
+ * @param {boolean} includeGoBack - Whether to include a "Go Back" option. (default = 'Logout')
+ * @returns {string} - Formatted list of options.
+ */
 function generateOptionsList(options, includeGoBack = false) {
     try {
         if (!options) {
-            throw Error('List not generated because options are not provided.');
+            throw new Error('No options provided.');
         }
 
         let optionsList = options.map((option, index) => `${index + 1}. ${option}`);
         
         if (includeGoBack) {
             optionsList.push(`${options.length + 1}. Go Back`);
+        } else {
+            optionsList.push(`${options.length + 1}. Logout`);
         }
 
         return optionsList.join('\n') + '\nEnter your choice: ';
     } catch (err) {
-        console.log('Error generating options list.', err);
+        console.error('Error generating options list.', err);
+        throw err;
     }
 }
-
-async function typeMenu() {
-    try {
-        return await askUser("Choose a command type:\n1. Strapi\n2. Klarna\n3. Logout User\nEnter your choice: ");
-    } catch (err) {
-        console.log(err);
-    }
+/**
+ * Displays the command type menu and prompts the user to choose a command.
+ * @param {Object} user - User currently logged in.
+ * @returns {Promise<string>} - Chosen command type.
+ */
+async function typeMenu(user) {
+    //generate options from commands object
+    let options = Object.keys(commands);
+    let optionsList = await generateOptionsList(options, false);
+    //display to user
+    console.log(`Logged in as '${user.username}' [id:${user.id}]`);
+    return await askUser(`${user.role.name} Command options:\n${optionsList}`);
 }
-
-async function interfaceType(type, controller, loginToken) {
+/**
+ * Handles the user's choice of command and executes appropriate actions.
+ * @param {Object} strapiController - Controller object for interacting with Strapi.
+ * @param {Object} klarnaController - Controller object for interacting with Klarna.
+ * @param {string} command - Chosen command type.
+ * @param {Object} user - User currently logged in.
+ * @param {Object} strapiCreds - Credentials for accessing Strapi.
+ */
+async function handleCommandChoice(strapiController, klarnaController, command, user, strapiCreds) {
     while (true) {
-        let command = await chooseCommand(type, 'Command');
-        if (command === 'Return') {
+        let action = await chooseAction(command, user);
+        //first check if 'return' selected
+        if (action === 'Return') {
             break;
         }
-
-        let action = await chooseCommand(type, 'Action');
-        if (action === 'Return') {
-            continue;
+        //now check for klarna-related actions
+        if (action === 'Payment') {
+            let strapiOrderID = await getInfo(`Select ${command} ID to pay for: `);
+            //TODO control input is valid integer
+            await klarnaController.makeAction(command, action, strapiOrderID, strapiCreds);
+            break;
         }
-
-        await controller.makeAction(command, action, loginToken);
+        if (action === 'Complete') {
+            // let strapiOrderID = await getInfo(`Select ${command} ID to authorise: `)
+            let strapiOrder = await strapiController.makeAction(command, 'Find One', user);
+            let klarna_auth_token = strapiOrder.attributes.klarna_auth_token;
+            if (!klarna_auth_token) {
+                console.error("Error: No authorisation token found in Strapi order");
+                break;
+            }
+            console.log(`Creating order with auth_token: ${klarna_auth_token}`);
+            await klarnaController.makeAction(command, action, klarna_auth_token, strapiCreds);
+            //TODO on confirmation that order has been created, update order Status (eg.'Finished')
+            break;
+        }
+        //if no matching klarna action found, call strapi controller
+        await strapiController.makeAction(command, action, user);
     }
+    //if loop broken, show command menu again
+    getCommandChoice(strapiController, klarnaController, user, strapiCreds);
 }
-
-async function createInterface(controller, klarnaController, loginToken) {
+/**
+ * Displays the main menu.
+ * @param {Object} strapiController - Controller object for interacting with strapi.
+ * @param {Object} klarnaController - Controller object for interacting with Klarna.
+ * @param {Object} user - user currently logged in.
+ * @param {Object} strapiCreds - Credentials for accessing Strapi.
+ */
+async function getCommandChoice(strapiController, klarnaController, user, strapiCreds) {
     try {
         let commandType = '';
 
         while (true) {
-            commandType = await typeMenu();
+            commandType = await typeMenu(user);
 
             let choice = commandType.trim();
 
             switch (choice) {
                 case '1':
-                    await interfaceType('Strapi', controller, loginToken);
+                    await handleCommandChoice(strapiController, klarnaController, "Item", user, strapiCreds);
                     break;
                 case '2':
-                    await interfaceType('Klarna', klarnaController)
+                    await handleCommandChoice(strapiController, klarnaController, "Order", user, strapiCreds)
                     break;
                 case '3':
-                    await controller.logoutUser();
+                    await handleCommandChoice(strapiController, klarnaController, "User", user, strapiCreds)
+                    break;
+                case '4':
+                    await strapiController.logoutUser();
                     rl.close();
                     return;
                 default:
-                    console.log('Invalid choice.');
+                    console.log('Invalid choice. Please choose an option between 1 - 4');
                     break;
             }
         }
     } catch (err) {
-        console.log(err);
+        console.log('Error getting choice from user', err);
+        throw err;
     }
 }
-
-//TODO: Better error handling and comment
-async function run(controller, klarnaController) {
+/**
+ * Runs the application.
+ * @param {Object} strapiController - Controller object for interacting with Strapi.
+ * @param {Object} klarnaController - Controller object for interacting with Klarna.
+ */
+async function run(strapiController, klarnaController) {
     try {
-        if (!controller) {
-            throw Error('Error running interface. Please provide a Controller');
+        if (!strapiController || !klarnaController) {
+            throw new Error('No controllers provided');
         }
 
-        let loginToken = await controller.loginUser();
+        let strapiCreds = await strapiController.loginUser();
         
-        if (!loginToken) {
+        if (!strapiCreds) {
             console.log('User must authenticate themselves');
-            await controller.loginUser();
+            strapiCreds = await strapiController.loginUser();
         }
 
         console.log('User authenticated and logged in.');
-        await createInterface(controller, klarnaController, loginToken);
-    } catch (error) {
-        console.error('Error:', error);
+        //get user details for use in menus
+        let user = await strapiController.me(strapiCreds);
+        await getCommandChoice(strapiController, klarnaController, user, strapiCreds);
+    } catch (err) {
+        console.error('Error starting interface:', err);
+        throw err;
     }
 }
 
