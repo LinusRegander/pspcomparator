@@ -93,10 +93,10 @@ async function makeAction(type, action, data, strapiCreds) {
     if (!action) {
         throw new Error('Invalid command');
     }
-    let klarnaCreds = await authenticate();
     if (!auth) {
         throw new Error('Cannot authorize user with Klarna');
     }
+    let klarnaCreds = await authenticate();
     switch (action) {
         case 'Payment': //used by buyer to start a payment with klarna
           console.log('Creating example order and starting session with Klarna');

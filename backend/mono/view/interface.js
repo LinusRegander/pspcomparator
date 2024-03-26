@@ -40,6 +40,7 @@ async function getInfo(info) {
         throw err;
     }
 }
+
 /**
  * Allows the user to choose an action based on the available options.
  * @param {string} command - Type of command.
@@ -154,6 +155,7 @@ async function handleCommandChoice(strapiController, klarnaController, command, 
         //now check for klarna-related actions
         if (action === 'Payment') {
             let strapiOrderID = await getInfo(`Select ${command} ID to pay for: `);
+            //TODO control input is valid integer
             await klarnaController.makeAction(command, action, strapiOrderID, strapiCreds);
             break;
         }

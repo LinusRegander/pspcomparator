@@ -50,7 +50,7 @@ async function create(strapiCreds, ctx, strapiType) {
  * Update an item by its ID.
  * 
  * @param {string} strapiCreds - The authentication token for authorization.
- * @param {number} id - The ID of the item to be updated.
+ * @param {string} id - The ID of the item to be updated.
  * @param {Object} ctx - The context object containing updated item details.
  * @returns The updated json item object.
  * @throws {Error} If there is an error updating the item or the request fails.
@@ -73,7 +73,7 @@ async function update(strapiCreds, id, ctx, strapiType) {
 /**
  * Find an item by its ID. No authorization required
  * 
- * @param {number} id - The item ID to be retrieved.
+ * @param {string} id - The item ID to be retrieved.
  * @returns The json item object corresponding to the provided ID.
  * @throws {Error} If there is an error fetching the item or the request fails.
  */
@@ -97,9 +97,14 @@ async function findOne(id, strapiType, strapiCreds) {
  * 
  * @throws {Error} If there is an error fetching the items or the request fails.
  */
-async function findAll(type, strapiCreds) {
+async function findAll(type,filter, strapiCreds) {
+    let filterString = '';
+    if (filter.attribute) {
+        filterString = `&filters[${filter.attribute}]=${filter.query}`;
+        console.log('filter string;', filterString);
+    }
     try {
-        const res = await axios.get(`${strapiURL}` + pluralEndpoint[type] + '/?populate=*');
+        const res = await axios.get(`${strapiURL}` + pluralEndpoint[type] + '/?populate=*' + filterString);
         return res.data;
     } catch (error) {
         console.error('An error occurred:', error);

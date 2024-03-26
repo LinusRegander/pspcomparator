@@ -43,16 +43,24 @@ async function updateType(type) {
         const identifiers = await strapiEndpoints.getStructure(type, userToken);
         for (const identifier of identifiers) {
             const value = await interface.getInfo(identifier);
+             //TODO contol input is valid, from type?
+
             obj[identifier] = value;
         }
         //let user specify which object to update by it's id, call relevant endpoint
         let id = await interface.getInfo(`Select ${type} ID`);
+        while (!Number.isInteger(Number.parseInt(id))) {
+            console.log("Not a valid ID, please enter an integer ID");
+            id = await interface.getInfo(`Select ${type} ID`);
+        }
+        //TODO contol input is valid integer
         let result = await strapiEndpoints.update(userToken, id, obj, type);
         return result.data;
     } catch (err) {
         console.error(`Error updating ${type}:`, err);
     }
 }
+
 /**
  * Generic find method, fetches an object of chosen type
  * @param {*} type 
@@ -62,6 +70,11 @@ async function findType(type) {
     try {
         //let user specify which object to fetch by it's id, call relevant endpoint
         let id = await interface.getInfo(`Select ${type} ID`);
+        //TODO contol input is valid integer
+        while (!Number.isInteger(Number.parseInt(id))) {
+            console.log("Not a valid ID, please enter an integer ID");
+            id = await interface.getInfo(`Select ${type} ID`);
+        }
         let result = await strapiEndpoints.findOne(id, type, userToken);
         return result.data;
     } catch (err) {
@@ -75,18 +88,19 @@ async function findType(type) {
  */
 async function findAllType(type, user) {
     try {
-        //call endpoint for given type
-        let results = await strapiEndpoints.findAll(type, userToken);
         //filter results based on type/role, alt. use '?filter[attribute]=query'
-        if (type == "Orders" && user.role.name == "Seller") {
-            //only show orders that have been authorised to a seller
-            for (let item of results.data) {
-                let status = item.attributes.Status;
-                if (status === ('Authorized' || 'Finished')) {
-                    console.log(item);
-                }
-            }
+        let filter = {};
+        if (type == "Order" && user.role.name == "Seller") {
+            //only show orders that contains items belonging to a seller
+            filter.attribute = 'order_lines][item][Seller';
+            filter.query = user.id;
+        }else if (type == "Order" && user.role.name == "Buyer") {
+            //only show orders belonging to a buyer
+            filter.attribute = 'Buyer';
+            filter.query = user.id;
         }
+        //call endpoint for given type
+        let results = await strapiEndpoints.findAll(type, filter, userToken);
         return results.data;
     } catch (err) {
         console.error(err);
@@ -138,6 +152,7 @@ async function makeAction(type, action, user) {
                 break;
         }
         console.log(data);
+        return data;
     } catch (err) {
         console.error('Error making action, please choose a valid option:');
     }
