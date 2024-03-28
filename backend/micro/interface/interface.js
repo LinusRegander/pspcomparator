@@ -1,11 +1,12 @@
 'use strict'
 
-const klarnaServer = require('../services/klarna/server2');
-// const strapiServer = require('../services/strapi/server');
+const klarnaServer = require('../services/klarna/server');
+const strapiServer = require('../services/strapi/server');
 const axios = require('axios');
 
 async function run() {
     klarnaServer.startServer();
+    strapiServer.startServer();
 
     // /*
     // const response = await axios.get('http://localhost:3000/api/strapi/findall/items');

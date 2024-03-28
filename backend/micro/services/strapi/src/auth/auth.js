@@ -1,7 +1,11 @@
 async function getHeaders(token) {
     try {
-        return {
-            Authorization: `Bearer ${token}`
+        if (token.Authorization) {
+            return token;
+        } else {
+            return {
+                Authorization: `Bearer ${token}`
+            }
         }
     } catch (err) {
         console.log(err);
