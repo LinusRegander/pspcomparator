@@ -64,16 +64,6 @@
       "target": "plugin::users-permissions.role",
       "inversedBy": "users",
       "configurable": false
-    },
-    "address": {
-      "type": "relation",
-      "relation": "oneToOne",
-      "target": "api::address.address"
-    },
-    "user_role": {
-      "type": "relation",
-      "relation": "oneToOne",
-      "target": "api::user-role.user-role"
     }
   }
 }
