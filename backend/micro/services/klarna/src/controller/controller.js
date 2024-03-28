@@ -40,12 +40,12 @@ class KlarnaController {
         }
     }
     
-    async createOrder(address, token, authToken) {
+    async createOrder(order, token, authToken) {
         try {
             const url = process.env.KLARNA_CREATE_ORDER_URL;
             const authHeader = await auth.createAuthorization(token);
         
-            const res = await axios.post(url + `${authToken}/order`, address, {
+            const res = await axios.post(url + `${authToken}/order`, order, {
                 headers: {
                     ...authHeader
                 }

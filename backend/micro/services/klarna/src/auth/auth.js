@@ -1,6 +1,7 @@
 async function createAuthorization(token) {
     return {
-        Authorization: `Basic ${token}`
+        Authorization: `Basic ${token}`,
+        'Content-Type': 'application/json'
     }
 }
 

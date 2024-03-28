@@ -6,14 +6,20 @@ const controller = require('./src/controller/controller');
 
 require('dotenv').config({ path: '../../.env'});
 
-const PORT = process.env.KLARNA_SERVER_PORT;
-
+const PORT = process.env.KLARNA_SERVER_PORT || 3001;
+/**
+ * Klarna service that handles communication to klarna API
+ */
 class KlarnaServer {
     constructor() {
         this.app = express();
         this.app.use(bodyParser.json());
     }
-
+    /**
+     * Starts a session in klarna
+     * {req.params.order} klarna order to be used when creating session
+     * {req.headers} token to be used for requests to strapi server
+     */
     async createSession() {
         this.app.post('/api/klarna/create_order/:order', async (req, res) => {
             const { order } = req.params;
