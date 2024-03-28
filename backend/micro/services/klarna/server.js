@@ -6,7 +6,7 @@ const controller = require('./src/controller/controller');
 
 require('dotenv').config({ path: '../../.env'});
 
-const PORT = process.env.KLARNA_SERVER_PORT || 3001;
+const PORT = process.env.KLARNA_SERVER_PORT || 3002;
 /**
  * Klarna service that handles communication to klarna API
 */

@@ -6,7 +6,7 @@ const controller = require('./src/controller/controller');
 
 require('dotenv').config({ path: '../../.env'});
 
-const PORT = process.env.STRAPI_SERVER_PORT || 3002;
+const PORT = process.env.STRAPI_SERVER_PORT || 3001;
 /**
  * Strapi service that handles communication to strapi Backend
 */
