@@ -3,6 +3,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const controller = require('./src/controller/controller');
+const auth = require('./src/auth/auth');
 
 require('dotenv').config({ path: '../../.env'});
 
@@ -22,13 +23,13 @@ class KlarnaServer {
          */
         this.app.post('/api/klarna/start_session', async (req, res) => {
             try {
-                const { order } = req.body.order;
-                const { token } = req.body.token;
+                const { order, username, password } = req.body.body;
+                const token = auth.getEncodedCredentials(username, password);
                 //call method in controller that creates session with klarna API
-                const result = await controller.createSession(order, token);
+                const result = await controller.startSession(order, token);
                 res.json(result);
             } catch (err) {
-                res.status(500).json({ error: err.message });
+                res.status(500).json({ error: "couldnt read order object" });
             }
         });
         
@@ -39,7 +40,8 @@ class KlarnaServer {
         this.app.get('/api/klarna/view_session/:id', async (req, res) => {
             try {
                 const { id } = req.params;
-                const { token } = req.body.token;
+                const { username, password } = req.body;
+                const token = auth.getEncodedCredentials(username, password);
                 //call method in controller to fetch session details
                 const result = await controller.viewSession(id, token);
                 res.json(result);
@@ -56,8 +58,10 @@ class KlarnaServer {
         this.app.post('/api/klarna/create_order/:authToken', async (req, res) => {
             try {
                 const { order } = req.body.order;
-                const { token } = req.body.token;
                 const { authToken } = req.params;
+                const { username } = req.body.username;
+                const { password } = req.body.password;
+                const token = auth.getEncodedCredentials(username, password);
                 //call method in controller to create order with klarna
                 const result = await controller.createOrder(order, token, authToken);
                 res.json(result);
