@@ -3,15 +3,17 @@
 const axios = require('axios');
 const auth = require('../auth/auth');
 
-require('dotenv').config({ path: '../../.env'});
+require('dotenv').config({ path: '../../../../../.env' });
+
+const sessionURL = process.env.KLARNA_PLAYGROUND_URL + "/payments/v1/sessions";
+const orderURL = process.env.KLARNA_PLAYGROUND_URL + "/payments/v1/authorizations";
 
 class KlarnaController {
     async createSession(order, token) {
         try {
-            const url = process.env.KLARNA_CREATE_SESSION_URL;
             const authHeader = await auth.createAuthorization(token);
     
-            const res = await axios.post(url, order, {
+            const res = await axios.post(sessionURL, order, {
                 headers: {
                     ...authHeader
                 }
@@ -25,10 +27,9 @@ class KlarnaController {
     
     async viewSession(sessionId, token) {
         try {
-            const url = process.env.KLARNA_VIEW_SESSION_URL;
             const authHeader = await auth.createAuthorization(token);
       
-            const res = await axios.get(url + sessionId, {
+            const res = await axios.get(sessionURL + '/' + sessionId, {
                 headers: {
                     ...authHeader
                 }
@@ -42,10 +43,9 @@ class KlarnaController {
     
     async createOrder(order, token, authToken) {
         try {
-            const url = process.env.KLARNA_CREATE_ORDER_URL;
             const authHeader = await auth.createAuthorization(token);
         
-            const res = await axios.post(url + `${authToken}/order`, order, {
+            const res = await axios.post(orderURL + `/${authToken}/order`, order, {
                 headers: {
                     ...authHeader
                 }

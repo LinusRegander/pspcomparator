@@ -3,7 +3,7 @@
 const axios = require('axios');
 const auth = require('../auth/auth');
 
-require('dotenv').config({ path: '../../.env' });
+require('dotenv').config({ path: '../../../../../.env' });
 
 const strapiURL = process.env.STRAPI_URL;
 const strapiStructureURL = process.env.STRAPI_CONTENT_TYPE_URL;
@@ -49,6 +49,7 @@ class StrapiController {
 
     async findAll(endpoint, filter, query) {
         try {
+            console.log("URL: ",strapiURL);
             let filterString = '';
             if (filter && query) {
                 filterString = `&filters[${filter}]=${query}`;
