@@ -95,6 +95,15 @@ class StrapiController {
             console.log(err);
         }
     }
+    async login(identifier, password) {
+        try {
+            const JWToken = await auth.getStrapiCreds(identifier, password);
+            return JWToken;
+
+        } catch (err) {
+            console.log(err);
+        }
+    }
 }
 
 module.exports = new StrapiController();

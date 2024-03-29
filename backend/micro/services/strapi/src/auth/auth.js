@@ -1,3 +1,6 @@
+const axios = require('axios');
+const endpoint = 'http://localhost:1337/api/auth/local';
+
 async function getHeaders(token) {
     try {
         if (token.Authorization) {
@@ -21,7 +24,21 @@ function getEncodedCredentials(username, password) {
     }
 }
 
+async function getStrapiCreds(id, pass) {
+    try {
+        const res = await axios.post(endpoint, {
+            identifier: id,
+            password: pass
+        });
+        return res.data.jwt;
+    } catch (error) {
+        console.error('Error fetching token:', error.message);
+        return null;
+    }
+}
+
 module.exports = {
     getHeaders,
-    getEncodedCredentials
+    getEncodedCredentials,
+    getStrapiCreds
 }

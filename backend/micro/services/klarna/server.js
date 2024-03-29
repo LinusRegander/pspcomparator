@@ -40,7 +40,7 @@ class KlarnaServer {
         this.app.get('/api/klarna/view_session/:id', async (req, res) => {
             try {
                 const { id } = req.params;
-                const { username, password } = req.body;
+                const { username, password } = req.body.body;
                 const token = auth.getEncodedCredentials(username, password);
                 //call method in controller to fetch session details
                 const result = await controller.viewSession(id, token);
@@ -57,10 +57,8 @@ class KlarnaServer {
          */
         this.app.post('/api/klarna/create_order/:authToken', async (req, res) => {
             try {
-                const { order } = req.body.order;
                 const { authToken } = req.params;
-                const { username } = req.body.username;
-                const { password } = req.body.password;
+                const { order, username, password } = req.body.body;
                 const token = auth.getEncodedCredentials(username, password);
                 //call method in controller to create order with klarna
                 const result = await controller.createOrder(order, token, authToken);
@@ -70,6 +68,23 @@ class KlarnaServer {
                 console.error(err);
             }
         });
+
+        this.app.get('/api/klarna/widget/:clientToken/:strapiOrderID', async (req, res) => {
+            try {
+                const {clientToken, strapiOrderID } = req.params;
+    
+                const klarnaWidgetHtml = await controller.createWidgetHtml(clientToken, strapiOrderID);
+                res.send(klarnaWidgetHtml);
+
+            } catch (err) {
+                res.status(500).json({ error: 'Internal server error' });
+                console.error(err);
+            
+            }
+
+        })
+
+
     
         /**
          * Start server on given port

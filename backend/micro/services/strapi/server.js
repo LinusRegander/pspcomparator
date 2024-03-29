@@ -106,6 +106,16 @@ const PORT = process.env.STRAPI_SERVER_PORT || 3001;
               }
         });
 
+        this.app.post('/api/strapi/login', async (req, res) => {
+            try {
+                const {identifier, password } = req.body;
+                const strapiToken = await controller.login(identifier, password);
+                res.json(strapiToken);
+            } catch (err) {
+                res.status(500).json({ error: err.message });
+              }
+        })
+
         /**
          * Start the server listening on given port
          */

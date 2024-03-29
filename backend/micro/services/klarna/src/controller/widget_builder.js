@@ -1,4 +1,15 @@
+const opn = require('opn');
+const fs = require('fs');
 
+/**
+ * Builds a html page for displaying klarna widget
+ * TODO remove localToken requirement for PUT method, create validation endpoint(POST) in API instead
+ * @param {*} klarnaClientToken 
+ * @param {*} strapiCreds - strapi auth token OBS not neccessary once callback endpoint in place
+ * @param {*} strapiOrderNo 
+ */
+function createHTMLPageWithToken(klarnaClientToken, strapiCreds, strapiOrderNo) {
+    const htmlContent = `
         <!DOCTYPE html>
         <html lang="en">
         <head>
@@ -13,7 +24,7 @@
             <script>
                 window.addEventListener('load', function () {
                     Klarna.Payments.init({
-                        client_token: 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjgyMzA1ZWJjLWI4MTEtMzYzNy1hYTRjLTY2ZWNhMTg3NGYzZCJ9.eyJzZXNzaW9uX2lkIjoiODJiYTlmZGYtYTBjYS01NTk5LWI3YTQtMTE1Y2I0Y2JlM2RjIiwiYmFzZV91cmwiOiJodHRwczovL2pzLnBsYXlncm91bmQua2xhcm5hLmNvbS9ldS9rcCIsImRlc2lnbiI6ImtsYXJuYSIsImxhbmd1YWdlIjoiZW4iLCJwdXJjaGFzZV9jb3VudHJ5IjoiU0UiLCJlbnZpcm9ubWVudCI6InBsYXlncm91bmQiLCJtZXJjaGFudF9uYW1lIjoiWW91ciBidXNpbmVzcyBuYW1lIiwic2Vzc2lvbl90eXBlIjoiUEFZTUVOVFMiLCJjbGllbnRfZXZlbnRfYmFzZV91cmwiOiJodHRwczovL2V1LnBsYXlncm91bmQua2xhcm5hZXZ0LmNvbSIsInNjaGVtZSI6dHJ1ZSwiZXhwZXJpbWVudHMiOlt7Im5hbWUiOiJrcC1jbGllbnQtb25lLXB1cmNoYXNlLWZsb3ciLCJ2YXJpYXRlIjoidmFyaWF0ZS0xIn0seyJuYW1lIjoia3BjLTFrLXNlcnZpY2UiLCJ2YXJpYXRlIjoidmFyaWF0ZS0xIn0seyJuYW1lIjoia3AtY2xpZW50LXV0b3BpYS1mbG93IiwidmFyaWF0ZSI6InZhcmlhdGUtMSJ9LHsibmFtZSI6ImtwLWNsaWVudC11dG9waWEtc3RhdGljLXdpZGdldCIsInZhcmlhdGUiOiJpbmRleCIsInBhcmFtZXRlcnMiOnsiZHluYW1pYyI6InRydWUifX0seyJuYW1lIjoiaW4tYXBwLXNkay1uZXctaW50ZXJuYWwtYnJvd3NlciIsInBhcmFtZXRlcnMiOnsidmFyaWF0ZV9pZCI6Im5ldy1pbnRlcm5hbC1icm93c2VyLWVuYWJsZSJ9fSx7Im5hbWUiOiJrcC1jbGllbnQtdXRvcGlhLXNkay1mbG93IiwidmFyaWF0ZSI6InZhcmlhdGUtMSJ9LHsibmFtZSI6ImtwLWNsaWVudC11dG9waWEtd2Vidmlldy1mbG93IiwidmFyaWF0ZSI6InZhcmlhdGUtMSJ9LHsibmFtZSI6ImluLWFwcC1zZGstY2FyZC1zY2FubmluZyIsInBhcmFtZXRlcnMiOnsidmFyaWF0ZV9pZCI6ImNhcmQtc2Nhbm5pbmctZW5hYmxlIn19XSwicmVnaW9uIjoiZXUiLCJvcmRlcl9hbW91bnQiOjEwMDAwLCJvZmZlcmluZ19vcHRzIjoyLCJvbyI6IjV1IiwidmVyc2lvbiI6InYxLjEwLjAtMTU5MC1nM2ViYzM5MDcifQ.Ut9QFPLoS87_kQrvJkg-5XT_JDckechGVu82NLRIdTdVERlT3MwpQKhlETAEQECAhhbQuxr6ibaaoTi0pGM-i_s1xhHyAfH6JSlioqMV96vsewoYejqgAmptFioMv7__IJP8UVk7r5BdkbdSjrQrn4AHVCZbyoY_hehHT8faiOHpNctM_aEvTNoHAa_R92iV1LfhobJRdyDpI4RceUuYPoeGxmndz6T0Ox3RUcqj1nsRPLEi2WYCAfDMO_e8J7fY__PKGfiG9XWtdSSdXVfwmj4PdDziDFeQJVmIq4AGxm7mKA_ZcjWPSjpDKW5Lo5hOuE3yMz1AlXIUtiWEodAUyg'
+                        client_token: '${klarnaClientToken}'
                     });
                     Klarna.Payments.load(
                         {
@@ -36,7 +47,7 @@
                                     const request = {
                                     method: 'PUT',
                                     headers: {
-                                        Authorization: 'Bearer [object Promise]',
+                                        Authorization: 'Bearer ${strapiCreds}',
                                         'Content-Type': 'application/json'
                                     },
                                     body: JSON.stringify({
@@ -47,7 +58,7 @@
                                     })
                                     };
                                     console.debug(request)
-                                    const response = await fetch('http://localhost:1337/api/orders/1', request);
+                                    const response = await fetch('http://localhost:1337/api/orders/${strapiOrderNo}', request);
                                     
                                     console.debug(response);
                                 };
@@ -60,4 +71,16 @@
             </script>
         </body>
         </html>
-    
+    `;
+  
+    return htmlContent;
+    // // Write the HTML content to a file
+    // fs.writeFile('../../public/klarna_widget.html', htmlContent, (err) => {
+    //     if (err) throw err;
+    //     console.log('HTML file created successfully');
+    //     // Open the HTML file using opn
+    //     opn('../../public/klarna_widget.html');
+    // });
+  }
+
+  module.exports = {createHTMLPageWithToken}
