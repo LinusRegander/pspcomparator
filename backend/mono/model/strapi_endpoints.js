@@ -97,7 +97,7 @@ async function findOne(id, strapiType, strapiCreds) {
  * 
  * @throws {Error} If there is an error fetching the items or the request fails.
  */
-async function findAll(type,filter, strapiCreds) {
+async function findAll(type, filter, strapiCreds) {
     let filterString = '';
     if (filter.attribute) {
         filterString = `&filters[${filter.attribute}]=${filter.query}`;
