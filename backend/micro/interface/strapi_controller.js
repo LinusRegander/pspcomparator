@@ -5,6 +5,24 @@ const interface = require('./interface2');
 
 require('dotenv').config({path: '../../.env'});
 
+const pluralEndpoint = {
+    Item: 'items',
+    Order: 'orders',
+    Payment: 'payments',
+    Stock: 'stocks',
+    User: 'users',
+    Address: 'addresses' 
+}
+
+const singularEndpoint = {
+    Item: 'item',
+    Order: 'order',
+    Payment: 'payment',
+    Stock: 'stock',
+    User: 'user',
+    Address: 'address' 
+}
+
 //store login token for current logged in user in a header
 let userToken = null;
 
@@ -124,8 +142,10 @@ async function findAllType(type, user) {
             filter.query = user.id;
         }
         //call endpoint for given type
-        let results = await axios.get(`${strapiServiceURL}/findall/${type}/${filter}`, {
-            headers: makeHeaders(userToken)
+        let results = await axios.get(`${strapiServiceURL}/findall/${pluralEndpoint[type]}/${filter}`, {
+            headers: {
+                token: userToken
+            }
         });
         return results.data;
     } catch (err) {
@@ -139,7 +159,9 @@ async function findAllType(type, user) {
 async function me() {
     try {        
         let result = await axios.get(`${strapiServiceURL}/me`, {
-            headers: makeHeaders(userToken)
+            headers: {
+                token: userToken
+            }
         });
         console.log("me result id: ", result.data.id)
         return result.data;
@@ -205,14 +227,15 @@ async function loginUser() {
     try {
         let username = await interface.getInfo('Username');
         let password = await interface.getInfo('Password');
-        let result = await axios.post(`${strapiServiceURL}/login`, {
-            body: {
+        console.log(username, " wants to log in");
+        let result = await axios.post(`${strapiServiceURL}/login`, 
+            {
                 identifier: username,
                 password: password
             }
-        });
+        );
         console.log(result.data)
-        userToken = result.data.strapiToken;
+        userToken = result.data;
         return userToken;
     } catch (err) {
         console.error(err);

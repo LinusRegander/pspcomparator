@@ -67,13 +67,14 @@ const PORT = process.env.STRAPI_SERVER_PORT || 3001;
         this.app.get('/api/strapi/findall/:endpoint/:filter?', async (req, res) => {
             try {
                 const { endpoint, filter = null } = req.params;
+                const { token } = req.headers;
                 let query = null;
                 //if there's a filter present, get it's query value
                 if (filter) {
                     query = req.query[filter];
                 }
                 //call method in controller to fetch all objects
-                const result = await controller.findAll(endpoint, filter, query);
+                const result = await controller.findAll(endpoint, filter, query, token);
                 res.json(result);
             } catch (err) {
                 res.status(500).json({ error: err.message });
@@ -85,6 +86,7 @@ const PORT = process.env.STRAPI_SERVER_PORT || 3001;
         this.app.get('/api/strapi/me', async (req, res) => {
           try {
               const { token } = req.headers;
+              console.log("getting me for token", token)
               //call method in controller to fetch users details
               const result = await controller.me(token);
               res.json(result);
@@ -109,6 +111,8 @@ const PORT = process.env.STRAPI_SERVER_PORT || 3001;
         this.app.post('/api/strapi/login', async (req, res) => {
             try {
                 const {identifier, password } = req.body;
+                console.log(req.body)
+                console.log("logging in: ", identifier);
                 const strapiToken = await controller.login(identifier, password);
                 res.json(strapiToken);
             } catch (err) {

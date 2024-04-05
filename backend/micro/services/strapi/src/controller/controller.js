@@ -47,14 +47,16 @@ class StrapiController {
         }
     }
 
-    async findAll(endpoint, filter, query) {
+    async findAll(endpoint, filter, query, token) {
         try {
             let filterString = '';
             if (filter && query) {
                 filterString = `&filters[${filter}]=${query}`;
                 console.log('filter string;', filterString);
             }
-            const res = await axios.get(strapiURL + endpoint + '/?populate=*' + filterString);
+            const headers = await auth.getHeaders(token);
+
+            const res = await axios.get(strapiURL + endpoint + '/?populate=*' + filterString, {headers});
             return res.data;
         } catch (err) {
             console.log(err);
@@ -76,7 +78,7 @@ class StrapiController {
             const identifiers = [];
             let contentType = singularEndpoint[type];
             let res = null;
-
+            //TODO add headers for authentication
             if (type === 'User') {
                 //if getting structure for user creation
                 res = await axios.get(strapiStructureURL + `admin::${contentType}`);
