@@ -1,185 +1,113 @@
-const widgetBuilder = require('../view/widgetbuilder');
 const auth = require('../model/auth');
-const klarna = require('../model/klarna_endpoints');
-const endpoint = require('../model/endpoints');
-const interface = require('../view/interface');
-require('dotenv');
+const widgetBuilder = require('../view/widget_builder');
+const klarnaEndpoints = require('../model/klarna_endpoints');
+const klarnaTestOrder = require('./test_data/klarna_test_order');
+require('dotenv').config({path: '../../.env'});
 
-const orderInfoText = 'Select the ID of the order you want to create a transaction for';
-const username = 'PK250364_e8c5dc522820';
-const password = 'IEW5fYfsXOx9Nu32';
+const username = process.env.KLARNA_USERNAME;
+const password = process.env.KLARNA_PASSWORD;
 
+//global varable for storing session details (in case of bug/UIbreak)
 let sessionInfo = {
   sessionId: "",
   clientToken: ""
 };
 
-const order = {
-  "order_amount": 100,
-  "order_lines": [
-    {
-      "name": "Ikea stol",
-      "quantity": 1,
-      "total_amount": 100,
-      "unit_price": 100
-    }
-  ],
-  "purchase_country": "SE",
-  "purchase_currency": "SEK"
-}
-
-let orderTest = {
-  order_amount: null,
-  order_lines: [
-    {
-      name: null,
-      quantity: null,
-      total_amount: null,
-      unit_price: null
-    }
-  ],
-  purchase_country: null,
-  purchase_currency: null
-}
-/*
-const orderTemplate = {
-  "order_amount": getInfo(),
-  "order_lines": [
-    {
-      "name": item.name,
-      "quantity": stock.amount,
-      "total_amount": stock.total,
-      "unit_price": item.price
-    }
-  ],
-  "purchase_country": address.countryCode,
-  "purchase_currency": countryCode[country]
-}
-*/
-
+/**
+ * Gets login token from auth using username and password in .env
+ * @returns base64 credential-string
+ */
 async function authenticate() {
   try {
-    return await auth.getEncodedCredentials(username, password);
+    return auth.encodeCredentials(username, password);
   } catch (err) {
     console.log(err);
   }
 }
-
-async function createType(type, token, order) {
+/**
+ * Starts a session in klarna, then uses the recieved client token to create html page with klarna widget
+ * @param {string} klarnaCreds - base64 token for klarna authentication
+ * @param {string} strapiOrderID - order ID in strapi used for callback
+ * @param {object} klarnaOrder - klarna order object to be sent
+ * @param {string} strapiCreds - strapi credentials for callback (OBS can be depreciated once klarna/receive_auth endpoint in place)
+ */
+async function createSession(klarnaCreds, strapiOrderID, klarnaOrder, strapiCreds) {
   try {
-    if (!type) {
-      throw Error('Cannot find matching type');
-    }
-
-    if (!type) {
-      throw Error('User not allowed to make choice');
-    }
-    
-    let res = null;
-
-    if (type === 'Session') {
-      res = await klarna.create(type, order, token);
-      console.log(res);
-      let sessionId = res.sessionId;
-      let clientToken = res.clientToken;
-      sessionInfo = { sessionId, clientToken };
-    }
-
-    if (type === 'Order') {
-      widgetBuilder.createHTMLPageWithToken(sessionInfo.clientToken, order)
-    }
-
-    console.log(`Klarna ${type} created successfully.`, res);
+    //use order and klarna creds to create a session
+    let res = await klarnaEndpoints.createSession(klarnaOrder, klarnaCreds);
+    let sessionId = res.sessionId;
+    let clientToken = res.clientToken;
+    //save sessionId and clientToken to global object
+    sessionInfo = { sessionId, clientToken };
+    //create html page with klarna widget
+    widgetBuilder.createHTMLPageWithToken(sessionInfo.clientToken, strapiCreds, strapiOrderID);
   } catch (err) {
     console.log(err);
   }
 }
-
-async function viewType(type, token) {
+/**
+ * Once authorised, uses auth-token and order object to create an order in klarna
+ * @param {string} klarnaCreds - base64 token for klarna autShentication
+ * @param {string} klarnaAuthToken - auth token recieved from authorisation callback
+ * @param {object} klarnaOrder - klarna order object to be confirmed
+ */
+async function createOrder(klarnaCreds, klarnaAuthToken, klarnaOrder) {
   try {
-    if (!type) {
-      throw Error('Cannot find matching type');
+    let res = await klarnaEndpoints.createOrder(klarnaOrder, klarnaAuthToken, klarnaCreds);
+    console.log(`Klarna Order created successfully.`, res);
+  } catch (err) {
+    console.log(err);
+  }
+}
+/**
+ * Fetch the current klarna session, used in case of dropped connection, bugs etc
+ * @param {string} klarnaCreds - base64 token for klarna authentication
+ */
+async function viewSession(klarnaCreds) {
+  try {
+    if (!klarnaCreds) {
+      throw Error('No credentials found');
     }
-
-    if (!token) {
-      throw Error('User not allowed to make choice');
-    }
-
     let id = sessionInfo.sessionId;
-
     if (!id) {
         throw new Error('Session ID is missing. Please create a session first');
     }
-
-    let res = await klarna.view(type, id, token);
-
-    console.log(`${type}`, res);
+    let res = await klarnaEndpoints.view('session', id, klarnaCreds);
+    console.log('Session: ', res);
   } catch (err) {
     console.log(err);
   }
 }
-
-async function getOrderList() {
-  try {
-    let order = await endpoint.findAll('Order');
-    return order.data;
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-function viewList(list) {
-  try {
-    console.log(list);
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-async function makeAction(type, action, loginToken) {
+/**
+ * Switch case that chooses which method to call based on type/action chosen
+ * @param {string} type 
+ * @param {string} action - the action to be performed, create, update...
+ * @param {object} data - contextual data such as objects or tokens
+ * @param {string} strapiCreds - strapi token, temporarily needed for callback method
+ */
+async function makeAction(type, action, data, strapiCreds) {
   try {
     if (!type) {
       throw new Error('Invalid type');
     }
-
     if (!action) {
         throw new Error('Invalid command');
     }
-
-    let token = await authenticate();
-
     if (!auth) {
         throw new Error('Cannot authorize user with Klarna');
     }
-
+    let klarnaCreds = await authenticate();
     switch (action) {
-        case 'Create':
-          let list = await getOrderList();
-          viewList(list);
-          let orderId = await interface.getInfo(orderInfoText);
-          let orderInfo = await endpoint.findOne(orderId, 'Order');
-          console.log(orderInfo.data.attributes.Items.data.attributes);
-          console.log(orderInfo.data.attributes.Items.data.attributes.Name);
-          console.log(orderInfo.data.attributes.address.data);
-
-          orderTest = {
-            order_amount: 10,
-            order_lines: [
-              {
-                name: orderInfo.data.attributes.Items.data.attributes.Name,
-                quantity: null,
-                total_amount: null,
-                unit_price: null
-              }
-            ],
-            purchase_country: orderInfo.data.attributes.address.attributes.Country_Code,
-            purchase_currency: 'SEK'
-          }
-          
-          await createType(type, token, order);
+        case 'Payment': //used by buyer to start a payment with klarna
+          console.log('Creating example order and starting session with Klarna');
+          await createSession(klarnaCreds, data, klarnaTestOrder.klarnaTestOrder, strapiCreds);
           break;
-        case 'View':
-          await viewType(type, token);
+        case 'Complete': //used by seller for completing an authorised order
+          console.log('Confirming order with Klarna');
+          await createOrder(klarnaCreds, data, klarnaTestOrder.klarnaTestOrder);
+          break;
+        case 'View': //used to fetch current session details
+          await viewSession(klarnaCreds);
           break;
         default:
           break;
