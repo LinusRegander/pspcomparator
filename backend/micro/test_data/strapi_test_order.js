@@ -10,7 +10,7 @@ const orderData = {
     Buyer: 1,
     address: 1
 }
-const orderNumber = 4;
+const orderNumber = 1;
 
 module.exports = {
     orderData,

@@ -7,6 +7,7 @@ const axios = require('axios');
 
 const opn = require('opn');
 const fs = require('fs');
+const { resolve } = require('path');
 
 
 require('dotenv').config({ path: '../../.env' });
@@ -50,6 +51,31 @@ async function run() {
         // Open the HTML file using opn
         opn('../../public/klarna_widget.html');
     });
+
+    const rl = require('readline').createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
+
+    async function askUser(question) {
+        try {
+            if (!question) {
+                throw new Error('No question provided');
+            }
+        
+            return new Promise((resolve) => {
+                rl.question(question, (answer) => {
+                    resolve(answer.trim());
+                });
+            });
+        } catch (err) {
+            console.error('Error creating question text: ', err);
+            throw err;
+        }
+    }
+
+    await askUser("Press any key when authorised");
+
     //now the auth_token should be present in the strapi-order (if authorised)
     const strapiOrder = await axios.get(`http://localhost:3001/api/strapi/find/orders/${strapiOrderID}`);
     const klarnaAuthToken = strapiOrder.data.data.attributes.klarna_auth_token;''

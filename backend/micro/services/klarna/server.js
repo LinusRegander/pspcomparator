@@ -37,7 +37,7 @@ class KlarnaServer {
         /**
          * Handle request for details of an active session in klarna
          */
-        this.app.get('/api/klarna/view_session/:id', async (req, res) => {
+        this.app.post('/api/klarna/view_session/:id', async (req, res) => {
             try {
                 const { id } = req.params;
                 const { username, password } = req.body.body;
