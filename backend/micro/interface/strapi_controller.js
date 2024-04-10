@@ -115,7 +115,7 @@ async function findType(type) {
             console.log("Not a valid ID, please enter an integer ID");
             id = await interface.getInfo(`Select ${type} ID`);
         }
-        let result = await axios.get(`${strapiServiceURL}/find/${type}/${id}`, {
+        let result = await axios.get(`${strapiServiceURL}/find/${pluralEndpoint[type]}/${id}`, {
             headers: makeHeaders(userToken)
         });
         return result.data;
