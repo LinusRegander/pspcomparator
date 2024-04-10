@@ -124,7 +124,7 @@ const PORT = process.env.STRAPI_SERVER_PORT || 3001;
          * Start the server listening on given port
          */
         this.app.listen(PORT, () => {
-              console.log(`Strapi-service server is running on port ${PORT}`);
+            //   console.log(`Strapi-service server is running on port ${PORT}`);
         });
     }
 }

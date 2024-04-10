@@ -72,6 +72,7 @@ class KlarnaServer {
         this.app.get('/api/klarna/widget/:clientToken/:strapiOrderID', async (req, res) => {
             try {
                 const {clientToken, strapiOrderID } = req.params;
+                console.log (req.params);
     
                 const klarnaWidgetHtml = await controller.createWidgetHtml(clientToken, strapiOrderID);
                 res.send(klarnaWidgetHtml);
@@ -90,7 +91,7 @@ class KlarnaServer {
          * Start server on given port
          */
         this.app.listen(PORT, () => {
-            console.log(`Klarna-service Server is running on port ${PORT}`);
+            // console.log(`Klarna-service Server is running on port ${PORT}`);
         });
     }
 }

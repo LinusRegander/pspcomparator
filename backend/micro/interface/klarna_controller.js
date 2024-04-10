@@ -29,10 +29,11 @@ async function startSession(strapiOrderID, klarnaOrder) {
     //TODO adjust endpoint in server to accept a strapiOrderID so it can update with sessionID
     const klarnaSessionData = await axios.post(`${klarnaServiceURL}/start_session`, {body: klarnaSessionObject});
     const klarnaSession = klarnaSessionData.data;
+    console.log(klarnaSession.client_token);
     //save sessionId and clientToken to global object 
     //TODO check these exist before moving forward, adjust error message
-    klarnaSessionObject.sessionID = klarnaSession.sessionId;
-    klarnaSessionObject.clientToken = klarnaSession.clientToken;
+    klarnaSessionObject.sessionID = klarnaSession.session_id;
+    klarnaSessionObject.clientToken = klarnaSession.client_token;
     //get widget from klarna service
     const klarnaWidget = await axios.get(`${klarnaServiceURL}/widget/${klarnaSessionObject.clientToken}/${strapiOrderID}`);
     console.log(klarnaWidget.data);

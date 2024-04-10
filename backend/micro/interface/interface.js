@@ -47,7 +47,6 @@ async function run() {
     // Write the HTML content to a file so we can open it
     fs.writeFile('../../public/klarna_widget.html', klarnaWidget.data, (err) => {
         if (err) throw err;
-        console.log('HTML file created successfully');
         // Open the HTML file using opn
         opn('../../public/klarna_widget.html');
     });
