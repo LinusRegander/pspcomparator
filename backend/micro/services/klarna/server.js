@@ -7,7 +7,7 @@ const auth = require('./src/auth/auth');
 
 require('dotenv').config({ path: '../../.env'});
 
-const PORT = process.env.KLARNA_SERVER_PORT || 3002;
+const PORT = process.env.KLARNA_SERVER_PORT;
 /**
  * Klarna service that handles communication to klarna API
 */
@@ -32,8 +32,6 @@ class KlarnaServer {
                 res.status(500).json({ error: "couldnt read order object" });
             }
         });
-        
-
         /**
          * Handle request for details of an active session in klarna
          */
@@ -50,9 +48,7 @@ class KlarnaServer {
                 console.error(err);
             }
         });
-
-
-        /**
+        /*
          * Receive request to create order in klarna
          */
         this.app.post('/api/klarna/create_order/:authToken', async (req, res) => {
@@ -68,7 +64,9 @@ class KlarnaServer {
                 console.error(err);
             }
         });
-
+        /**
+        * Creates the widget and sends session details
+        */
         this.app.get('/api/klarna/widget/:clientToken/:strapiOrderID', async (req, res) => {
             try {
                 const {clientToken, strapiOrderID } = req.params;
@@ -83,9 +81,6 @@ class KlarnaServer {
             }
 
         })
-
-
-    
         /**
          * Start server on given port
          */

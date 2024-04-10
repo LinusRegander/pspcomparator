@@ -1,5 +1,7 @@
 const opn = require('opn');
+require('dotenv').config({path: '../../.env'});
 const fs = require('fs');
+const orderURL = process.env.STRAPI_ORDER_URL;
 
 /**
  * Builds a html page for displaying klarna widget
@@ -58,7 +60,7 @@ function createHTMLPageWithToken(klarnaClientToken, strapiCreds, strapiOrderNo) 
                                     })
                                     };
                                     console.debug(request)
-                                    const response = await fetch('http://localhost:1337/api/orders/${strapiOrderNo}', request);
+                                    const response = await fetch('${orderURL}${strapiOrderNo}', request);
                                     
                                     console.debug(response);
                                 };

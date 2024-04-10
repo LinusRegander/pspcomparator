@@ -1,8 +1,12 @@
 const axios = require('axios');
 
+require('dotenv').config({ path: '../../.env'});
+
+const klarnaURL = process.env.STRAPI_KLARNA_URL;
+
 async function createSession(order, token) {
     try {
-        const res = await axios.post(`http://localhost:1337/api/klarna/create_session`, {
+        const res = await axios.post(`${klarnaURL}create_session`, {
             order: order,
             token: token
         });
@@ -15,7 +19,7 @@ async function createSession(order, token) {
 
 async function createOrder(order, authtoken, token) {
   try {
-      const response = await axios.post('http://localhost:1337/api/klarna/create_order', {
+      const response = await axios.post(`${klarnaURL}create_order`, {
         order: order,
         authToken: authtoken,
         token: token
@@ -28,7 +32,7 @@ async function createOrder(order, authtoken, token) {
 }
 async function view(type, sessionId, token) {
   try {
-      const res = await axios.post(`http://localhost:1337/api/klarna/view_${type.toLowerCase()}`, {
+      const res = await axios.post(`${klarnaURL}view_${type.toLowerCase()}`, {
         sessionId: sessionId,
         token: token
       });

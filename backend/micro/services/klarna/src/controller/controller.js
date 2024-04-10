@@ -60,11 +60,9 @@ class KlarnaController {
     }
     async createWidgetHtml(clientToken, strapiOrderID) {
         try {
-            //TODO remove need to get strapi creds here, create auth  endpoint instead that can be sent with order
-            const identifier = 'klarnaservice';
-            const password = 'klarnapassword';
+            const identifier = process.env.KLARNA_USERNAME;
+            const password = process.env.KLARNA_PASSWORD;
             const strapiCreds = auth.getStrapiCreds(identifier, password);
-            //create widget to get authorisation from user, send result to callback url
             const widgetHtml = await widgetBuilder.createHTMLPageWithToken(clientToken, strapiCreds, strapiOrderID);
             return widgetHtml;
 

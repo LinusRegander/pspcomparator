@@ -1,5 +1,7 @@
 const axios = require('axios');
-const endpoint = 'http://localhost:1337/api/auth/local';
+require('dotenv').config({ path: '../../.env'});
+
+const endpoint = process.env.STRAPI_AUTH_LOCAL;
 
 async function getHeaders(token) {
     try {

@@ -1,7 +1,8 @@
 
 const axios = require('axios');
-const strapiServiceURL = 'http://localhost:3001/api/strapi';
+require('dotenv').config({ path: '../../.env' });
 
+const strapiServiceURL = process.env.STRAPI_SERVICE_URL;
 
 async function createAuthorization(token) {
     return {
@@ -20,7 +21,7 @@ async function createAuthorization(token) {
  */
 async function getStrapiCreds(id, pass) {
     try {
-        const res = await axios.post(strapiServiceURL + '/login', {
+        const res = await axios.post(strapiServiceURL + 'login', {
             identifier: id,
             password: pass
         });

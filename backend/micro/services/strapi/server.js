@@ -6,7 +6,7 @@ const controller = require('./src/controller/controller');
 
 require('dotenv').config({ path: '../../.env'});
 
-const PORT = process.env.STRAPI_SERVER_PORT || 3001;
+const PORT = process.env.STRAPI_SERVER_PORT;
 /**
  * Strapi service that handles communication to strapi Backend
 */
@@ -31,7 +31,6 @@ const PORT = process.env.STRAPI_SERVER_PORT || 3001;
                 res.status(500).json({ error: err.message });
             }
         });
-
         /**
          * Handle request to update object in strapi
          */
@@ -47,7 +46,6 @@ const PORT = process.env.STRAPI_SERVER_PORT || 3001;
                 res.status(500).json({ error: err.message });
             }
         });
-
         /**
          * Handle request to get an object's details from strapi
          */
@@ -105,7 +103,9 @@ const PORT = process.env.STRAPI_SERVER_PORT || 3001;
                 res.status(500).json({ error: err.message });
               }
         });
-
+        /**
+         * Gets Strapi login token
+         */
         this.app.post('/api/strapi/login', async (req, res) => {
             try {
                 const {identifier, password } = req.body;

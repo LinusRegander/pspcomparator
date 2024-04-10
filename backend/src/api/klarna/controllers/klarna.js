@@ -2,7 +2,7 @@
 const axios = require('axios');
 require('dotenv').config();
 
-const playgroundURL = process.env.KLARNA_PLAYGROUND_URL
+const playgroundURL = process.env.KLARNA_PLAYGROUND_URL;
 
 /**
  * Creates an order using Klarna API.

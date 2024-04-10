@@ -1,8 +1,8 @@
 const axios = require('axios');
 require('dotenv').config({path: '../../.env'});
 
-const strapiURL = 'http://localhost:1337/api/';
-const strapiStructureURL = 'http://localhost:1337/api/content-type-builder/content-types/';
+const strapiURL = process.env.STRAPI_API_URL;
+const strapiStructureURL = process.env.STRAPI_CONTENT_TYPE_URL;
 
 const pluralEndpoint = {
     Item: 'items',
